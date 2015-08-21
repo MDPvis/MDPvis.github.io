@@ -1,0 +1,20 @@
+{
+  "reward": [
+    {"name": "Discount",  "description":"The per-year discount", "current_value": 1, "max": 1, "min": 0, "units": "-"},
+    {"name": "Board Feet",  "description":"The number of dollars per board foot for wood", "current_value": 10, "max": 100, "min": 0, "units": "$"},
+    {"name": "Suppression Fixed Cost",  "description":"How much it costs to suppress a fire regardless of size.", "current_value": 1000, "max": 1000000, "min": 0, "units": "$"},
+    {"name": "Suppression Marginal Cost",  "description":"How much it costs per hectare of burnt land to suppress a fire.", "current_value": 500, "max": 10000, "min": 0, "units": "$"},
+    {"name": "Old Growth Value",  "description":"How much every hectare of old growth trees are valued.", "current_value": 100, "max": 100000, "min": 0, "units": "$"},
+    {"name": "Forested Mountain Bike Trail",  "description":"The number of dollars each mountain bike trail is worth.", "current_value": 10, "max": 1000, "min": 0, "units": "$"}
+  ],
+  "transition": [
+    {"name": "Number of Fires Per Year",  "description":"The total number of separate fires experiences per year.", "current_value": 1, "max": 1, "min": 1, "units": ""},
+    {"name": "Fire spread rate",  "description":"The feet per hour spread of wildfires, normalized to wind.", "current_value": 10, "max": 10, "min": 10, "units": ""}
+  ],
+  "policy": [
+    {"name": "Wind Speed",  "description":"for each kilometer per hour", "current_value": 0.8, "max": 10000, "min": -10000, "units": ""},
+    {"name": "Humidity",  "description":"for each percent relative humidity", "current_value": -0.12, "max": 10000, "min": -10000, "units": ""},
+    {"name": "Day",  "description":"for each day of the fire season", "current_value": -0.15, "max": 10000, "min": -10000, "units": ""},
+    {"name": "Constant",  "description":"the intercept", "current_value": 9, "max": 10000, "min": 10000, "units": ""}
+  ]
+}

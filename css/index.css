@@ -1,0 +1,238 @@
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.area {
+  fill: steelblue;
+}
+
+.brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
+.bar rect {
+  fill: steelblue;
+  shape-rendering: crispEdges;
+}
+
+.bar-extent rect {
+  stroke: steelblue;
+  stroke-width: 1;
+  fill: none;
+}
+
+.bar text {
+  fill: #fff;
+}
+
+#column1-wrap {
+    float: left;
+    width: 100%;
+}
+#column1 {
+    margin-right: 200px;
+}
+#column2 {
+    float: left;
+    width: 200px;
+    margin-left: -200px;
+}
+#clear {
+    clear: both;
+}
+#messages {
+  font-size: xx-large;
+}
+
+
+.axis {
+  shape-rendering: crispEdges;
+}
+
+.x.axis line {
+  stroke: #fff;
+}
+
+.x.axis .minor {
+  stroke-opacity: .5;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.fire_histogram_axis_label {
+  font-size: large;
+}
+
+.fan-chart {
+}
+
+.fan_percentile100, .fan_percentile0 {
+  fill: #feedde;
+  color: #ffffff;
+  background-color: #feedde;
+}
+
+.fan_percentile90, .fan_percentile10 {
+  fill: #fdbe85;
+  color: #ffffff;
+  background-color: #fdbe85;
+}
+
+.fan_percentile80, .fan_percentile20 {
+  fill: #fd8d3c;
+  color: #ffffff;
+  background-color: #fd8d3c;
+}
+
+.fan_percentile70, .fan_percentile30 {
+  fill: #e6550d;
+  color: #ffffff;
+  background-color: #e6550d;
+}
+
+.fan_percentile60, .fan_percentile40 {
+  fill: #a63603;
+  color: #ffffff;
+  background-color: #a63603;
+}
+
+
+.rotate {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+
+.landscape {
+  width: 560px;
+}
+
+.add_bottom_margin {
+  margin-bottom: 100px;
+}
+
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.link {
+  stroke: #999;
+  stroke-opacity: .6;
+  display: none;
+}
+
+body {
+  font: 11px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+  cursor:pointer;
+}
+
+.scatter_tooltip {
+  position: absolute;
+  width: 200px;
+  height: 28px;
+  pointer-events: none;
+}
+
+/**
+ * Rules required for the tooltip.
+ */
+#tooltip {
+  position:absolute;
+  border:1px solid #333;
+  background:#daffff;
+  padding:2px 5px 3px 1px;
+  color:#333;
+  display:inline-block;
+  font:14px Helvetica;
+}
+
+.button_value {
+  font-weight: bolder;
+  width: 80px;
+}
+
+#initial_state_count,
+#initial_state_count_shown,
+#developmental_state_count,
+#developmental_state_count_shown {
+  font-size: xx-large;
+}
+
+.canvas_key {
+  color: #ffffff;
+}
+
+.center {
+  text-align: center;
+}
+
+.glyphicon.spinning {
+    animation: spin 1s infinite linear;
+    -webkit-animation: spin2 1s infinite linear;
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+
+.line-charts .resize.e,.resize.w,.resize.nw,.resize.ne,.resize.sw,.resize.se {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke-width: 2px;
+}
+
+.state-detail {
+  cursor: help;
+}
+
+.statistics-area {
+  padding: 20px;
+}
+
+#history-buttons {
+  font-weight: bold;
+}
+
+.history-selector-icon {
+  font-size: 1.4em;
+}
+
+.comparison-warning {
+    color: #ffffff;
+    background-color: #5cb85c;
+    text-align: center;
+}

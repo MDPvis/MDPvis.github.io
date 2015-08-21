@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MDPVis</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css" />
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-xs-12">
+          <h1 class="center help-message">
+            <span class="glyphicon glyphicon-bookmark"></span>
+            MDPVis
+            <span class="glyphicon glyphicon-bookmark"></span>
+          </h1>
+          <p class="help-message">
+            This visualization allows you to explore the development of a Markovian system. The controls provide means of exploring a changing reward, transition, and policy functions towards discovering bugs and understanding the system.
+          </p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-3">
+          <h2>
+            <span class="glyphicon glyphicon-usd"></span>
+            Reward Specification
+          </h2>
+          <p class="comparison-warning" style="display:none;">Showing differences in values.</p>
+          <p class="help-message"></p>
+          <div id="reward-buttons">
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <h2>
+            <span class="glyphicon glyphicon-cog"></span>
+            Model Modifiers
+          </h2>
+          <p class="comparison-warning" style="display:none;">Showing differences in values.</p>
+          <p class="help-message"></p>
+          <div id="transition-buttons">
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <h2>
+            <span class="glyphicon glyphicon-random"></span>
+            Policy Definition
+          </h2>
+          <p class="comparison-warning" style="display:none;">Showing differences in values.</p>
+          <p class="help-message"></p>
+          <div id="policy-buttons">
+          </div>
+          <button style="display:none;" class="btn btn-lg btn-success btn-block policy-is-optimized-button" disabled>
+              <span class="glyphicon glyphicon-ok"></span>
+              Policy is Optimized
+          </button>
+          <button style="display:none;" class="btn btn-lg btn-danger btn-block optimize-policy-button">
+              <span class="glyphicon glyphicon-refresh"></span>
+              Optimize Policy
+          </button>
+          <button style="display:none;" class="btn btn-lg btn-warning btn-block policy-is-optimizing-button" disabled>
+              <span class="glyphicon glyphicon-refresh spinning"></span>
+              Policy is Optimizing...
+          </button>
+        </div>
+        <div class="col-sm-3">
+          <h2>
+            <span class="glyphicon glyphicon-list"></span>
+            Exploration History
+          </h2>
+          <p class="help-message"></p>
+          <div id="history-button-controls">
+            <button style="display:none;" class="btn btn-lg btn-success btn-block rollouts-are-current-button" disabled>
+                <span class="glyphicon glyphicon-ok"></span>
+                Rollouts are Current
+            </button>
+            <button style="display:none;" class="btn btn-lg btn-danger btn-block generate-rollouts-button">
+                <span class="glyphicon glyphicon-refresh"></span>
+                Generate Rollouts
+            </button>
+            <button class="btn btn-lg btn-warning btn-block rollouts-are-generating-button" disabled>
+                <span class="glyphicon glyphicon-refresh spinning"></span>
+                Rollouts are Generating...
+            </button>
+            <br />
+            <div id="history-buttons">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div id="messages"></div>
+        <div class="col-xs-12">
+          <h2>
+            <span class="glyphicon glyphicon-equalizer"></span>
+            Initial State Distribution
+          </h2>
+          <p class="help-message"></p>
+          <p>
+            <span class="counts displayed-state-count">0</span> displayed of <span class="counts total-state-count">0</span> rollouts.
+          </p>
+          <div class="initial-states"></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-xs-12">
+          <h2>
+            <span class="glyphicon glyphicon-indent-left"></span>
+            State Development
+          </h2>
+          <p class="help-message">
+            Percentiles:
+            <span class="fan_percentile100">&nbsp;100th&nbsp;</span> &middot;
+            <span class="fan_percentile90">&nbsp;90th&nbsp;</span> &middot;
+            <span class="fan_percentile80">&nbsp;80th&nbsp;</span> &middot;
+            <span class="fan_percentile70">&nbsp;70th&nbsp;</span> &middot;
+            <span class="fan_percentile60">&nbsp;60th&nbsp;</span>
+            <span class="glyphicon glyphicon-arrow-left"></span>
+            center
+            <span class="glyphicon glyphicon-arrow-right"></span>
+            <span class="fan_percentile40">&nbsp;40th&nbsp;</span> &middot;
+            <span class="fan_percentile30">&nbsp;30th&nbsp;</span> &middot;
+            <span class="fan_percentile20">&nbsp;20th&nbsp;</span> &middot;
+            <span class="fan_percentile10">&nbsp;10th&nbsp;</span> &middot;
+            <span class="fan_percentile0">&nbsp;&nbsp;0th&nbsp;</span>
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 line-charts">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2><span class="glyphicon glyphicon-picture"></span> State Detail </h2>
+          <p class="help-message"></p>
+        </div>
+      </div>
+      <div class="row images-row">
+        <div class="col-m-3">
+          <div class="statistics-area"></div>
+        </div>
+      </div>
+    </div><!-- /container -->
+
+    <!-- Modal -->
+    <div class="modal fade" id="warningModal" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="warningModalLabel">Warning</h4>
+          </div>
+          <div class="modal-body">
+            There is no data here. You should deselect your last filter.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/vendor/seedrandom.js"></script>
+    <script src="js/vendor/jquery.min.js"></script>
+    <script src="js/vendor/jquery-deparam.js"></script>
+    <script src="js/vendor/d3.v3.min.js"></script>
+    <script src="js/percentiles.js"></script>
+    <script src="js/index.js"></script>
+    <script src="js/charts/barchart.js"></script>
+    <script src="js/charts/fanchart.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+  </body>
+</html>

@@ -727,6 +727,13 @@ var MDPVis = {
    */
   initialize: function() {
 
+    if( document.location.host === "mdpvis.github.io" ) {
+      var localEndpoint = "http://localhost:8938";
+      console.log("This is being served by GitHub");
+      console.log("Attempting to conntect to a server " + localEndpoint + "...");
+      MDPVis.server.dataEndpoint = localEndpoint;
+    }
+
     $( ".generate-rollouts-button" ).click(function() {
       $(".generate-rollouts-button").hide();
       $(".optimize-policy-button").prop("disabled", true);

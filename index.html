@@ -158,7 +158,8 @@
       </div>
     </div><!-- /container -->
 
-    <!-- Modal -->
+    <!-- Modals -->
+    <!-- Warning Modal -->
     <div class="modal fade" id="warningModal" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -171,6 +172,119 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Server Selection Modal -->
+    <div class="modal fade" id="serverSelectionModal" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="serverSelectionModalLabel">Select a Server</h4>
+          </div>
+          <div class="modal-body">
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingOne">
+                  <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                      <span class="glyphicon glyphicon-fire" aria-hidden="true" style="color:red;"></span>
+                      Wildfire Simulator
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                  <div class="panel-body">
+                    <p>
+                    Connect to our simplified wildfire suppression simulator and optimizer. In this domain,
+                    rewards are given by tree harvest volumes and costs are incurred by spending money
+                    on wildfire suppression. Letting a wildfire burn may reduce the harvestable timber,
+                    but it will also reduce fuels on the landscape and fire suppression expenses. This is
+                    a very challenging large state MDP.
+                    </p>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"
+                      data-simulator-path="http://72.11.240.133:5000/">
+                      <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
+                      Open Connection to Simulator
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingTwo">
+                  <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                      <span class="glyphicon glyphicon-save" aria-hidden="true"> Localhost
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                  <div class="panel-body">
+                    <p>
+                      If you start a server running on your computer that supports
+                      <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS">CORS</a>,
+                      you can connect this visualization to your domain without hosting the visualization code.
+                      The server examples we include in
+                      <a href="https://github.com/MDPvis/MDPvis.github.io">MDPvis's code base</a> include CORS
+                      by default.
+                    </p>
+                    <p>
+                      <button type="button" class="btn btn-default" data-dismiss="modal"
+                        data-simulator-path="http://localhost:8938">
+                        <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
+                        Open Connection to localhost:8938
+                      </button>
+                    </p>
+                    <p>
+                      <button type="button" class="btn btn-default" data-dismiss="modal"
+                        data-simulator-path="http://localhost:8000">
+                        <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
+                        Open Connection to localhost:8000
+                      </button>
+                    </p>
+                    <p>
+                      <button type="button" class="btn btn-default" data-dismiss="modal"
+                        data-simulator-path="http://localhost:80">
+                        <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
+                        Open Connection to localhost:80
+                      </button>
+                    </p>
+                    <p>
+                      <button type="button" class="btn btn-default" data-dismiss="modal"
+                        data-simulator-path="http://localhost:3000">
+                        <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
+                        Open Connection to localhost:3000
+                      </button>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingThree">
+                  <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                      <span class="glyphicon glyphicon-plus" aria-hidden="true"> Your MDP Simulator Here
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                  <div class="panel-body">
+                    <p>
+                      If you make a server publicly accessible, please let us know so we can list it here.
+                    </p>
+                    <p>
+                      <button type="button" class="btn btn-default"
+                        data-open-link="https://github.com/MDPvis/MDPvis.github.io/issues/new?title=Add%20Simulator%20to%20List">
+                        <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span> Your Server Here
+                      </button>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

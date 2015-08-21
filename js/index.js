@@ -241,7 +241,7 @@ var MDPVis = {
             imageColumn
               .append($('<p>' + images[i][j] + '</p>'))
               .append($('<img/>', {
-                src: "/" + images[i][j],
+                src: MDPVis.server.dataEndpoint + "/" + images[i][j],
                 "class": "img-responsive",
                 "width": "1200px" // max width since it is responsive
               }));
@@ -727,13 +727,6 @@ var MDPVis = {
    */
   initialize: function() {
 
-    if( document.location.host === "mdpvis.github.io" ) {
-      var localEndpoint = "http://localhost:8938";
-      console.log("This is being served by GitHub");
-      console.log("Attempting to conntect to a server " + localEndpoint + "...");
-      MDPVis.server.dataEndpoint = localEndpoint;
-    }
-
     $( ".generate-rollouts-button" ).click(function() {
       $(".generate-rollouts-button").hide();
       $(".optimize-policy-button").prop("disabled", true);
@@ -794,10 +787,28 @@ var MDPVis = {
     } else {
       MDPVis.server.getInitialize();
     }
+  },
+
+  /**
+   * Select a simulator from a list of CORS supporting simulators
+   * in a modal window.
+   */
+  selectSimulator: function() {
+    $("button[data-open-link]").click(function(elem){
+      var openLink = elem.currentTarget.getAttribute("data-open-link");
+      window.open(openLink);
+    });
+    $("button[data-simulator-path]").click(function(elem){
+      var simulatorPath = elem.currentTarget.getAttribute("data-simulator-path");
+      MDPVis.server.dataEndpoint = simulatorPath;
+      MDPVis.initialize();
+    });
+    $('#serverSelectionModal').modal();
   }
+
 }
 
 // Don't run the app if it is in the testing environment.
 if( d3.select("#reward-buttons").node() ) {
-  document.addEventListener('DOMContentLoaded', MDPVis.initialize);
+  document.addEventListener('DOMContentLoaded', MDPVis.selectSimulator);
 }

@@ -265,8 +265,10 @@ var MDPVis = {
 
       var createButtonSection = function(ob, paramSet, appendTo) {
         ob.forEach(function(vals){
+          var units = vals["units"] + "\u00A0";
+          if ( units === "\u00A0" ) { units = "\u00A0"; } // Non breaking space
           var newElement = $('<p/>')
-          .append(document.createTextNode( vals["units"] + " " ))
+          .append(document.createTextNode( units ))
           .append($('<input/>', {
             name: vals["name"],
             "class": "button_value",

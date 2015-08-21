@@ -102,6 +102,7 @@ function FanChart(stats, name, rollouts) {
     .attr("x2", width)
     .attr("y2", y(0))
     .attr("stroke-width", 1)
+    .attr("stroke-dasharray", "5, 20")
     .attr("stroke", "black")
     .style("display", "none");
 

@@ -1,6 +1,6 @@
 # About
 
-MDPvis is a visualization designed to assist in the MDP simulation and optimization process. See the forthcoming research paper for more details, "Facilitating Testing and Debugging of Markov Decision Processes with Interactive Visualization." To play with a live version of the visualization, visit (todo).
+MDPvis is a visualization designed to assist in the MDP simulation and optimization process. See the forthcoming research paper for more details, "Facilitating Testing and Debugging of Markov Decision Processes with Interactive Visualization." To play with a live version of the visualization, visit [mdpvis.github.io/](http://mdpvis.github.io/).
 
 We built MDPvis as a web-based visualization so it would be:
 
@@ -8,11 +8,13 @@ We built MDPvis as a web-based visualization so it would be:
 * Easy to share with other people by sharing links to the visualization
 * Easy to extend with additional visualization components
 
-The remainder of this document is a guide for interfacing MDPvis with your MDP simulator and optimizer. If you don't want to serve your own instance of MDPvis, you can visit (todo) and skip to the "Bridging MDPvis and Your Domain" section below.
+The remainder of this document is a guide for interfacing MDPvis with your MDP simulator and optimizer. If you don't want to serve your own instance of MDPvis, you can visit [mdpvis.github.io/](http://mdpvis.github.io/) and skip to the "Bridging MDPvis and Your Domain" section below.
+
+![MDPvis Screen Capture](images/cover.png "MDPvis Screen Capture")
 
 # Serving MDPvis to Your Browser
 
-If you plan on making changes to MDPvis, then you should host MDPvis yourself. Otherwise, we recommend visiting (todo) and typing in the address of your MDP domain's server that you will setup in the next section.
+If you plan on making changes to MDPvis, then you should host MDPvis yourself. Otherwise, we recommend visiting [mdpvis.github.io/](http://mdpvis.github.io/).
 
 If you don't use our hosted version of the MDPvis web application, you will need to serve MDPvis. The simplest way to accomplish this is to follow these steps:
 
@@ -22,7 +24,7 @@ If you don't use our hosted version of the MDPvis web application, you will need
 4. Install a few Python libraries with `pip install -U flask-cors`.
 5. Navigate into the MDPvis directory and start the server with `python flask_server.py`
 
-At this point the server will start, but it will likely fail because the Flask server expects your MDP simulator to define a file in its code base called `domain_bridge.py`. The next (and final) helps you define this file.
+At this point the server will start, but it will likely fail because the Flask server expects your MDP simulator to define a file in its code base called `domain_bridge.py`. The next (and final) section helps you define this file.
 
 # Bridging MDPvis and Your Domain
 

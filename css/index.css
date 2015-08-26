@@ -191,6 +191,11 @@ body {
   text-align: center;
 }
 
+.center-vertically {
+  display: flex;
+  align-items: center;
+}
+
 .glyphicon.spinning {
     animation: spin 1s infinite linear;
     -webkit-animation: spin2 1s infinite linear;

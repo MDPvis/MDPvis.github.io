@@ -14,7 +14,7 @@ function FanChart(stats, name, rollouts) {
   var intersected = false;
 
   // Set the height and width from the style of the div element
-  var divWidth = $(window).width() - 100;
+  var divWidth = 10/12 * $(window).width();
   var divHeight = 250;
 
   var margin = {top: 30, right: 90, bottom: 30, left: 10},
@@ -51,9 +51,24 @@ function FanChart(stats, name, rollouts) {
     areas.push(currentArea);
   });
 
+  // Create the Bootstrap columns
   var DOMDiv = document.createElement("div");
+  var DOMRow = document.createElement("div");
+  DOMRow.setAttribute("class", "row center-vertically");
+  var DOMCol = document.createElement("div");
+  DOMCol.setAttribute("class", "col-xs-10");
+  DOMRow.appendChild(DOMCol);
 
-  var svg = d3.select(DOMDiv).append("svg")
+  // Append the title
+  var DOMCol2 = document.createElement("div");
+  DOMCol2.setAttribute("class", "col-xs-2");
+  DOMCol2.style["font-size"] = "x-large";
+  DOMCol2.textContent = name;
+  DOMRow.appendChild(DOMCol2);
+
+  DOMDiv.appendChild(DOMRow);
+
+  var svg = d3.select(DOMCol).append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .attr("class", "fan-chart")
@@ -86,12 +101,6 @@ function FanChart(stats, name, rollouts) {
       .attr("class", "y axis")
       .attr("transform", "translate(" + (divWidth - margin.right - margin.left) + "," + 0 + ")")
       .call(yAxis);
-  yAxisG.append("text")
-      .attr("y", -6)
-      .attr("x", -300)
-      .attr("dy", ".71em")
-      .style("font-size", "x-large")
-      .text(name);
 
   var lineColor = d3.scale.category20();
 

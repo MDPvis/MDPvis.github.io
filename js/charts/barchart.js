@@ -346,9 +346,8 @@ function BarChart (name, units, rollouts, accessor) {
     var newMax = newExtent[1];
     var newMin = newExtent[0];
 
-    var functionallyBrushed = (extent[0] < newMin || extent[1] > newMax);
     var notEmpty = (newMax !== newMin);
-    if(functionallyBrushed && notEmpty) {
+    if(notEmpty) {
       brush.extent(newExtent);
       brush(gBrush.transition().duration(1000));
     } else {

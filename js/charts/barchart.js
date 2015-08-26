@@ -56,8 +56,24 @@ function BarChart (name, units, rollouts, accessor) {
   var y = d3.scale.linear()
       .domain([0, rollouts.length])
       .range([height, 0]);
+  var xAxisFormat = d3.format("1r");
+  var numTicks = 10;
+  if( extent[1] > 99 || extent[0] < -9 ) {
+    numTicks = 8;
+  }
+  if( extent[1] > 999 || extent[0] < -99 ) {
+    numTicks = 5;
+  }
+  if( extent[1] > 9999 || extent[0] < -999 ) {
+    numTicks = 3;
+  }
+  if( extent[1] > 99999 || extent[0] < -9999 ) {
+    xAxisFormat = d3.format("e");
+    numTicks = 3;
+  }
   var xAxis = d3.svg.axis()
-      .tickFormat(d3.format("1r"))
+      .tickFormat(xAxisFormat)
+      .ticks(numTicks)
       .scale(x)
       .orient("bottom");
 

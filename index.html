@@ -18,7 +18,40 @@
     <![endif]-->
   </head>
   <body>
-    
+
+    <!-- Contextual panel that appears after hovering a chart. See context_panel.js -->
+    <div class="context-panel" style="position:absolute;z-index:1;display:none">
+      <div class="context-panel-panel panel panel-primary">
+        <div class="minimized-context-panel" style="display:none">
+          &nbsp;
+          <button type="button" class="close maximize-context-panel" aria-label="Expand">
+            <span aria-hidden="true" class="glyphicon glyphicon-chevron-right"></span>
+          </button>
+          &nbsp;
+        </div>
+        <div class="maximized-context-panel">
+          <div class="row">
+            <div class="col-lg-3">
+              <button type="button" class="btn btn-sm btn-warning remove-brush">
+                Remove Brush
+              </button>
+            </div>
+            <div class="col-lg-4">
+              <p class="context-panel-text"></p>
+            </div>
+            <div class="col-lg-4">
+              <p class="context-panel-stats"></p>
+            </div>
+            <div class="col-lg-1">
+              <button type="button" class="close minimize-context-panel" aria-label="Close">
+                <span aria-hidden="true" class="glyphicon glyphicon-chevron-left"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="container-fluid">
       <div class="row">
         <div class="col-xs-12">
@@ -314,5 +347,6 @@
     <script src="js/charts/barchart.js"></script>
     <script src="js/charts/fanchart.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="js/context_panel.js"></script>
   </body>
 </html>

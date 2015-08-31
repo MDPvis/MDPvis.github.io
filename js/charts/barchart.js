@@ -6,6 +6,9 @@ function BarChart (name, units, rollouts, accessor) {
   // The number of bins in the histogram
   var numBins = 10;
 
+  // Reference for closures
+  var that = this;
+
   // Set the margins if they have not been assigned
   var margin = {top: 10, right: 30, bottom: 50, left: 60};
 
@@ -80,6 +83,24 @@ function BarChart (name, units, rollouts, accessor) {
   var DOMDiv = document.createElement("div");
   DOMDiv.style.float = "left";
 
+  // Show the context panel when this is hovered
+  function updateContextPanel() {
+    if(brush.empty()) {
+      contextPanel.updatePanelText("No active brushes.");
+      contextPanel.dissableBrushButton();
+    } else {
+      var extent = brush.extent();
+      if( extent[1] > 1 ) {
+        extent[0] = extent[0].toFixed(2);
+        extent[1] = extent[1].toFixed(2);
+      }
+      contextPanel.updatePanelText("Brush: [" + extent[0] + ", " + extent[1] + "]");
+      contextPanel.enableBrushButton()
+    }
+    contextPanel.showPanel(that);
+  }
+  $(DOMDiv).mouseenter(updateContextPanel);
+
   // Create the svg element, this should not change in response to changing data.
   var svg = d3.select(DOMDiv).append("svg")
       .attr("width", width + margin.left + margin.right)
@@ -129,13 +150,33 @@ function BarChart (name, units, rollouts, accessor) {
 
   // Brush applied to top histograms
   var brushEnd = function() {
-    MDPVis.brush.brushInitial(name, brush.extent());
+    var extent = brush.extent();
+    if( extent[0] === extent[1] ) {
+      that.removeBrush();
+    } else {
+      MDPVis.brush.brushInitial(name, brush.extent());
+    }
+    updateContextPanel();
+  }
+  var brushDrag = function() {
+    var extent = brush.extent();
+    if( extent[1] > 1 ) {
+      extent[0] = extent[0].toFixed(2);
+      extent[1] = extent[1].toFixed(2);
+    }
+    contextPanel.updatePanelText("Brush: [" + extent[0] + ", " + extent[1] + "]");
+  }
+  this.removeBrush = function() {
+    brush.clear();
+    MDPVis.brush.brushInitial(name, [0,0]);
+    updateContextPanel();
   }
 
   // Brush controls
   var brush = d3.svg.brush()
       .x(x)
-      .on("brushend", brushEnd);
+      .on("brushend", brushEnd)
+      .on("brush", brushDrag);
   var gBrush = svg.append("g")
       .attr("class", "brush")
       .call(brush);

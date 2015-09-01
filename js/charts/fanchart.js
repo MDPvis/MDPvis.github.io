@@ -6,6 +6,8 @@
  */
 function FanChart(stats, name, rollouts) {
 
+  TemporalChart.call(this);
+
   // Which Percentiles should be plotted.
   var percentilesToPlot = [100, 90, 80, 70, 60];
 
@@ -55,7 +57,7 @@ function FanChart(stats, name, rollouts) {
   });
 
   // Create the Bootstrap columns
-  var DOMDiv = document.createElement("div");
+  var DOMDiv = this.getDOMNode();
   var DOMRow = document.createElement("div");
   DOMRow.setAttribute("class", "row center-vertically");
   var DOMCol = document.createElement("div");
@@ -232,32 +234,6 @@ function FanChart(stats, name, rollouts) {
 
   };
 
-  this.getDOMNode = function() {
-    return DOMDiv;
-  }
-
-  // Show the context panel when this is hovered
-  var updateContextPanel = function() {
-    var extent = brush.extent();
-    if(extent[0][0] === defaultExtent[0][0] &&
-      extent[0][1] === defaultExtent[0][1] &&
-      extent[1][0] === defaultExtent[1][0] &&
-      extent[1][1] === defaultExtent[1][1]) {
-      contextPanel.updatePanelText("No active brushes.");
-      contextPanel.dissableBrushButton();
-    } else {
-      if( extent[1][1] > 1 ) {
-        extent[1][0] = extent[1][0].toFixed(2);
-        extent[1][1] = extent[1][1].toFixed(2);
-      }
-      var eventNumber = Math.floor(extent[0][0]);
-      contextPanel.updatePanelText("Event: " + eventNumber + ", [" + extent[1][0] + ", " + extent[1][1] + "]");
-      contextPanel.enableBrushButton()
-    }
-    contextPanel.showPanel(that);
-  }
-  $(DOMDiv).mouseenter(updateContextPanel);
-
   //
   // Section for brushes
   //
@@ -271,32 +247,32 @@ function FanChart(stats, name, rollouts) {
    */
   var brushEnd = function() {
     if (d3.event && !d3.event.sourceEvent) return; // only transition after input
-    var newExtent = brush.extent();
+    var newExtent = that.brush.extent();
     MDPVis.brush.brushFan(name, newExtent);
 
-    if( brush.empty() ) {
-      brush.extent(defaultExtent);
-      brush(brushG.transition().duration(1000));
+    if( that.brush.empty() ) {
+      that.brush.extent(defaultExtent);
+      that.brush(brushG.transition().duration(1000));
     }
   }
   this.removeBrush = function() {
-    brush.extent(defaultExtent);
+    that.brush.extent(defaultExtent);
     brushEnd();
-    updateContextPanel();
+    that.updateContextPanel();
   }
 
   var defaultExtent = [[0, domainMin], [.5, domainMax]];//[[x0,y0],[x1,y1]]
-  var brush = d3.svg.brush()
+  that.brush = d3.svg.brush()
       .x(x)
       .y(y)
       .extent(defaultExtent)
       .on("brushend", brushEnd)
-      .on("brush", updateContextPanel);
+      .on("brush", this.updateContextPanel);
 
   var brushG = svg.append("g")
       .attr("class", "brush")
-      .call(brush)
-      .call(brush.event);
+      .call(that.brush)
+      .call(that.brush.event);
 
   /**
    * Update the initial state brush as it is rendered on the fan chart.
@@ -326,9 +302,9 @@ function FanChart(stats, name, rollouts) {
     }
 
     var newExtent = [[left, bottom], [right, top]];
-    brush.extent(newExtent);
+    that.brush.extent(newExtent);
 
-    brush(brushG.transition().duration(1000));
+    that.brush(brushG.transition().duration(1000));
     //brushG.call(brush.event);
   }
 

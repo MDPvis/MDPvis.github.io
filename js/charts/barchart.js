@@ -3,6 +3,8 @@
  */
 function BarChart (name, units, rollouts, accessor) {
 
+  DistributionChart.call(this);
+
   // The number of bins in the histogram
   var numBins = 10;
 
@@ -80,26 +82,7 @@ function BarChart (name, units, rollouts, accessor) {
       .scale(x)
       .orient("bottom");
 
-  var DOMDiv = document.createElement("div");
-  DOMDiv.style.float = "left";
-
-  // Show the context panel when this is hovered
-  function updateContextPanel() {
-    if(brush.empty()) {
-      contextPanel.updatePanelText("No active brushes.");
-      contextPanel.dissableBrushButton();
-    } else {
-      var extent = brush.extent();
-      if( extent[1] > 1 ) {
-        extent[0] = extent[0].toFixed(2);
-        extent[1] = extent[1].toFixed(2);
-      }
-      contextPanel.updatePanelText("Brush: [" + extent[0] + ", " + extent[1] + "]");
-      contextPanel.enableBrushButton()
-    }
-    contextPanel.showPanel(that);
-  }
-  $(DOMDiv).mouseenter(updateContextPanel);
+  var DOMDiv = this.getDOMNode();
 
   // Create the svg element, this should not change in response to changing data.
   var svg = d3.select(DOMDiv).append("svg")
@@ -150,16 +133,16 @@ function BarChart (name, units, rollouts, accessor) {
 
   // Brush applied to top histograms
   var brushEnd = function() {
-    var extent = brush.extent();
+    var extent = that.brush.extent();
     if( extent[0] === extent[1] ) {
       that.removeBrush();
     } else {
-      MDPVis.brush.brushInitial(name, brush.extent());
+      MDPVis.brush.brushInitial(name, that.brush.extent());
     }
-    updateContextPanel();
+    that.updateContextPanel();
   }
   var brushDrag = function() {
-    var extent = brush.extent();
+    var extent = that.brush.extent();
     if( extent[1] > 1 ) {
       extent[0] = extent[0].toFixed(2);
       extent[1] = extent[1].toFixed(2);
@@ -167,19 +150,19 @@ function BarChart (name, units, rollouts, accessor) {
     contextPanel.updatePanelText("Brush: [" + extent[0] + ", " + extent[1] + "]");
   }
   this.removeBrush = function() {
-    brush.clear();
+    that.brush.clear();
     MDPVis.brush.brushInitial(name, [0,0]);
-    updateContextPanel();
+    that.updateContextPanel();
   }
 
   // Brush controls
-  var brush = d3.svg.brush()
+  that.brush = d3.svg.brush()
       .x(x)
       .on("brushend", brushEnd)
       .on("brush", brushDrag);
   var gBrush = svg.append("g")
       .attr("class", "brush")
-      .call(brush);
+      .call(that.brush);
   gBrush.selectAll("rect")
       .attr("height", height);
 
@@ -192,10 +175,6 @@ function BarChart (name, units, rollouts, accessor) {
     .attr("stroke-width", 1)
     .attr("stroke", "black")
     .style("display", "none");
-
-  this.getDOMNode = function() {
-    return DOMDiv;
-  };
 
   // a set of functions for supporting brushing
   var yAxis = d3.svg.axis()
@@ -389,11 +368,11 @@ function BarChart (name, units, rollouts, accessor) {
 
     var notEmpty = (newMax !== newMin);
     if(notEmpty) {
-      brush.extent(newExtent);
-      brush(gBrush.transition().duration(1000));
+      that.brush.extent(newExtent);
+      that.brush(gBrush.transition().duration(1000));
     } else {
-      brush.clear();
-      brush(gBrush.transition().duration(1000));
+      that.brush.clear();
+      that.brush(gBrush.transition().duration(1000));
     }
   };
 

@@ -460,13 +460,13 @@ var MDPVis = {
   brush: {
 
     /**
-     * A histogram's brush has changed.
-     * This will update the corresponding brush in the fan chart and the
-     * rollouts being filtered.
+     * A distribution chart's brush has changed.
+     * This will update the corresponding brush in the other charts and the
+     * rollouts will be filtered.
      * @param {string} name The name of the variable being brushed.
      * @param {array} extent The extent of the current brush.
      */
-    brushInitial: function(name, extent) {
+    brushDistributionChart: function(name, extent) {
 
       // Remove filter if it was removed
       if( extent[0] === extent[1] ) {
@@ -489,11 +489,11 @@ var MDPVis = {
     },
 
     /**
-     * Brush the visualization for a change in the fan chart's brush.
+     * Brush the visualization for a change in a temporal chart's brush.
      * @param {string} name The name of the variable being brushed.
      * @param {array} extent The extent of the current brush.
      */
-    brushFan: function(name, extent) {
+    brushTemporalChart: function(name, extent) {
 
       var newMax = extent[1][1];
       var newMin = extent[0][1];
@@ -508,7 +508,7 @@ var MDPVis = {
       var eventNumberChange = data.filters.filteredTimePeriod !==  eventNumber &&
         extent[0][0] !== extent[1][0];
       if ( eventNumberChange ) {
-        data.filters.filteredTimePeriod = eventNumber;
+        data.filters.changeFilteredTimePeriod(eventNumber);
       } else if( filteredValueChange ){
         data.filters.addFilter(name, [newMin, newMax]);
       } else {
@@ -553,14 +553,13 @@ var MDPVis = {
         }
       }
       for( variableName in MDPVis.charts.temporalCharts ){
+        eventDepth = data.filters.filteredTimePeriod;
         if( data.filters.activeFilters[variableName] !== undefined ) {
-          eventDepth = data.filters.filteredTimePeriod;
           var yExtent = data.filters.activeFilters[variableName];
           extent = [[eventDepth, yExtent[0]],[eventDepth + .5, yExtent[1]]];
           MDPVis.charts.temporalCharts[variableName].updateBrush(extent);
         } else {
           // Reset the brush
-          eventDepth = data.filters.filteredTimePeriod;
           extent = [[eventDepth, 0], [eventDepth + .5, 0]];
           MDPVis.charts.temporalCharts[variableName].updateBrush(extent);
         }

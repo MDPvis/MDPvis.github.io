@@ -159,7 +159,7 @@ function FanChart(stats, name, rollouts) {
       xAxisG.transition().duration(1000).call(xAxis);
 
       // Update the brushes for the new scale
-      if( MDPVis.filters.starting[name] === undefined ) {
+      if( data.filters.activeFilters[name] === undefined ) {
         defaultExtent[0][1] = domainMax;
         defaultExtent[1][1] = domainMin;
       }
@@ -248,7 +248,7 @@ function FanChart(stats, name, rollouts) {
   var brushEnd = function() {
     if (d3.event && !d3.event.sourceEvent) return; // only transition after input
     var newExtent = that.brush.extent();
-    MDPVis.brush.brushFan(name, newExtent);
+    MDPVis.brush.brushTemporalChart(name, newExtent);
 
     if( that.brush.empty() ) {
       that.brush.extent(defaultExtent);

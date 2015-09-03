@@ -23,6 +23,22 @@ var data = {
     statistics: {}, // The statistics for the current data
 
     /**
+     * Update the event number filters are applied to and update the data and statistics.
+     * @param {int} eventNumber The event number we are going to filter.
+     */
+    changeFilteredTimePeriod: function(eventNumber) {
+
+      data.filters.filteredTimePeriod = eventNumber;
+
+      // Filter the active rollouts
+      data.filters.assignActiveRollouts(data.filters.currentRollouts);
+
+      // Recompute the statistics
+      var stats = data.computeStatistics(data.filters.activeRollouts);
+      data.filters.statistics = stats;
+    },
+
+    /**
      * Update a filter and update the data and statistics.
      * @param {string} name The name of the variable whose filter
      * we are updating.

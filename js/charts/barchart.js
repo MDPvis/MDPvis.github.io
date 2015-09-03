@@ -137,7 +137,7 @@ function BarChart (name, units, rollouts, accessor) {
     if( extent[0] === extent[1] ) {
       that.removeBrush();
     } else {
-      MDPVis.brush.brushInitial(name, that.brush.extent());
+      MDPVis.brush.brushDistributionChart(name, that.brush.extent());
     }
     that.updateContextPanel();
   }
@@ -151,7 +151,7 @@ function BarChart (name, units, rollouts, accessor) {
   }
   this.removeBrush = function() {
     that.brush.clear();
-    MDPVis.brush.brushInitial(name, [0,0]);
+    MDPVis.brush.brushDistributionChart(name, [0,0]);
     that.updateContextPanel();
   }
 

@@ -69,6 +69,7 @@ var MDPVis = {
         data: q
       })
       .done(function(response){
+        $(".post-getrollouts-show").show();
         $(".generate-rollouts-button").hide();
         $(".optimize-policy-button").prop("disabled", false);
         $(".rollouts-are-current-button").hide();
@@ -694,6 +695,7 @@ var MDPVis = {
       window.open(openLink);
     });
     $("button[data-simulator-path]").click(function(elem){
+      $(".post-modal-show").show();
       var simulatorPath = elem.currentTarget.getAttribute("data-simulator-path");
       MDPVis.server.dataEndpoint = simulatorPath;
       MDPVis.initialize();

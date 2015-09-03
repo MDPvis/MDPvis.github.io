@@ -52,7 +52,7 @@
       </div>
     </div>
 
-    <div class="container-fluid">
+    <div class="container-fluid post-modal-show" style="display:none;">
       <div class="row">
         <div class="col-xs-12">
           <h1 class="center help-message">
@@ -135,7 +135,7 @@
         </div>
       </div>
 
-      <div class="row">
+      <div class="row post-getrollouts-show" style="display:none;">
         <div id="messages"></div>
         <div class="col-xs-12">
           <h2>
@@ -150,7 +150,7 @@
         </div>
       </div>
 
-      <div class="row">
+      <div class="row post-getrollouts-show" style="display:none;">
         <div class="col-xs-12">
           <h2>
             <span class="glyphicon glyphicon-indent-left"></span>
@@ -174,19 +174,23 @@
           </p>
         </div>
       </div>
-      <div class="row">
+      <div class="row post-getrollouts-show" style="display:none;">
         <div class="col-xs-12 line-charts">
         </div>
       </div>
-      <div class="row">
+      <div class="row post-getrollouts-show" style="display:none;">
         <div class="col-xs-12">
           <h2><span class="glyphicon glyphicon-picture"></span> State Detail </h2>
           <p class="help-message"></p>
         </div>
       </div>
-      <div class="row images-row">
+      <div class="row images-row post-getrollouts-show" style="display:none;">
         <div class="col-m-3">
-          <div class="statistics-area"></div>
+          <div class="statistics-area">
+            Filter the rollouts until individual lines appear in the fan chart,
+            then click a line to show visualizations specific to the current
+            domain.
+          </div>
         </div>
       </div>
     </div><!-- /container -->
@@ -211,7 +215,11 @@
     </div>
 
     <!-- Server Selection Modal -->
-    <div class="modal fade" id="serverSelectionModal" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel" aria-hidden="true">
+    <div class="modal fade" id="serverSelectionModal"
+      data-backdrop="static" data-keyboard="false"
+      tabindex="-1" role="dialog"
+      aria-labelledby="warningModalLabel"
+      aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -219,7 +227,7 @@
               data-simulator-path="http://72.11.240.133:5000/">
               <span aria-hidden="true">&times;</span>
             </button>
-            <h4 class="modal-title" id="serverSelectionModalLabel">Select a Server</h4>
+            <h4 class="modal-title" id="serverSelectionModalLabel">MDPvis: Select a Server</h4>
           </div>
           <div class="modal-body">
             <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
@@ -332,7 +340,15 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div><!-- /panel-group -->
+            <p class="text-center">
+              <a href="https://github.com/MDPvis/MDPvis.github.io">About</a> &middot;
+              <a href="https://github.com/MDPvis/MDPvis.github.io">Fork Me on GitHub</a> &middot;
+              <a href="mailto:mailto:mdpvis.implementation@seanbmcgregor.com?Subject=Seeking%20Information%20about%20MDPvis&Body=Greetings%20Sean%2C%0A%0A%28%28%28don%27t%20hesitate%20to%20contact%20me%29%29%29%0A%0AI%20was%20using%20MDPvis%20and%20have%20the%20following%20question/comment%3A%0A%0A%28%28%28PLEASE%20ENTER%20INFORMATION%20HERE%29%29%29"
+              target="_blank">
+                Get Help
+              </a>
+            </p>
           </div>
         </div>
       </div>

@@ -81,7 +81,7 @@ function FanChart(stats, name, rollouts) {
       .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  x.domain([0, stats.length - 1]);
+  x.domain([0, stats.length]);
   var domainMax = d3.max(stats, function(d){return d["percentile100"]});
   var domainMin = d3.min(stats, function(d){return d["percentile0"]});
   domainMax = Math.ceil(domainMax);
@@ -147,14 +147,14 @@ function FanChart(stats, name, rollouts) {
 
     var newDomainMax = d3.max(percentiles, function(d){return d["percentile100"]});
     var newDomainMin = d3.min(percentiles, function(d){return d["percentile0"]});
-    var rescale = x.domain()[1] !== percentiles.length - 1;
+    var rescale = x.domain()[1] !== percentiles.length;
 
     if ( rescale || intersected || isNewData ) {
       intersected = false;
       domainMax = newDomainMax;
       domainMin = newDomainMin;
       rescaleYAxis(newDomainMin, newDomainMax);
-      x.domain([0, percentiles.length - 1]);
+      x.domain([0, percentiles.length]);
       xAxis.scale(x);
 
       xAxisG.transition().duration(1000).call(xAxis);
@@ -196,7 +196,7 @@ function FanChart(stats, name, rollouts) {
     newDomainMax = Math.max(newDomainMax, d3.max(comparatorPercentiles, function(d){return d["percentile100"]}));
     var newDomainMin = d3.min(basePercentiles, function(d){return d["percentile0"]});
     newDomainMin = Math.min(newDomainMin, d3.min(comparatorPercentiles, function(d){return d["percentile0"]}));
-    var newScale = Math.max(basePercentiles.length - 1, comparatorPercentiles.length - 1);
+    var newScale = Math.max(basePercentiles.length, comparatorPercentiles.length);
     var rescale = x.domain()[1] !== newScale;
 
     if( rescale ) {

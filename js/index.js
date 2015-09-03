@@ -394,8 +394,14 @@ var MDPVis = {
      * Render the newly returned rollouts to the visualization.
      * @param {object} rollouts The rollouts object.
      * @param {object} statistics The statistics computed for the selected rollouts.
+     * @param {boolean} rescale optional parameter indicating whether temporal charts should be rescaled.
      */
-    renderRollouts: function(rollouts, statistics) {
+    renderRollouts: function(rollouts, statistics, rescale) {
+
+      // Default to rescaling axes
+      if( typeof rescale !== "boolean" ) {
+        rescale = true;
+      }
 
       // If we have charts to update, else create all the things
       if ( Object.keys(MDPVis.charts.distributionCharts).length > 0 ) {
@@ -403,7 +409,7 @@ var MDPVis = {
           MDPVis.charts.distributionCharts[variableName].updateData(rollouts,
             MDPVis.render._createInitialStateAccessor(variableName, data.filters.filteredTimePeriod));
         }
-        MDPVis.render.rendertemporalCharts(rollouts, statistics, true);
+        MDPVis.render.rendertemporalCharts(rollouts, statistics, rescale);
       } else {
         for( var variableName in rollouts[0][0] ){
           var barChart = new BarChart(
@@ -526,8 +532,7 @@ var MDPVis = {
       // otherwise just brush the initial histograms and render the fan charts
       var stats = data.filters.statistics;
       if( eventNumberChange ) {
-        MDPVis.render.renderRollouts(data.filters.currentRollouts, stats);
-        MDPVis.render.rendertemporalCharts(data.filters.activeRollouts, stats, false);
+        MDPVis.render.renderRollouts(data.filters.currentRollouts, stats, false);
       } else if( filteredValueChange || filteredValueRemoved ) {
 
         // Redraw each of the initial histograms

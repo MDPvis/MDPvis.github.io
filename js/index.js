@@ -210,6 +210,7 @@ var MDPVis = {
             name: vals["name"],
             "class": "button_value",
             type: "number",
+            "data-autosize-input": '{ "space": 15 }',
             "data-min": vals["min"], // Used to restore state later
             min: vals["min"],
             "data-max": vals["max"], // Used to restore state later
@@ -224,6 +225,7 @@ var MDPVis = {
           .append(document.createTextNode(": " + vals["description"]));
           appendTo.append(newElement);
         });
+        $("input").autosizeInput(); // Grow/shrink the input for the contents
       }
 
       for( key in init ) {

@@ -251,8 +251,6 @@ var MDPVis = {
      */
     _addToHistory: function(rollout, statistics, query) {
 
-      // todo: highlightthe variables if they are different (green for positive, red for negative).
-
       // Save the rollout set and the statistics
       data.rolloutSets.push({rollout: rollout, statistics: statistics});
 
@@ -300,7 +298,9 @@ var MDPVis = {
       var queryObject = $.deparam(queryString);
 
       // Enable changing the input buttons
-      $("input").prop('disabled', false);
+      $("input")
+        .prop('disabled', false)
+        .css({color:""});
 
       // Hide comparison warning
       $(".comparison-warning").hide();
@@ -368,7 +368,13 @@ var MDPVis = {
           var input = $(selector);
           input.removeAttr("max");
           input.removeAttr("min");
-          input.val(primaryQueryObject[section][button] - comparatorQueryObject[section][button]);
+          var difference = primaryQueryObject[section][button] - comparatorQueryObject[section][button];
+          input.val(difference);
+          if( difference > 0 ) {
+            input.css({color: "#5cb85c"});
+          } else if( difference < 0 ) {
+            input.css({color: "#a63603"});
+          }
         }
       }
 

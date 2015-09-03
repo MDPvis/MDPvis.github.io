@@ -7,8 +7,7 @@ var MDPVis = {
    */
   filters: {
     starting: {}, // The set of filters on the initial state
-    endOfPeriod: {}, // The set of filters on the ending state
-    timePeriod: {start: 0, end: -1}, // The event numbers the filters are applied to
+    filteredTimePeriod: 0, // The event numbers the filters are applied to
     activeRollouts: [], // The set of rollouts that are not filtered
     currentRollouts: {}, // All the eligible rollout objects
 
@@ -37,21 +36,11 @@ var MDPVis = {
       // todo, although this is likely a less important optimization.
 
       // Include shorter rollouts based on their last known value
-      var startIndex = Math.min(MDPVis.filters.timePeriod.start, rollout.length-1);
-      var endIndex = Math.min(MDPVis.filters.timePeriod.end, rollout.length-1);
+      var startIndex = Math.min(MDPVis.filters.filteredTimePeriod, rollout.length-1);
       for( var variable in MDPVis.filters.starting ) {
         if(rollout[startIndex][variable] < MDPVis.filters.starting[variable][0]){
           return false;
-        }
-        if(rollout[startIndex][variable] > MDPVis.filters.starting[variable][1]){
-          return false;
-        }
-      }
-      for( var variable in MDPVis.filters.endOfPeriod ) {
-        if(rollout[endIndex][variable] < MDPVis.filters.endOfPeriod[variable][0]){
-          return false;
-        }
-        if(rollout[endIndex][variable] > MDPVis.filters.endOfPeriod[variable][1]){
+        } else if(rollout[startIndex][variable] > MDPVis.filters.starting[variable][1]){
           return false;
         }
       }
@@ -63,8 +52,8 @@ var MDPVis = {
    * Each of the chart objects. These are the callable objects when things need to update.
    */
   charts: {
-    initialHistograms: {},
-    fanCharts: {}
+    distributionCharts: {},
+    temporalCharts: {}
   },
 
   /**
@@ -141,7 +130,6 @@ var MDPVis = {
 
         MDPVis.filters.currentRollouts = rollouts;
         var statistics = MDPVis.render.computeStatistics(rollouts);
-        MDPVis.filters.timePeriod.end = d3.max(rollouts, function(d){return d.length - 1;});
         MDPVis.filters.assignActiveRollouts(rollouts);
         MDPVis.render.renderRollouts(rollouts, statistics);
         MDPVis.server._addToHistory(rollouts, statistics, $.param(q));
@@ -385,7 +373,6 @@ var MDPVis = {
         }
       }
       var rollouts = MDPVis.rolloutSets[rolloutsID].rollout;
-      MDPVis.filters.timePeriod.end = d3.max(rollouts, function(d){return d.length - 1;});
       var statistics = MDPVis.rolloutSets[rolloutsID].statistics;
       $(".generate-rollouts-button").hide();
       MDPVis.filters.assignActiveRollouts(rollouts);
@@ -499,22 +486,22 @@ var MDPVis = {
     renderRollouts: function(rollouts, statistics) {
 
       // If we have charts to update, else create all the things
-      if ( Object.keys(MDPVis.charts.initialHistograms).length > 0 ) {
-        for( var variableName in MDPVis.charts.initialHistograms ) {
-          MDPVis.charts.initialHistograms[variableName].updateData(rollouts,
-            MDPVis.render._createInitialStateAccessor(variableName, MDPVis.filters.timePeriod.start));
+      if ( Object.keys(MDPVis.charts.distributionCharts).length > 0 ) {
+        for( var variableName in MDPVis.charts.distributionCharts ) {
+          MDPVis.charts.distributionCharts[variableName].updateData(rollouts,
+            MDPVis.render._createInitialStateAccessor(variableName, MDPVis.filters.filteredTimePeriod));
         }
-        MDPVis.render.renderFanCharts(rollouts, statistics, true);
+        MDPVis.render.rendertemporalCharts(rollouts, statistics, true);
       } else {
         for( var variableName in rollouts[0][0] ){
           var barChart = new BarChart(
             variableName, "units", rollouts,
             MDPVis.render._createInitialStateAccessor(variableName, 0));
-          MDPVis.charts.initialHistograms[variableName] = barChart;
+          MDPVis.charts.distributionCharts[variableName] = barChart;
           $(".initial-states").append(barChart.getDOMNode());
 
           var fanChart = new FanChart(statistics.percentiles[variableName], variableName, rollouts);
-          MDPVis.charts.fanCharts[variableName] = fanChart;
+          MDPVis.charts.temporalCharts[variableName] = fanChart;
           $(".line-charts").append(fanChart.getDOMNode());
         };
       }
@@ -528,9 +515,9 @@ var MDPVis = {
      * @param {object} statistics The statistics computed for the selected rollouts.
      * @param {boolean} rescale Rescale the axis on update.
      */
-    renderFanCharts: function(rollouts, statistics, rescale) {
-      for( var variableName in MDPVis.charts.fanCharts ) {
-        MDPVis.charts.fanCharts[variableName].updateData(statistics.percentiles[variableName], rollouts, rescale);
+    rendertemporalCharts: function(rollouts, statistics, rescale) {
+      for( var variableName in MDPVis.charts.temporalCharts ) {
+        MDPVis.charts.temporalCharts[variableName].updateData(statistics.percentiles[variableName], rollouts, rescale);
       }
     },
 
@@ -541,12 +528,12 @@ var MDPVis = {
      * @param {object} statistics the stats for the set of rollouts we are comparing to.
      */
     compare: function(rollouts, statistics) {
-      for( var variableName in MDPVis.charts.initialHistograms ) {
-        MDPVis.charts.initialHistograms[variableName].intersectWithSecondRolloutSet(rollouts);
+      for( var variableName in MDPVis.charts.distributionCharts ) {
+        MDPVis.charts.distributionCharts[variableName].intersectWithSecondRolloutSet(rollouts);
       }
       var baseStatistics = MDPVis.render.computeStatistics(MDPVis.filters.activeRollouts);
-      for( var variableName in MDPVis.charts.fanCharts ) {
-        MDPVis.charts.fanCharts[variableName].intersectWithSecondRolloutSet(baseStatistics.percentiles[variableName], statistics.percentiles[variableName]);
+      for( var variableName in MDPVis.charts.temporalCharts ) {
+        MDPVis.charts.temporalCharts[variableName].intersectWithSecondRolloutSet(baseStatistics.percentiles[variableName], statistics.percentiles[variableName]);
       }
     },
 
@@ -589,13 +576,13 @@ var MDPVis = {
       var stats = MDPVis.render.computeStatistics(MDPVis.filters.activeRollouts);
 
       // Redraw each of the initial histograms
-      for( var variableName in MDPVis.charts.initialHistograms ){
-        MDPVis.charts.initialHistograms[variableName].brushCounts(MDPVis.filters.activeRollouts);
+      for( var variableName in MDPVis.charts.distributionCharts ){
+        MDPVis.charts.distributionCharts[variableName].brushCounts(MDPVis.filters.activeRollouts);
       }
 
       // Redraw each of the fan charts
-      for( variableName in MDPVis.charts.fanCharts ){
-        MDPVis.charts.fanCharts[variableName].updateData(stats.percentiles[variableName], MDPVis.filters.activeRollouts, false);
+      for( variableName in MDPVis.charts.temporalCharts ){
+        MDPVis.charts.temporalCharts[variableName].updateData(stats.percentiles[variableName], MDPVis.filters.activeRollouts, false);
       }
       MDPVis.brush._updateAllBrushPositions();
     },
@@ -617,10 +604,10 @@ var MDPVis = {
       // extent can't change when the eventNumber changes. This matters if the
       // range changes upon changing the rollout set.
       var eventNumber = Math.floor(extent[0][0]);
-      var eventNumberChange = MDPVis.filters.timePeriod.start !==  eventNumber &&
+      var eventNumberChange = MDPVis.filters.filteredTimePeriod !==  eventNumber &&
         extent[0][0] !== extent[1][0];
       if ( eventNumberChange ) {
-        MDPVis.filters.timePeriod.start = eventNumber;
+        MDPVis.filters.filteredTimePeriod = eventNumber;
       } else if( filteredValueChange ){
         MDPVis.filters.starting[name] = [];
         MDPVis.filters.starting[name].push(newMin);
@@ -638,14 +625,14 @@ var MDPVis = {
       // otherwise just brush the initial histograms and render the fan charts
       if( eventNumberChange ) {
         MDPVis.render.renderRollouts(MDPVis.filters.currentRollouts, stats);
-        MDPVis.render.renderFanCharts(MDPVis.filters.activeRollouts, stats, false);
+        MDPVis.render.rendertemporalCharts(MDPVis.filters.activeRollouts, stats, false);
       } else if( filteredValueChange || filteredValueRemoved ) {
 
         // Redraw each of the initial histograms
-        for( var variableName in MDPVis.charts.initialHistograms ){
-          MDPVis.charts.initialHistograms[variableName].brushCounts(MDPVis.filters.activeRollouts);
+        for( var variableName in MDPVis.charts.distributionCharts ){
+          MDPVis.charts.distributionCharts[variableName].brushCounts(MDPVis.filters.activeRollouts);
         }
-        MDPVis.render.renderFanCharts(MDPVis.filters.activeRollouts, stats, false);
+        MDPVis.render.rendertemporalCharts(MDPVis.filters.activeRollouts, stats, false);
       }
 
       MDPVis.brush._updateAllBrushPositions();
@@ -660,26 +647,26 @@ var MDPVis = {
 
       var extent, eventDepth;
 
-      for( var variableName in MDPVis.charts.initialHistograms ){
+      for( var variableName in MDPVis.charts.distributionCharts ){
         if( MDPVis.filters.starting[variableName] !== undefined ) {
           extent = MDPVis.filters.starting[variableName];
-          MDPVis.charts.initialHistograms[variableName].updateBrush(extent);
+          MDPVis.charts.distributionCharts[variableName].updateBrush(extent);
         } else {
           // Reset the brush
-          MDPVis.charts.initialHistograms[variableName].updateBrush([0,0]);
+          MDPVis.charts.distributionCharts[variableName].updateBrush([0,0]);
         }
       }
-      for( variableName in MDPVis.charts.fanCharts ){
+      for( variableName in MDPVis.charts.temporalCharts ){
         if( MDPVis.filters.starting[variableName] !== undefined ) {
-          eventDepth = MDPVis.filters.timePeriod.start;
+          eventDepth = MDPVis.filters.filteredTimePeriod;
           var yExtent = MDPVis.filters.starting[variableName];
           extent = [[eventDepth, yExtent[0]],[eventDepth + .5, yExtent[1]]];
-          MDPVis.charts.fanCharts[variableName].updateBrush(extent);
+          MDPVis.charts.temporalCharts[variableName].updateBrush(extent);
         } else {
           // Reset the brush
-          eventDepth = MDPVis.filters.timePeriod.start;
+          eventDepth = MDPVis.filters.filteredTimePeriod;
           extent = [[eventDepth, 0], [eventDepth + .5, 0]];
-          MDPVis.charts.fanCharts[variableName].updateBrush(extent);
+          MDPVis.charts.temporalCharts[variableName].updateBrush(extent);
         }
       }
     }

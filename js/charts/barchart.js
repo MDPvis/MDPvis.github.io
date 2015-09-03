@@ -49,7 +49,7 @@ function BarChart (name, units, rollouts, accessor) {
       return bindex;
     }
     rollouts.forEach(function(rollout) {
-      if ( skipFilter || MDPVis.filters.isActiveRollout(rollout) ) {
+      if ( skipFilter || data.filters.isActiveRollout(rollout) ) {
         bins[binIndex(rollout)] += 1;
       }
     });

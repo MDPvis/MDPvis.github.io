@@ -37,7 +37,7 @@ var MDPVis = {
 
       // Don't include shorter rollouts than the current filter
       var timePeriod = MDPVis.filters.filteredTimePeriod;
-      if( rollout.length - 1 > timePeriod ) {
+      if( rollout.length - 1 < timePeriod ) {
         return false;
       }
       for( var variable in MDPVis.filters.starting ) {

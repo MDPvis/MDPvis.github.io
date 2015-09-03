@@ -39,6 +39,7 @@ function DistributionChart() {
 }
 function TemporalChart() {
   Chart.call(this);
+  this.getDOMNode().style.float = "";
 }
 function RolloutChart() {
   Chart.call(this);

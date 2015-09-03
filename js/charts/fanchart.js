@@ -308,17 +308,24 @@ function FanChart(stats, name, rollouts) {
     //brushG.call(brush.event);
   }
 
-  /**
-   * Highlight lines on mouse over.
-   */
-  function lineMouseOver() {
+  // Hover behaviors for time series lines
+  var lineMouseOver = function() {
     d3.select(this)
         .style("stroke-width", "15px");
   }
-  function lineMouseOut() {
+  var lineMouseOut = function() {
     d3.select(this)
         .style("stroke-width", "2px");
   }
+
+  // Event handler for making requests for the state detail on clicking a line
+  var lineClick = function(d, index) {
+    if (d3.event.defaultPrevented) return;
+    MDPVis.server.getState(
+      d[0]["Pathway Number"],
+      Math.floor(x.invert(d3.mouse(this)[0])));
+  }
+
 
   /**
    * Render lines for the active rollouts instead of the percentiles.
@@ -333,6 +340,7 @@ function FanChart(stats, name, rollouts) {
     var line = d3.svg.line()
         .x(function(d, idx) { return x(idx); })
         .y(function(d) { return y(d[name]); });
+
     for(var i = 0; i < activeRollouts.length; i++) {
       svg.append("path")
             .datum(activeRollouts[i])
@@ -343,10 +351,7 @@ function FanChart(stats, name, rollouts) {
             .on("mouseout", lineMouseOut)
             .style("stroke", function(d) {
               return lineColor(d[0]["Pathway Number"]); })
-            .on("click", function(d, index) {
-              if (d3.event.defaultPrevented) return; // click suppressed
-              MDPVis.server.getState(d[0]["Pathway Number"], Math.floor(x.invert(d3.mouse(this)[0])));
-            });
+            .on("click", lineClick);
     }
   }
 

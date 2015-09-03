@@ -3,6 +3,7 @@
  */
 function BarChart (name, units, rollouts, accessor) {
 
+  this.name = name;
   DistributionChart.call(this);
 
   // The number of bins in the histogram

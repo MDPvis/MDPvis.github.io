@@ -6,6 +6,7 @@
  */
 function FanChart(stats, name, rollouts) {
 
+  this.name = name;
   TemporalChart.call(this);
 
   // Which Percentiles should be plotted.
@@ -248,17 +249,18 @@ function FanChart(stats, name, rollouts) {
   var brushEnd = function() {
     if (d3.event && !d3.event.sourceEvent) return; // only transition after input
     var newExtent = that.brush.extent();
-    MDPVis.brush.brushTemporalChart(name, newExtent);
-
     if( that.brush.empty() ) {
       that.brush.extent(defaultExtent);
       that.brush(brushG.transition().duration(1000));
+      newExtent[1][1] = 0;
+      newExtent[0][1] = 0;
     }
+    MDPVis.brush.brushTemporalChart(that.name, newExtent);
+    that.updateContextPanel();
   }
   this.removeBrush = function() {
     that.brush.extent(defaultExtent);
     brushEnd();
-    that.updateContextPanel();
   }
 
   var defaultExtent = [[0, domainMin], [.5, domainMax]];//[[x0,y0],[x1,y1]]
@@ -268,6 +270,19 @@ function FanChart(stats, name, rollouts) {
       .extent(defaultExtent)
       .on("brushend", brushEnd)
       .on("brush", this.updateContextPanel);
+
+  // Overload the "empty" function since we display a full
+  // brush even when it isn't filtering.
+  var nativeEmpty = that.brush.empty;
+  that.brush.empty = function() {
+    var extent = that.brush.extent();
+    return nativeEmpty() || (
+      extent[0][0] === defaultExtent[0][0] &&
+      extent[0][1] === defaultExtent[0][1] &&
+      extent[1][0] === defaultExtent[1][0] &&
+      extent[1][1] === defaultExtent[1][1]
+      );
+  }
 
   var brushG = svg.append("g")
       .attr("class", "brush")

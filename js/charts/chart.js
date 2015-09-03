@@ -10,8 +10,8 @@ function Chart() {
   };
 
   this.updateContextPanel = function(){
-    if(that.brush.empty()) {
-      contextPanel.updatePanelText("No active brushes.");
+    if( ! data.filters.activeFilters[that.name] ) {
+      contextPanel.updatePanelText("No active filters.");
       contextPanel.dissableBrushButton();
     } else {
       var extent = that.brush.extent();

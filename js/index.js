@@ -1,3 +1,7 @@
+/**
+ * @namespace for coordinating the various visualization scripts into a
+ * coherent web application.
+ */
 var MDPVis = {
 
   /**
@@ -6,7 +10,7 @@ var MDPVis = {
    * histograms.
    */
   filters: {
-    starting: {}, // The set of filters on the initial state
+    activeFilters: {}, // The set of filters on the initial state
     filteredTimePeriod: 0, // The event numbers the filters are applied to
     activeRollouts: [], // The set of rollouts that are not filtered
     currentRollouts: {}, // All the eligible rollout objects
@@ -40,10 +44,10 @@ var MDPVis = {
       if( rollout.length - 1 < timePeriod ) {
         return false;
       }
-      for( var variable in MDPVis.filters.starting ) {
-        if(rollout[timePeriod][variable] < MDPVis.filters.starting[variable][0]){
+      for( var variable in MDPVis.filters.activeFilters ) {
+        if(rollout[timePeriod][variable] < MDPVis.filters.activeFilters[variable][0]){
           return false;
-        } else if(rollout[timePeriod][variable] > MDPVis.filters.starting[variable][1]){
+        } else if(rollout[timePeriod][variable] > MDPVis.filters.activeFilters[variable][1]){
           return false;
         }
       }
@@ -567,9 +571,9 @@ var MDPVis = {
 
       // Remove filter if it was removed
       if( extent[0] === extent[1] ) {
-        delete MDPVis.filters.starting[name];
+        delete MDPVis.filters.activeFilters[name];
       } else {
-        MDPVis.filters.starting[name] = [extent[0], extent[1]];
+        MDPVis.filters.activeFilters[name] = [extent[0], extent[1]];
       }
 
       // Filter the active rollouts
@@ -612,12 +616,10 @@ var MDPVis = {
       if ( eventNumberChange ) {
         MDPVis.filters.filteredTimePeriod = eventNumber;
       } else if( filteredValueChange ){
-        MDPVis.filters.starting[name] = [];
-        MDPVis.filters.starting[name].push(newMin);
-        MDPVis.filters.starting[name].push(newMax);
+        MDPVis.filters.activeFilters[name] = [newMin, newMax];
       } else {
         filteredValueRemoved = true;
-        delete MDPVis.filters.starting[name];
+        delete MDPVis.filters.activeFilters[name];
       }
 
       // Update the data from the brushes
@@ -651,8 +653,8 @@ var MDPVis = {
       var extent, eventDepth;
 
       for( var variableName in MDPVis.charts.distributionCharts ){
-        if( MDPVis.filters.starting[variableName] !== undefined ) {
-          extent = MDPVis.filters.starting[variableName];
+        if( MDPVis.filters.activeFilters[variableName] !== undefined ) {
+          extent = MDPVis.filters.activeFilters[variableName];
           MDPVis.charts.distributionCharts[variableName].updateBrush(extent);
         } else {
           // Reset the brush
@@ -660,9 +662,9 @@ var MDPVis = {
         }
       }
       for( variableName in MDPVis.charts.temporalCharts ){
-        if( MDPVis.filters.starting[variableName] !== undefined ) {
+        if( MDPVis.filters.activeFilters[variableName] !== undefined ) {
           eventDepth = MDPVis.filters.filteredTimePeriod;
-          var yExtent = MDPVis.filters.starting[variableName];
+          var yExtent = MDPVis.filters.activeFilters[variableName];
           extent = [[eventDepth, yExtent[0]],[eventDepth + .5, yExtent[1]]];
           MDPVis.charts.temporalCharts[variableName].updateBrush(extent);
         } else {

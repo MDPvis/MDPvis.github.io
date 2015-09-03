@@ -35,12 +35,15 @@ var MDPVis = {
       // todo, cache these since it is inefficient to do this every time.
       // todo, although this is likely a less important optimization.
 
-      // Include shorter rollouts based on their last known value
-      var startIndex = Math.min(MDPVis.filters.filteredTimePeriod, rollout.length-1);
+      // Don't include shorter rollouts than the current filter
+      var timePeriod = MDPVis.filters.filteredTimePeriod;
+      if( rollout.length - 1 > timePeriod ) {
+        return false;
+      }
       for( var variable in MDPVis.filters.starting ) {
-        if(rollout[startIndex][variable] < MDPVis.filters.starting[variable][0]){
+        if(rollout[timePeriod][variable] < MDPVis.filters.starting[variable][0]){
           return false;
-        } else if(rollout[startIndex][variable] > MDPVis.filters.starting[variable][1]){
+        } else if(rollout[timePeriod][variable] > MDPVis.filters.starting[variable][1]){
           return false;
         }
       }

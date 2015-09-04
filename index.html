@@ -85,11 +85,11 @@
           </div>
           <button style="display:none;" class="btn btn-lg btn-success btn-block policy-is-optimized-button" disabled>
               <span class="glyphicon glyphicon-ok"></span>
-              Policy is Optimized
+              Policy was Optimized
           </button>
           <button style="display:none;" class="btn btn-lg btn-danger btn-block optimize-policy-button">
               <span class="glyphicon glyphicon-refresh"></span>
-              Optimize Policy
+              Optimize a New Policy
           </button>
           <button style="display:none;" class="btn btn-lg btn-warning btn-block policy-is-optimizing-button" disabled>
               <span class="glyphicon glyphicon-refresh spinning"></span>
@@ -335,15 +335,37 @@
                   </div>
                 </div>
               </div>
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingFour">
+                  <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                      <span class="glyphicon glyphicon-info-sign" aria-hidden="true"> About
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                  <div class="panel-body">
+                    <p>
+                      This visualization allows you to explore a
+                      <a href="https://en.wikipedia.org/wiki/Markov_decision_process">
+                        Markovian Decision Process
+                      </a>
+                      (MDP). The controls provide means of exploring a
+                      changing reward, transition, and policy functions towards
+                      discovering bugs and understanding the system.
+                    </p>
+                    <p class="text-center">
+                      <a href="https://github.com/MDPvis/MDPvis.github.io">README</a> &middot;
+                      <a href="https://github.com/MDPvis/MDPvis.github.io">Fork Me on GitHub</a> &middot;
+                      <a href="mailto:mailto:mdpvis.implementation@seanbmcgregor.com?Subject=Seeking%20Information%20about%20MDPvis&Body=Greetings%20Sean%2C%0A%0A%28%28%28don%27t%20hesitate%20to%20contact%20me%29%29%29%0A%0AI%20was%20using%20MDPvis%20and%20have%20the%20following%20question/comment%3A%0A%0A%28%28%28PLEASE%20ENTER%20INFORMATION%20HERE%29%29%29"
+                      target="_blank">
+                        Get Help
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div><!-- /panel-group -->
-            <p class="text-center">
-              <a href="https://github.com/MDPvis/MDPvis.github.io">About</a> &middot;
-              <a href="https://github.com/MDPvis/MDPvis.github.io">Fork Me on GitHub</a> &middot;
-              <a href="mailto:mailto:mdpvis.implementation@seanbmcgregor.com?Subject=Seeking%20Information%20about%20MDPvis&Body=Greetings%20Sean%2C%0A%0A%28%28%28don%27t%20hesitate%20to%20contact%20me%29%29%29%0A%0AI%20was%20using%20MDPvis%20and%20have%20the%20following%20question/comment%3A%0A%0A%28%28%28PLEASE%20ENTER%20INFORMATION%20HERE%29%29%29"
-              target="_blank">
-                Get Help
-              </a>
-            </p>
           </div>
         </div>
       </div>

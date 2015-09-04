@@ -132,12 +132,14 @@ var MDPVis = {
       })
       .done(function(data){
         for( policyVariable in data ) {
-          $("input[name='" + policyVariable + "']").val(data[policyVariable]);
+          $("input[name='" + policyVariable + "']")
+            .val(data[policyVariable])
+            .trigger( "input" ); // Forces resize
         }
         MDPVis.server.getRollouts();
         $(".policy-is-optimizing-button").hide();
         $(".policy-is-optimized-button").show();
-        })
+      })
       .fail(function(data) {
         alert("Failed to fetch initialization. Try reloading.");
         console.error("Failed to fetch initialization object.");

@@ -62,24 +62,12 @@ function BarChart (name, units, rollouts, accessor) {
   var y = d3.scale.linear()
       .domain([0, rollouts.length])
       .range([height, 0]);
-  var xAxisFormat = d3.format("1r");
-  var numTicks = 10;
-  if( extent[1] > 99 || extent[0] < -9 ) {
-    numTicks = 8;
-  }
-  if( extent[1] > 999 || extent[0] < -99 ) {
-    numTicks = 5;
-  }
-  if( extent[1] > 9999 || extent[0] < -999 ) {
-    numTicks = 3;
-  }
-  if( extent[1] > 99999 || extent[0] < -9999 ) {
-    xAxisFormat = d3.format("e");
-    numTicks = 3;
-  }
+
+  var tickFormat = this.chartTickFormat(x.domain());
+  var tickCount = this.chartTickCount(x.domain(), tickFormat);
   var xAxis = d3.svg.axis()
-      .tickFormat(xAxisFormat)
-      .ticks(numTicks)
+      .tickFormat(tickFormat)
+      .ticks(tickCount)
       .scale(x)
       .orient("bottom");
 
@@ -328,7 +316,12 @@ function BarChart (name, units, rollouts, accessor) {
 
     x.domain(extent)
       .nice();
-    xAxis.scale(x);
+    tickFormat = this.chartTickFormat(x.domain());
+    tickCount = this.chartTickCount(x.domain(), tickFormat);
+    xAxis
+      .scale(x)
+      .tickFormat(tickFormat)
+      .ticks(tickCount);
 
     y.domain([0, rollouts.length]);
 

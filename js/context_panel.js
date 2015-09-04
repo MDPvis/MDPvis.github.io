@@ -37,7 +37,6 @@ var contextPanel = {
 
     // Set the panel's content dimensions
     var cpp = $(".context-panel-panel");
-    var height = cpp.height();
     var width;
     if( contextPanel.isMinimized ) {
       width = 40;
@@ -50,6 +49,7 @@ var contextPanel = {
     // These two are separated to accomodate a
     // "landing area" that is larger than the actual
     // element. Otherwise it will be difficult to click.
+    var height = cpp.height();
     var newCSS = {
       top: position.top - height,
       left: position.left

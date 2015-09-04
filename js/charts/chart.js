@@ -4,6 +4,7 @@ function Chart() {
 
   var DOMDiv = document.createElement("div");
   DOMDiv.style.float = "left";
+  DOMDiv.setAttribute("class", "chart");
 
   this.getDOMNode = function() {
     return DOMDiv;
@@ -27,6 +28,8 @@ function Chart() {
       }
       contextPanel.enableBrushButton();
     }
+    $(".highlight").removeClass("highlight");
+    $(DOMDiv).addClass("highlight");
     contextPanel.showPanel(that);
   }
 

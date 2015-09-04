@@ -76,6 +76,16 @@ var MDPVis = {
         $(".policy-is-optimizing-button").hide();
         $(".rollouts-are-generating-button").hide();
 
+        // Affix the rollout count when scrolling down
+        var countElement = $("#active-count");
+        countElement
+          .css({width: countElement.width()})
+          .affix({
+            offset: {
+              top: countElement.offset().top
+            }
+        });
+
         var rollouts = response.rollouts;
         data.filters.currentRollouts = rollouts;
         var statistics = data.computeStatistics(rollouts);

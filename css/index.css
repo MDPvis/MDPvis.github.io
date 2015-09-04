@@ -241,6 +241,13 @@ body {
     background-color: #5cb85c;
     text-align: center;
 }
+
+.affix {
+  position: fixed;
+  top: 0;
+  z-index:10;
+}
+
 .chart {
   -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
   -moz-box-sizing: border-box;    /* Firefox, other Gecko */

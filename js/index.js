@@ -35,8 +35,9 @@ var MDPVis = {
         MDPVis.server._createButtons(data);
         MDPVis.server.getRollouts();
         $(".policy-is-optimized-button").hide();
-        $(".optimize-policy-button").prop("disabled", false);
-        $(".optimize-policy-button").show();
+        $(".optimize-policy-button")
+          .prop("disabled", false)
+          .show();
       }).fail(function(data) {
         alert("Failed to fetch initialization. Try reloading.");
         console.error("Failed to fetch initialization object.");
@@ -647,8 +648,9 @@ var MDPVis = {
 
     $( ".optimize-policy-button" ).click(function() {
       $(".generate-rollouts-button").hide();
-      $(".optimize-policy-button").prop("disabled", false);
-      $(".optimize-policy-button").hide();
+      $(".optimize-policy-button")
+        .prop("disabled", false)
+        .hide();
       $(".rollouts-are-current-button").hide();
       $(".policy-is-optimizing-button").show();
       $(".rollouts-are-generating-button").show();
@@ -690,8 +692,9 @@ var MDPVis = {
       MDPVis.server._createButtons(params.initialization);
       MDPVis.server.getRollouts();
       $(".policy-is-optimized-button").hide();
-      $(".optimize-policy-button").prop("disabled", true);
-      $(".optimize-policy-button").show();
+      $(".optimize-policy-button")
+        .prop("disabled", true)
+        .show();
     } else {
       MDPVis.server.getInitialize();
     }

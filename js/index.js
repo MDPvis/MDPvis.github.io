@@ -259,7 +259,7 @@ var MDPVis = {
       }
       $( ".button_value" )
         .change(showServerRequestButtons)
-        .on('input', showServerRequestButtons);
+        .on('keyup', showServerRequestButtons);
     },
 
     /**
@@ -380,12 +380,15 @@ var MDPVis = {
       var comparatorQueryObject = $.deparam(comparatorQueryString);
       for ( section in comparatorQueryObject ) {
         for ( button in comparatorQueryObject[section] ) {
+          var difference = primaryQueryObject[section][button]
+            - comparatorQueryObject[section][button];
           var selector = "#"+section+"-buttons input[name='" + button + "']";
           var input = $(selector);
-          input.removeAttr("max");
-          input.removeAttr("min");
-          var difference = primaryQueryObject[section][button] - comparatorQueryObject[section][button];
-          input.val(difference);
+          input
+            .removeAttr("max")
+            .removeAttr("min")
+            .val(difference)
+            .trigger( "input" ); // Forces resize
           if( difference > 0 ) {
             input.css({color: "#5cb85c"});
           } else if( difference < 0 ) {

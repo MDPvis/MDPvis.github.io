@@ -279,32 +279,28 @@ var MDPVis = {
      */
     _addToHistory: function(rollout, statistics, query) {
 
+      // Highlight the proper buttons
+      $(".primary-rollouts")
+        .removeClass("btn-primary")
+        .addClass("btn-default");
+      $(".comparator-rollouts")
+        .removeClass("btn-error")
+        .addClass("btn-default");
+
       // Save the rollout set and the statistics
       data.rolloutSets.push({rollout: rollout, statistics: statistics});
-
-      // Hide the eye symbols that are not this one being added
-      $(".comparator-rollouts").hide();
-      $(".primary-rollouts").hide();
-
       var newElement = $('<p/>')
-        .append($('<span/>', {
-          "class": "glyphicon glyphicon-eye-open history-selector-icon primary-rollouts"
-          }))
-        .append($('<span/>', {
-          "class": "glyphicon glyphicon-eye-close history-selector-icon comparator-rollouts",
-          "style": "display:none;"
-          }))
         .append(document.createTextNode(" Expected Value $ " + d3.round(statistics.expectedValue, 2)))
         .append($('<br/>'))
         .append($('<button/>', {
-          "class": "btn btn-sm btn-primary load-button",
+          "class": "btn btn-sm btn-primary load-button primary-rollouts",
           "data-rollout-number": data.rolloutSets.length - 1,
           "data-query-string": query
           }).text('View Rollout Set ' + data.rolloutSets.length)
         )
         .append('&nbsp;')
         .append($('<button/>', {
-          "class": "btn btn-sm btn-primary compare-to-button",
+          "class": "btn btn-sm btn-default compare-to-button comparator-rollouts",
           "data-rollout-number": data.rolloutSets.length - 1,
           "data-query-string": query
           }).text('Compare To')
@@ -333,19 +329,27 @@ var MDPVis = {
       // Hide comparison warning
       $(".comparison-warning").hide();
 
-      // Show active eyes
-      $(".primary-rollouts").hide();
-      $(".comparator-rollouts").hide();
-      $(ev.currentTarget).prevAll(".primary-rollouts:first").show();
+      // Highlight the proper buttons
+      $(".primary-rollouts")
+        .removeClass("btn-primary")
+        .addClass("btn-default");
+      $(".comparator-rollouts")
+        .removeClass("btn-primary")
+        .addClass("btn-default");
+      $(ev.currentTarget)
+        .removeClass("btn-default")
+        .addClass("btn-primary");
 
       // Assign Buttons
       for ( section in queryObject ) {
         for ( button in queryObject[section] ) {
           var selector = "#"+section+"-buttons input[name='" + button + "']";
           var input = $(selector);
-          input.attr("max", input.attr("data-max"));
-          input.attr("min", input.attr("data-min"));
-          input.val(queryObject[section][button]);
+          input
+            .attr("max", input.attr("data-max"))
+            .attr("min", input.attr("data-min"))
+            .val(queryObject[section][button])
+            .trigger( "input" );
         }
       }
       var rollouts = data.rolloutSets[rolloutsID].rollout;
@@ -367,16 +371,20 @@ var MDPVis = {
     _compareRollouts: function(ev) {
       var rolloutsID = ev.currentTarget.getAttribute("data-rollout-number");
 
+      // Highlight the proper buttons
+      $(".comparator-rollouts")
+        .removeClass("btn-primary")
+        .addClass("btn-default");
+      $(ev.currentTarget)
+        .removeClass("btn-default")
+        .addClass("btn-primary");
+
       $(".generate-rollouts-button").hide();
       $(".policy-is-optimized-button").hide();
       $(".optimize-policy-button").hide();
       $(".rollouts-are-current-button").show();
       $(".policy-is-optimizing-button").hide();
       $(".rollouts-are-generating-button").hide();
-
-      // Show active eyes
-      $(".comparator-rollouts").hide();
-      $(ev.currentTarget).prevAll(".comparator-rollouts:first").show();
 
       // Show comparison warning
       $(".comparison-warning").show();
@@ -405,6 +413,8 @@ var MDPVis = {
             input.css({color: "#5cb85c"});
           } else if( difference < 0 ) {
             input.css({color: "#a63603"});
+          } else {
+            input.css({color: ""});
           }
         }
       }

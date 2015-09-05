@@ -164,7 +164,7 @@ body {
 #tooltip {
   position:absolute;
   border:1px solid #333;
-  background:#daffff;
+  background:#ffffff;
   padding:2px 5px 3px 1px;
   color:#333;
   display:inline-block;
@@ -258,4 +258,12 @@ body {
 
 .highlight {
   border-color: #337ab7;
+}
+
+.pad-left {
+  padding-left: 10px;
+}
+
+.lighten {
+  opacity: 0.5;
 }

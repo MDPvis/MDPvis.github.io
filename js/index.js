@@ -235,10 +235,22 @@ var MDPVis = {
           }))
           .append(document.createTextNode( " " ))
           .append($('<strong>' + vals["name"] + '</strong>'))
-          .append(document.createTextNode(": " + vals["description"]));
+          .append(document.createTextNode(" "))
+          .append(
+            $('<span class="glyphicon glyphicon-info-sign lighten" data-tooltip-hover-message="'
+              + vals["description"]
+              + '"></span>'));
           appendTo.append(newElement);
         });
         $("input").autosizeInput(); // Grow/shrink the input for the contents
+        $("span[data-tooltip-hover-message]")
+          .mouseenter(function(ev){
+            var message = ev.target.getAttribute("data-tooltip-hover-message");
+            learningTooltip.mouseEnter(message);
+          })
+          .mouseleave(function(ev){
+            learningTooltip.mouseLeave();
+          });
       }
 
       for( key in init ) {
@@ -640,6 +652,9 @@ var MDPVis = {
    * Checks the hash text for pre-initialization and other options.
    */
   initialize: function() {
+
+    // Create the tooltip element
+    learningTooltip.startTooltip();
 
     $( ".generate-rollouts-button" ).click(function() {
       $(".generate-rollouts-button").hide();

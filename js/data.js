@@ -31,11 +31,13 @@ var data = {
       data.filters.filteredTimePeriod = eventNumber;
 
       // Filter the active rollouts
-      data.filters.assignActiveRollouts(data.filters.currentRollouts);
+      data.filters.activeRollouts = data.filters.getActiveRollouts(data.filters.currentRollouts);
 
       // Recompute the statistics
       var stats = data.computeStatistics(data.filters.activeRollouts);
       data.filters.statistics = stats;
+
+      data.updateAffix();
     },
 
     /**
@@ -49,11 +51,13 @@ var data = {
       data.filters.activeFilters[name] = [extent[0], extent[1]];
 
       // Filter the active rollouts
-      data.filters.assignActiveRollouts(data.filters.currentRollouts);
+      data.filters.activeRollouts = data.filters.getActiveRollouts(data.filters.currentRollouts);
 
       // Recompute the statistics
       var stats = data.computeStatistics(data.filters.activeRollouts);
       data.filters.statistics = stats;
+
+      data.updateAffix();
     },
 
     /**
@@ -65,26 +69,28 @@ var data = {
       delete data.filters.activeFilters[name];
 
       // Filter the active rollouts
-      data.filters.assignActiveRollouts(data.filters.currentRollouts);
+      data.filters.activeRollouts = data.filters.getActiveRollouts(data.filters.currentRollouts);
 
       // Recompute the statistics
       var stats = data.computeStatistics(data.filters.activeRollouts);
       data.filters.statistics = stats;
+
+      data.updateAffix();
     },
 
     /**
-     * Assign an array of rollouts that are not currently filtered
+     * Filter a set of rollouts to those not filtered.
+     * @param {object} rollouts a set of rollouts that may be filtered.
+     * @return {array} The set of unfiltered rollouts.
      */
-    assignActiveRollouts: function(rollouts) {
-      data.filters.currentRollouts = rollouts;
-      data.filters.activeRollouts = [];
+    getActiveRollouts: function(rollouts) {
+      var activeRollouts = [];
       rollouts.forEach(function(rollout) {
         if( data.filters.isActiveRollout(rollout) ) {
-          data.filters.activeRollouts.push(rollout);
+          activeRollouts.push(rollout);
         }
       });
-      $(".displayed-state-count").text(data.filters.activeRollouts.length);
-      $(".total-state-count").text(rollouts.length);
+      return activeRollouts;
     },
 
     /**
@@ -110,12 +116,19 @@ var data = {
   },
 
   /**
+   * Update the affixed message panel.
+   */
+  updateAffix: function() {
+    $(".displayed-state-count").text(data.filters.activeRollouts.length);
+    $(".total-state-count").text(data.filters.currentRollouts.length);
+  },
+
+  /**
    * Compute the derived statistics for the rollouts.
    * @param {object} rollouts The rollouts object we compute stats on.
    * @return {object} The statistics object we compute.
    */
   computeStatistics: function(activeRollouts) {
-
     if(activeRollouts.length > 1000 ) {
       console.warn("todo: implement sampling since this will be costly computationally");
     } else if( activeRollouts.length < 1 ) {

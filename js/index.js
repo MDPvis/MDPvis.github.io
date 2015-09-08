@@ -128,7 +128,9 @@ var MDPVis = {
         var rollouts = response.rollouts;
         data.filters.currentRollouts = rollouts;
         var statistics = data.computeStatistics(rollouts);
-        data.filters.assignActiveRollouts(rollouts);
+        data.filters.currentRollouts = rollouts;
+        data.filters.activeRollouts = data.filters.getActiveRollouts(rollouts);
+        data.updateAffix();
         MDPVis.render.renderRollouts(rollouts, statistics);
         MDPVis.server._addToHistory(rollouts, statistics, $.param(q));
         $("input").prop('disabled', false);
@@ -402,7 +404,9 @@ var MDPVis = {
       var rollouts = data.rolloutSets[rolloutsID].rollout;
       var statistics = data.rolloutSets[rolloutsID].statistics;
       $(".generate-rollouts-button").hide();
-      data.filters.assignActiveRollouts(rollouts);
+      data.filters.currentRollouts = rollouts;
+      data.filters.activeRollouts = data.filters.getActiveRollouts(rollouts);
+      data.updateAffix();
       MDPVis.render.renderRollouts(rollouts, statistics);
       MDPVis.charts.updateAllBrushPositions();
       $(".rollouts-are-current-button").show();

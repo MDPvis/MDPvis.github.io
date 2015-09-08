@@ -238,20 +238,14 @@ var MDPVis = {
           .append($('<strong>' + vals["name"] + '</strong>'))
           .append(document.createTextNode(" "))
           .append(
-            $('<span class="glyphicon glyphicon-info-sign lighten" data-tooltip-hover-message="'
-              + vals["description"]
-              + '"></span>'));
+            $("<span/>", {
+              "class": "glyphicon glyphicon-info-sign lighten",
+              "data-tooltip-hover-message": vals["description"]
+          }));
           appendTo.append(newElement);
         });
         $("input").autosizeInput(); // Grow/shrink the input for the contents
-        $("span[data-tooltip-hover-message]")
-          .mouseenter(function(ev){
-            var message = ev.target.getAttribute("data-tooltip-hover-message");
-            learningTooltip.mouseEnter(message);
-          })
-          .mouseleave(function(ev){
-            learningTooltip.mouseLeave();
-          });
+        learningTooltip.addHoverListeners();
       }
 
       for( key in init ) {
@@ -303,11 +297,15 @@ var MDPVis = {
         .append($('<button/>', {
           "class": "btn btn-sm btn-default compare-to-button comparator-rollouts",
           "data-rollout-number": data.rolloutSets.length - 1,
-          "data-query-string": query
+          "data-query-string": query,
+          "data-tooltip-hover-message":
+            "This will clear the current brushes and show the" +
+            "comparison view for each visualization."
           }).text('Compare To')
         );
-
       $("#history-buttons").prepend(newElement);
+
+      learningTooltip.addHoverListeners();
 
       $(".load-button").click(MDPVis.server._viewStoredRollouts);
       $(".compare-to-button").click(MDPVis.server._compareRollouts);

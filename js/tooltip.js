@@ -58,6 +58,21 @@ var learningTooltip = {
     },
 
     /**
+     * Add hover listeners to all elements with the "data-tooltip-hover-message"
+     * attribute.
+     */
+    addHoverListeners: function() {
+      $("[data-tooltip-hover-message]")
+        .mouseenter(function(ev){
+          var message = ev.target.getAttribute("data-tooltip-hover-message");
+          learningTooltip.mouseEnter(message);
+        })
+        .mouseleave(function(ev){
+          learningTooltip.mouseLeave();
+        });
+    },
+
+    /**
      * Create and display the tooltip if the mouse is over something that calls
      * "mouseIn".
      */

@@ -171,7 +171,7 @@ function BarChart (name, units, rollouts, accessor) {
   var yAxis = d3.svg.axis()
       .scale(y)
       .orient("left");
-  var comparisonMode = false;
+  var intersected = false;
   var comparatorRollouts, comparedBinStep, domainUnion, yAxisG;
   function intersectedBrushCounts() {
     var originalInNewBins = binData(accessor, domainUnion, comparedBinStep, rollouts, false);
@@ -195,7 +195,7 @@ function BarChart (name, units, rollouts, accessor) {
    */
   this.brushCounts = function(rollouts) {
 
-    if( comparisonMode ) {
+    if( intersected ) {
       intersectedBrushCounts();
       return;
     }
@@ -216,7 +216,7 @@ function BarChart (name, units, rollouts, accessor) {
    * @param {object} cRollouts The rollouts we are intersecting with.
    */
   this.intersectWithSecondRolloutSet = function(cRollouts) {
-    comparisonMode = true;
+    intersected = true;
     comparatorRollouts = cRollouts;
     var comparatorDomain = d3.extent(comparatorRollouts, accessor);
     domainUnion = [
@@ -300,7 +300,7 @@ function BarChart (name, units, rollouts, accessor) {
     domain = d3.extent(rollouts, accessor);
 
     // Turn off comparisons (if it was on to begin with)
-    comparisonMode = false;
+    intersected = false;
     if ( yAxisG ) {
       yAxisG.remove();
       yAxisG = false;

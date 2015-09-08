@@ -31,15 +31,19 @@
         </div>
         <div class="maximized-context-panel">
           <div class="row">
-            <div class="col-lg-3">
+            <div class="col-lg-7">
               <button type="button" class="btn btn-sm btn-warning remove-brush">
                 Remove Brush
               </button>
+              <button type="button" class="btn btn-sm btn-warning hide-chart">
+                <span class="glyphicon glyphicon-minus"></span>
+                Hide Chart
+              </button>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-3">
               <p class="context-panel-text"></p>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-1">
               <p class="context-panel-stats"></p>
             </div>
             <div class="col-lg-1">
@@ -130,6 +134,8 @@
             State Distributions for a Fixed Time Step
           </h2>
           <p class="help-message"></p>
+
+          <!-- Affixed panel -->
           <div id="active-count" style="z-index:10;">
             <div class="panel panel-primary">
               <p class="comparison-warning" style="display:none;">Showing differences in values.</p>
@@ -144,8 +150,10 @@
                 <span class="counts total-state-count">0</span>
                 &nbsp;
               </p>
+              <div class="show-chart-buttons"></div>
             </div>
-          </div>
+          </div><!-- /Affixed panel -->
+
           <div class="initial-states"></div>
         </div>
       </div>

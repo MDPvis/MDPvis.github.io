@@ -83,6 +83,34 @@ var contextPanel = {
   },
 
   /**
+   * Hide the current chart and add the ability to re-display the chart
+   * from the affix panel.
+   */
+  hideChart: function() {
+    $(".context-panel").hide();
+    var chart = contextPanel.currentChart;
+    var node = chart.getDOMNode();
+    $(node).fadeOut(400, function(){
+      var button = $("<button/>", {
+        "class": "btn btn-default",
+        "style": "display:none;"
+      });
+      button.append($("<span/>",
+        {"class": "glyphicon glyphicon-plus"}
+      ));
+      button.append("Show Chart: " + chart.name);
+      $(".show-chart-buttons").append(button);
+      button.fadeIn();
+      button.click(function(){
+        button.fadeOut(400, function(){
+          button.remove();
+        });
+        $(node).fadeIn();
+      });
+    });
+  },
+
+  /**
    * Remove the brush from the chart the context panel is currently
    * associated with.
    */
@@ -135,6 +163,7 @@ var contextPanel = {
 $(".minimize-context-panel").click(contextPanel.minimizePanel);
 $(".maximize-context-panel").click(contextPanel.maximizePanel);
 $(".remove-brush").click(contextPanel.removeBrush);
+$(".hide-chart").click(contextPanel.hideChart);
 
 // Handle window resizes
 $( window ).resize(contextPanel.onScreenResize);

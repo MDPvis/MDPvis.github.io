@@ -332,7 +332,6 @@ function FanChart(stats, name, rollouts) {
     that.brush.extent(newExtent);
 
     that.brush(brushG.transition().duration(1000));
-    //brushG.call(brush.event);
   }
 
   // Hover behaviors for time series lines

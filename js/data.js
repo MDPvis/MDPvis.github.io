@@ -119,9 +119,10 @@ var data = {
     if(activeRollouts.length > 1000 ) {
       console.warn("todo: implement sampling since this will be costly computationally");
     } else if( activeRollouts.length < 1 ) {
-      $('#warningModal').modal();
+      $('.no-data-warning').show();
       return;
     }
+    $('.no-data-warning').hide();
 
     var statistics = {};
     statistics.percentiles = {};

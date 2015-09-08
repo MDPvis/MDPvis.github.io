@@ -133,6 +133,10 @@
           <div id="active-count" style="z-index:10;">
             <div class="panel panel-primary">
               <p class="comparison-warning" style="display:none;">Showing differences in values.</p>
+              <p class="no-data-warning" style="display:none;">
+                All data is filtered. Visualizations will stop updating until
+                you return to the sampled space.
+              </p>
               <p>
                 &nbsp;
                 <span class="counts displayed-state-count">0</span>
@@ -192,24 +196,6 @@
     </div><!-- /container -->
 
     <!-- Modals -->
-    <!-- Warning Modal -->
-    <div class="modal fade" id="warningModal" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="warningModalLabel">Warning</h4>
-          </div>
-          <div class="modal-body">
-            There is no data here. You should deselect your last filter.
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Server Selection Modal -->
     <div class="modal fade" id="serverSelectionModal"
       data-backdrop="static" data-keyboard="false"

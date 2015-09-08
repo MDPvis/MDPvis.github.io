@@ -242,6 +242,12 @@ body {
     text-align: center;
 }
 
+.no-data-warning {
+    color: #ffffff;
+    background-color: red;
+    text-align: center;
+}
+
 .affix {
   position: fixed;
   top: 0;

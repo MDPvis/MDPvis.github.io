@@ -17,13 +17,13 @@ var MDPVis = {
     updateAll: function() {
       // Redraw each of the initial histograms
       for( var variableName in MDPVis.charts.distributionCharts ){
-        MDPVis.charts.distributionCharts[variableName].brushCounts(data.filters.activeRollouts);
+        MDPVis.charts.distributionCharts[variableName].brushCounts(data.filteredPrimaryRollouts);
       }
 
       // Redraw each of the fan charts
       for( variableName in MDPVis.charts.temporalCharts ){
         var currentPercentiles = data.filters.statistics.percentiles[variableName];
-        MDPVis.charts.temporalCharts[variableName].updateData(currentPercentiles, data.filters.activeRollouts, false);
+        MDPVis.charts.temporalCharts[variableName].updateData(currentPercentiles, data.filteredPrimaryRollouts, false);
       }
       MDPVis.charts.updateAllBrushPositions();
     },
@@ -126,10 +126,10 @@ var MDPVis = {
         $(".rollouts-are-generating-button").hide();
 
         var rollouts = response.rollouts;
-        data.filters.currentRollouts = rollouts;
+        data.eligiblePrimaryRollouts = rollouts;
         var statistics = data.computeStatistics(rollouts);
-        data.filters.currentRollouts = rollouts;
-        data.filters.activeRollouts = data.filters.getActiveRollouts(rollouts);
+        data.eligiblePrimaryRollouts = rollouts;
+        data.filteredPrimaryRollouts = data.filters.getActiveRollouts(rollouts);
         data.updateAffix();
         MDPVis.render.renderRollouts(rollouts, statistics);
         MDPVis.server._addToHistory(rollouts, statistics, $.param(q));
@@ -404,8 +404,8 @@ var MDPVis = {
       var rollouts = data.rolloutSets[rolloutsID].rollout;
       var statistics = data.rolloutSets[rolloutsID].statistics;
       $(".generate-rollouts-button").hide();
-      data.filters.currentRollouts = rollouts;
-      data.filters.activeRollouts = data.filters.getActiveRollouts(rollouts);
+      data.eligiblePrimaryRollouts = rollouts;
+      data.filteredPrimaryRollouts = data.filters.getActiveRollouts(rollouts);
       data.updateAffix();
       MDPVis.render.renderRollouts(rollouts, statistics);
       MDPVis.charts.updateAllBrushPositions();
@@ -550,7 +550,7 @@ var MDPVis = {
       for( var variableName in MDPVis.charts.distributionCharts ) {
         MDPVis.charts.distributionCharts[variableName].intersectWithSecondRolloutSet(rollouts);
       }
-      var baseStatistics = data.computeStatistics(data.filters.activeRollouts);
+      var baseStatistics = data.computeStatistics(data.filteredPrimaryRollouts);
       for( var variableName in MDPVis.charts.temporalCharts ) {
         MDPVis.charts.temporalCharts[variableName].intersectWithSecondRolloutSet(baseStatistics.percentiles[variableName], statistics.percentiles[variableName]);
       }

@@ -11,6 +11,26 @@ var data = {
   rolloutSets: [],
 
   /**
+   * All the rollouts that would be displayed if no filters are applied.
+   */
+  eligiblePrimaryRollouts: {},
+
+  /**
+   * All the rollouts that would be compared to if no filters are applied.
+   */
+  eligibleSecondaryRollouts: {},
+
+  /**
+   * A list of rollouts in eligiblePrimaryRollouts not filtered by the current brushes.
+   */
+  filteredPrimaryRollouts: [],
+
+  /**
+   * A list of rollouts in eligibleSecondaryRollouts not filtered by the current brushes.
+   */
+  filteredSecondaryRollouts: [],
+
+  /**
    * Gives the attributes that are currently being filtered and what their
    * active range is. This object is assigned by the brushes defined by the
    * histograms.
@@ -18,8 +38,6 @@ var data = {
   filters: {
     activeFilters: {}, // The set of filters on the initial state
     filteredTimePeriod: 0, // The event numbers the filters are applied to
-    activeRollouts: [], // The set of rollouts that are not filtered
-    currentRollouts: {}, // All the eligible rollout objects
     statistics: {}, // The statistics for the current data
 
     /**
@@ -31,10 +49,10 @@ var data = {
       data.filters.filteredTimePeriod = eventNumber;
 
       // Filter the active rollouts
-      data.filters.activeRollouts = data.filters.getActiveRollouts(data.filters.currentRollouts);
+      data.filteredPrimaryRollouts = data.filters.getActiveRollouts(data.eligiblePrimaryRollouts);
 
       // Recompute the statistics
-      var stats = data.computeStatistics(data.filters.activeRollouts);
+      var stats = data.computeStatistics(data.filteredPrimaryRollouts);
       data.filters.statistics = stats;
 
       data.updateAffix();
@@ -51,10 +69,10 @@ var data = {
       data.filters.activeFilters[name] = [extent[0], extent[1]];
 
       // Filter the active rollouts
-      data.filters.activeRollouts = data.filters.getActiveRollouts(data.filters.currentRollouts);
+      data.filteredPrimaryRollouts = data.filters.getActiveRollouts(data.eligiblePrimaryRollouts);
 
       // Recompute the statistics
-      var stats = data.computeStatistics(data.filters.activeRollouts);
+      var stats = data.computeStatistics(data.filteredPrimaryRollouts);
       data.filters.statistics = stats;
 
       data.updateAffix();
@@ -69,10 +87,10 @@ var data = {
       delete data.filters.activeFilters[name];
 
       // Filter the active rollouts
-      data.filters.activeRollouts = data.filters.getActiveRollouts(data.filters.currentRollouts);
+      data.filteredPrimaryRollouts = data.filters.getActiveRollouts(data.eligiblePrimaryRollouts);
 
       // Recompute the statistics
-      var stats = data.computeStatistics(data.filters.activeRollouts);
+      var stats = data.computeStatistics(data.filteredPrimaryRollouts);
       data.filters.statistics = stats;
 
       data.updateAffix();
@@ -119,8 +137,8 @@ var data = {
    * Update the affixed message panel.
    */
   updateAffix: function() {
-    $(".displayed-state-count").text(data.filters.activeRollouts.length);
-    $(".total-state-count").text(data.filters.currentRollouts.length);
+    $(".displayed-state-count").text(data.filteredPrimaryRollouts.length);
+    $(".total-state-count").text(data.eligiblePrimaryRollouts.length);
   },
 
   /**
@@ -140,7 +158,7 @@ var data = {
     var statistics = {};
     statistics.percentiles = {};
 
-    var maxRolloutDepth = d3.max(data.filters.currentRollouts, function(d){return d.length;});
+    var maxRolloutDepth = d3.max(data.eligiblePrimaryRollouts, function(d){return d.length;});
     for( var variableName in activeRollouts[0][0] ){
       statistics.percentiles[variableName] = []; // [{percentile0:0,...,percentile100:999}]
       for( var eventIndex = 0; eventIndex < maxRolloutDepth; eventIndex++ ) {

@@ -22,7 +22,7 @@ var MDPVis = {
 
       // Redraw each of the fan charts
       for( variableName in MDPVis.charts.temporalCharts ){
-        var currentPercentiles = data.filters.statistics.percentiles[variableName];
+        var currentPercentiles = data.primaryStatistics.percentiles[variableName];
         MDPVis.charts.temporalCharts[variableName].updateData(currentPercentiles, data.filteredPrimaryRollouts, false);
       }
       MDPVis.charts.updateAllBrushPositions();

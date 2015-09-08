@@ -31,6 +31,16 @@ var data = {
   filteredSecondaryRollouts: [],
 
   /**
+   * The statistics as computed for the filtered primary data.
+   */
+  primaryStatistics: {},
+
+  /**
+   * The statistics as computed for the filtered primary data.
+   */
+  secondaryStatistics: {},
+
+  /**
    * Gives the attributes that are currently being filtered and what their
    * active range is. This object is assigned by the brushes defined by the
    * histograms.
@@ -38,23 +48,14 @@ var data = {
   filters: {
     activeFilters: {}, // The set of filters on the initial state
     filteredTimePeriod: 0, // The event numbers the filters are applied to
-    statistics: {}, // The statistics for the current data
 
     /**
      * Update the event number filters are applied to and update the data and statistics.
      * @param {int} eventNumber The event number we are going to filter.
      */
     changeFilteredTimePeriod: function(eventNumber) {
-
       data.filters.filteredTimePeriod = eventNumber;
-
-      // Filter the active rollouts
-      data.filteredPrimaryRollouts = data.filters.getActiveRollouts(data.eligiblePrimaryRollouts);
-
-      // Recompute the statistics
-      var stats = data.computeStatistics(data.filteredPrimaryRollouts);
-      data.filters.statistics = stats;
-
+      data.filters._updateActiveAndStats();
       data.updateAffix();
     },
 
@@ -65,16 +66,8 @@ var data = {
      * @param {object} extent A pair giving the extent of the filter.
      */
     addFilter: function(name, extent) {
-
       data.filters.activeFilters[name] = [extent[0], extent[1]];
-
-      // Filter the active rollouts
-      data.filteredPrimaryRollouts = data.filters.getActiveRollouts(data.eligiblePrimaryRollouts);
-
-      // Recompute the statistics
-      var stats = data.computeStatistics(data.filteredPrimaryRollouts);
-      data.filters.statistics = stats;
-
+      data.filters._updateActiveAndStats();
       data.updateAffix();
     },
 
@@ -85,14 +78,7 @@ var data = {
      */
     removeFilter: function(name) {
       delete data.filters.activeFilters[name];
-
-      // Filter the active rollouts
-      data.filteredPrimaryRollouts = data.filters.getActiveRollouts(data.eligiblePrimaryRollouts);
-
-      // Recompute the statistics
-      var stats = data.computeStatistics(data.filteredPrimaryRollouts);
-      data.filters.statistics = stats;
-
+      data.filters._updateActiveAndStats();
       data.updateAffix();
     },
 
@@ -130,6 +116,19 @@ var data = {
         }
       }
       return true;
+    },
+
+    /**
+     * Update all the data following a change in a filter.
+     * Filter the active rollouts and recompute the statistics.
+     */
+    _updateActiveAndStats: function() {
+      data.filteredPrimaryRollouts = data.filters.getActiveRollouts(data.eligiblePrimaryRollouts);
+      data.primaryStatistics = data.computeStatistics(data.filteredPrimaryRollouts);
+      if( ! $.isEmptyObject(data.eligibleSecondaryRollouts) ) {
+        data.filteredSecondaryRollouts = data.filters.getActiveRollouts(data.eligibleSecondaryRollouts);
+        data.secondaryStatistics = data.computeStatistics(data.filteredPrimaryRollouts);
+      }
     }
   },
 

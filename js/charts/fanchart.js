@@ -258,7 +258,7 @@ function FanChart(stats, name, rollouts) {
       extent[0][0] !== extent[1][0];
     if ( eventNumberChange ) {
       data.filters.changeFilteredTimePeriod(eventNumber);
-      MDPVis.render.renderRollouts(data.eligiblePrimaryRollouts, data.filters.statistics, false);
+      MDPVis.render.renderRollouts(data.eligiblePrimaryRollouts, data.primaryStatistics, false);
     } else {
       var name = that.name;
       var newMax = extent[1][1];

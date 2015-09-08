@@ -25,28 +25,28 @@ function BarChart (name, units, rollouts, accessor) {
   var width = divWidth - margin.left - margin.right,
       height = divHeight - margin.top - margin.bottom;
 
-  var extent = d3.extent(rollouts, accessor);
+  var domain = d3.extent(rollouts, accessor);
 
   // Render the zero
-  if(extent[0] === extent[1]) {
-    extent[1] = extent[1] + 1;
+  if(domain[0] === domain[1]) {
+    domain[1] = domain[1] + 1;
   }
 
-  var binStep = (extent[1] - extent[0])/(numBins-1);
+  var binStep = (domain[1] - domain[0])/(numBins-1);
 
   var x = d3.scale.linear()
-      .domain(extent)
+      .domain(domain)
       .nice()
       .range([0, width]);
 
   // Bin the data for the histogram
-  function binData(accessor, extent, binStep, rollouts, skipFilter) {
+  function binData(accessor, domain, binStep, rollouts, skipFilter) {
     var bins = [];
     for( var i = 0 ; i < numBins ; i++ ) {
       bins.push(0);
     }
     var binIndex = function(d) {
-      var bindex = Math.floor((accessor(d) - extent[0])/binStep);
+      var bindex = Math.floor((accessor(d) - domain[0])/binStep);
       return bindex;
     }
     rollouts.forEach(function(rollout) {
@@ -56,7 +56,7 @@ function BarChart (name, units, rollouts, accessor) {
     });
     return bins;
   }
-  var bins = binData(accessor, extent, binStep, rollouts, true);
+  var bins = binData(accessor, domain, binStep, rollouts, true);
 
   // Create the axes
   var y = d3.scale.linear()
@@ -88,7 +88,7 @@ function BarChart (name, units, rollouts, accessor) {
     .enter().append("g")
       .attr("class", "bar")
       .attr("transform", function(d, idx) { 
-        return "translate(" + x(extent[0] + binStep*idx) + "," + y(d) + ")"; });
+        return "translate(" + x(domain[0] + binStep*idx) + "," + y(d) + ")"; });
 
   // Plot the bar rectangles
   var rect = bar.append("rect")
@@ -101,7 +101,7 @@ function BarChart (name, units, rollouts, accessor) {
     .enter().append("g")
       .attr("class", "bar-extent")
       .attr("transform", function(d, idx) { 
-        return "translate(" + x(extent[0] + binStep*idx) + "," + y(d) + ")"; });
+        return "translate(" + x(domain[0] + binStep*idx) + "," + y(d) + ")"; });
   var rectExtent = barExtent.append("rect")
       .attr("x", 1)
       .attr("width", width / numBins - 1)
@@ -172,10 +172,10 @@ function BarChart (name, units, rollouts, accessor) {
       .scale(y)
       .orient("left");
   var comparisonMode = false;
-  var comparatorRollouts, comparedBinStep, extentUnion, yAxisG;
+  var comparatorRollouts, comparedBinStep, domainUnion, yAxisG;
   function intersectedBrushCounts() {
-    var originalInNewBins = binData(accessor, extentUnion, comparedBinStep, rollouts, false);
-    var comparatorBins = binData(accessor, extentUnion, comparedBinStep, comparatorRollouts, false); // Update the counts
+    var originalInNewBins = binData(accessor, domainUnion, comparedBinStep, rollouts, false);
+    var comparatorBins = binData(accessor, domainUnion, comparedBinStep, comparatorRollouts, false); // Update the counts
     var binDifferences = [];
     for( var i = 0; i < originalInNewBins.length; i++ ) {
       binDifferences.push(originalInNewBins[i] - comparatorBins[i]);
@@ -183,7 +183,7 @@ function BarChart (name, units, rollouts, accessor) {
 
     // Move existing bars.
     bar.data(binDifferences).transition().duration(1000).attr("transform", function(d, idx) {
-        return "translate(" + x(extentUnion[0] + comparedBinStep*idx) + "," + Math.min(y(d), y(0)) + ")";});
+        return "translate(" + x(domainUnion[0] + comparedBinStep*idx) + "," + Math.min(y(d), y(0)) + ")";});
 
     // Plot the bar rectangles
     rect.data(binDifferences).transition().duration(1000).attr("height", function(d,idx) {
@@ -200,11 +200,11 @@ function BarChart (name, units, rollouts, accessor) {
       return;
     }
 
-    bins = binData(accessor, extent, binStep, rollouts, false); // Update the counts
+    bins = binData(accessor, domain, binStep, rollouts, false); // Update the counts
 
     // Move existing bars.
     bar.data(bins).transition().duration(1000).attr("transform", function(d, idx) {
-        return "translate(" + x(extent[0] + binStep*idx) + "," + y(d) + ")";});
+        return "translate(" + x(domain[0] + binStep*idx) + "," + y(d) + ")";});
 
     // Plot the bar rectangles
     rect.data(bins).transition().duration(1000).attr("height", function(d,idx) { 
@@ -218,20 +218,20 @@ function BarChart (name, units, rollouts, accessor) {
   this.intersectWithSecondRolloutSet = function(cRollouts) {
     comparisonMode = true;
     comparatorRollouts = cRollouts;
-    var comparatorExtent = d3.extent(comparatorRollouts, accessor);
-    extentUnion = [
-      Math.min(comparatorExtent[0], extent[0]),
-      Math.min(comparatorExtent[1], extent[1])
+    var comparatorDomain = d3.extent(comparatorRollouts, accessor);
+    domainUnion = [
+      Math.min(comparatorDomain[0], domain[0]),
+      Math.min(comparatorDomain[1], domain[1])
     ];
 
     // Render the zero
-    if(extentUnion[0] === extentUnion[1]) {
-      extentUnion[1] = extentUnion[1] + 1;
+    if(domainUnion[0] === domainUnion[1]) {
+      domainUnion[1] = domainUnion[1] + 1;
     }
 
-    comparedBinStep = (extentUnion[1] - extentUnion[0])/(numBins-1);
+    comparedBinStep = (domainUnion[1] - domainUnion[0])/(numBins-1);
 
-    x.domain(extentUnion)
+    x.domain(domainUnion)
       .nice();
     xAxis.scale(x);
 
@@ -245,8 +245,8 @@ function BarChart (name, units, rollouts, accessor) {
          .call(yAxis);
     }
 
-    var originalInNewBins = binData(accessor, extentUnion, comparedBinStep, rollouts, true);
-    var comparatorBins = binData(accessor, extentUnion, comparedBinStep, comparatorRollouts, true); // Update the counts
+    var originalInNewBins = binData(accessor, domainUnion, comparedBinStep, rollouts, true);
+    var comparatorBins = binData(accessor, domainUnion, comparedBinStep, comparatorRollouts, true); // Update the counts
 
     var binDifferences = [];
     for( var i = 0; i < originalInNewBins.length; i++ ) {
@@ -255,19 +255,19 @@ function BarChart (name, units, rollouts, accessor) {
 
     barExtent.data(binDifferences)
       .transition().duration(1000).attr("transform", function(d, idx) {
-        return "translate(" + x(extentUnion[0] + comparedBinStep*idx) + "," + Math.min(y(d), y(0)) + ")";});
+        return "translate(" + x(domainUnion[0] + comparedBinStep*idx) + "," + Math.min(y(d), y(0)) + ")";});
 
     rectExtent.data(binDifferences).transition().duration(1000).attr("height", function(d,idx) {
             return Math.abs(y(d) - height/2); });
 
 
     // todo: this is inneficient since it is binning twice
-    originalInNewBins = binData(accessor, extentUnion, comparedBinStep, rollouts, false);
-    comparatorBins = binData(accessor, extentUnion, comparedBinStep, comparatorRollouts, false); // Update the counts
+    originalInNewBins = binData(accessor, domainUnion, comparedBinStep, rollouts, false);
+    comparatorBins = binData(accessor, domainUnion, comparedBinStep, comparatorRollouts, false); // Update the counts
 
     // Move existing bars.
     bar.data(binDifferences).transition().duration(1000).attr("transform", function(d, idx) {
-      return "translate(" + x(extentUnion[0] + comparedBinStep*idx) + "," + Math.min(y(d), y(0)) + ")";
+      return "translate(" + x(domainUnion[0] + comparedBinStep*idx) + "," + Math.min(y(d), y(0)) + ")";
     });
 
     // Plot the bar rectangles
@@ -297,7 +297,7 @@ function BarChart (name, units, rollouts, accessor) {
   this.updateData = function(newRollouts, newAccessor) {
     accessor = newAccessor;
     rollouts = newRollouts;
-    extent = d3.extent(rollouts, accessor);
+    domain = d3.extent(rollouts, accessor);
 
     // Turn off comparisons (if it was on to begin with)
     comparisonMode = false;
@@ -310,13 +310,13 @@ function BarChart (name, units, rollouts, accessor) {
     centerLine.style("display", "none");
 
     // Render the zero
-    if(extent[0] === extent[1]) {
-      extent[1] = extent[1] + 1;
+    if(domain[0] === domain[1]) {
+      domain[1] = domain[1] + 1;
     }
 
-    binStep = (extent[1] - extent[0])/(numBins-1);
+    binStep = (domain[1] - domain[0])/(numBins-1);
 
-    x.domain(extent)
+    x.domain(domain)
       .nice();
     tickFormat = this.chartTickFormat(x.domain());
     tickCount = this.chartTickCount(x.domain(), tickFormat);
@@ -327,11 +327,11 @@ function BarChart (name, units, rollouts, accessor) {
 
     y.domain([0, rollouts.length]);
 
-    bins = binData(accessor, extent, binStep, rollouts, true); // Update the counts
+    bins = binData(accessor, domain, binStep, rollouts, true); // Update the counts
 
     // Move existing bars.
     bar.data(bins).transition().duration(1000).attr("transform", function(d, idx) {
-        return "translate(" + x(extent[0] + binStep*idx) + "," + y(d) + ")";});
+        return "translate(" + x(domain[0] + binStep*idx) + "," + y(d) + ")";});
 
     // Plot the bar rectangles
     rect.data(bins).transition().duration(1000).attr("height", function(d,idx) {
@@ -339,7 +339,7 @@ function BarChart (name, units, rollouts, accessor) {
 
     barExtent.data(bins)
       .transition().duration(1000).attr("transform", function(d, idx) {
-        return "translate(" + x(extent[0] + binStep*idx) + "," + y(d) + ")";});
+        return "translate(" + x(domain[0] + binStep*idx) + "," + y(d) + ")";});
 
     rectExtent.data(bins).transition().duration(1000).attr("height", function(d,idx) {
             return height - y(d); });

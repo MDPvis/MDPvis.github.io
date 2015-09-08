@@ -543,10 +543,12 @@ var MDPVis = {
 
     /**
      * Brush the visualization for a change in a temporal chart's brush.
-     * @param {string} name The name of the variable being brushed.
-     * @param {array} extent The extent of the current brush.
+     * @param {object} chart The chart object being brushed.
      */
-    brushTemporalChart: function(name, extent) {
+    brushTemporalChart: function(chart) {
+
+      var name = chart.name;
+      var extent = chart.brush.extent();
 
       var newMax = extent[1][1];
       var newMin = extent[0][1];

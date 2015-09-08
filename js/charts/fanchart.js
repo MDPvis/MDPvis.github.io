@@ -17,7 +17,7 @@ function FanChart(stats, name, rollouts) {
 
   // Indicates whether the vis is currently displaying two
   // datasets in the comparison mode.
-  var intersected = false;
+  this.intersected = false;
 
   // Set the height and width from the style of the div element
   var divWidth = 10/12 * $(window).width();
@@ -149,8 +149,8 @@ function FanChart(stats, name, rollouts) {
     var newDomainMin = d3.min(percentiles, function(d){return d["percentile0"]});
     var rescale = x.domain()[1] !== percentiles.length;
 
-    if ( rescale || intersected || isNewData ) {
-      intersected = false;
+    if ( rescale || that.intersected || isNewData ) {
+      that.intersected = false;
       domainMax = newDomainMax;
       domainMin = newDomainMin;
       rescaleYAxis(newDomainMin, newDomainMax);
@@ -187,7 +187,7 @@ function FanChart(stats, name, rollouts) {
    */
   this.intersectWithSecondRolloutSet = function(basePercentiles, comparatorPercentiles) {
 
-    intersected = true;
+    that.intersected = true;
 
     $("[data-line-name='" + name + "']").remove();
     $(".area").show();
@@ -255,7 +255,7 @@ function FanChart(stats, name, rollouts) {
       newExtent[1][1] = 0;
       newExtent[0][1] = 0;
     }
-    MDPVis.brush.brushTemporalChart(that.name, newExtent);
+    MDPVis.brush.brushTemporalChart(that);
     that.updateContextPanel();
   }
   this.removeBrush = function() {

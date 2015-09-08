@@ -12,32 +12,6 @@ function Chart() {
   this.getDOMNode = function() {
     return DOMDiv;
   };
-
-  this.updateContextPanel = function(){
-    if( ! data.filters.activeFilters[that.name] ) {
-      contextPanel.updatePanelText("No active filters.");
-      contextPanel.dissableBrushButton();
-    } else {
-      var extent = that.brush.extent();
-      if( typeof extent[0] === "object" ) {
-        extent[1][0] = extent[1][0].toFixed(2);
-        extent[1][1] = extent[1][1].toFixed(2);
-        var eventNumber = Math.floor(extent[0][0]);
-        contextPanel.updatePanelText("Event: " + eventNumber + ", [" + extent[1][0] + ", " + extent[1][1] + "]");
-      } else {
-        extent[0] = extent[0].toFixed(2);
-        extent[1] = extent[1].toFixed(2);
-        contextPanel.updatePanelText("Brush: [" + extent[0] + ", " + extent[1] + "]");
-      }
-      contextPanel.enableBrushButton();
-    }
-    $(".highlight").removeClass("highlight");
-    $(DOMDiv).addClass("highlight");
-    contextPanel.showPanel(that);
-  }
-
-  // Show the context panel when this is hovered
-  $(this.getDOMNode()).mouseenter(this.updateContextPanel);
 }
 
 /**
@@ -45,6 +19,7 @@ function Chart() {
  */
 function DistributionChart() {
   Chart.call(this);
+  var that = this;
 
   /**
    * Determine the number of ticks on the x axis.
@@ -65,7 +40,7 @@ function DistributionChart() {
     } else {
       return 4;
     }
-  }
+  };
 
   /**
    * Determine the number of ticks on the x axis.
@@ -82,7 +57,28 @@ function DistributionChart() {
     } else {
       return defaultFormat;
     }
-  }
+  };
+
+  /**
+   * Show the context panel for this element, including the brush
+   * state.
+   */
+  this.updateContextPanel = function(){
+    if( ! data.filters.activeFilters[that.name] ) {
+      contextPanel.updatePanelText("No active filters.");
+      contextPanel.dissableBrushButton();
+    } else {
+      var extent = that.brush.extent();
+      extent[0] = extent[0].toFixed(2);
+      extent[1] = extent[1].toFixed(2);
+      contextPanel.updatePanelText("Brush: [" + extent[0] + ", " + extent[1] + "]");
+      contextPanel.enableBrushButton();
+    }
+    $(".highlight").removeClass("highlight");
+    $(that.getDOMNode()).addClass("highlight");
+    contextPanel.showPanel(that);
+  };
+  $(this.getDOMNode()).mouseenter(this.updateContextPanel);
 
 }
 
@@ -92,6 +88,37 @@ function DistributionChart() {
 function TemporalChart() {
   Chart.call(this);
   this.getDOMNode().style.float = "";
+  var that = this;
+
+  /**
+   * Show the context panel for this element, including the brush
+   * state.
+   */
+  this.updateContextPanel = function(){
+    if( that.intersected ) {
+      contextPanel.dissableBrushButton();
+      contextPanel.updatePanelText(
+        "You can only update the event " +
+        "number from the fan chart when comparing. " +
+        "You can brush the rollouts from the state " +
+        "distributions at a particular time step");
+    } else if( ! data.filters.activeFilters[that.name] ) {
+      contextPanel.updatePanelText("No active filters.");
+      contextPanel.dissableBrushButton();
+    } else {
+      var extent = that.brush.extent();
+      extent[1][0] = extent[1][0].toFixed(2);
+      extent[1][1] = extent[1][1].toFixed(2);
+      var eventNumber = Math.floor(extent[0][0]);
+      contextPanel.updatePanelText("Event: " + eventNumber + ", [" + extent[1][0] + ", " + extent[1][1] + "]");
+      contextPanel.enableBrushButton();
+    }
+    $(".highlight").removeClass("highlight");
+    $(that.getDOMNode()).addClass("highlight");
+    contextPanel.showPanel(that);
+  };
+  $(this.getDOMNode()).mouseenter(this.updateContextPanel);
+
 }
 
 /**

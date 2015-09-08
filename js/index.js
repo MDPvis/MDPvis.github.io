@@ -9,7 +9,55 @@ var MDPVis = {
    */
   charts: {
     distributionCharts: {},
-    temporalCharts: {}
+    temporalCharts: {},
+
+    /**
+     * Update the rendering of all the existing charts based on the current data.
+     */
+    updateAll: function() {
+      // Redraw each of the initial histograms
+      for( var variableName in MDPVis.charts.distributionCharts ){
+        MDPVis.charts.distributionCharts[variableName].brushCounts(data.filters.activeRollouts);
+      }
+
+      // Redraw each of the fan charts
+      for( variableName in MDPVis.charts.temporalCharts ){
+        var currentPercentiles = data.filters.statistics.percentiles[variableName];
+        MDPVis.charts.temporalCharts[variableName].updateData(currentPercentiles, data.filters.activeRollouts, false);
+      }
+      MDPVis.charts.updateAllBrushPositions();
+    },
+
+    /**
+     * Update the position of all the brushes for their currently defined filter
+     * positions. This does not change any data or filter values, it only changes
+     * where brushes are rendered on the charts.
+     */
+    updateAllBrushPositions: function(){
+      var extent, eventDepth;
+
+      for( var variableName in MDPVis.charts.distributionCharts ){
+        if( data.filters.activeFilters[variableName] !== undefined ) {
+          extent = data.filters.activeFilters[variableName];
+          MDPVis.charts.distributionCharts[variableName].updateBrush(extent);
+        } else {
+          // Reset the brush
+          MDPVis.charts.distributionCharts[variableName].updateBrush([0,0]);
+        }
+      }
+      for( variableName in MDPVis.charts.temporalCharts ){
+        eventDepth = data.filters.filteredTimePeriod;
+        if( data.filters.activeFilters[variableName] !== undefined ) {
+          var yExtent = data.filters.activeFilters[variableName];
+          extent = [[eventDepth, yExtent[0]],[eventDepth + .5, yExtent[1]]];
+          MDPVis.charts.temporalCharts[variableName].updateBrush(extent);
+        } else {
+          // Reset the brush
+          extent = [[eventDepth, 0], [eventDepth + .5, 0]];
+          MDPVis.charts.temporalCharts[variableName].updateBrush(extent);
+        }
+      }
+    }
   },
 
   /**
@@ -356,7 +404,7 @@ var MDPVis = {
       $(".generate-rollouts-button").hide();
       data.filters.assignActiveRollouts(rollouts);
       MDPVis.render.renderRollouts(rollouts, statistics);
-      MDPVis.brush._updateAllBrushPositions();
+      MDPVis.charts.updateAllBrushPositions();
       $(".rollouts-are-current-button").show();
       $(".policy-is-optimized-button").hide();
       $(".optimize-policy-button").show();
@@ -425,7 +473,7 @@ var MDPVis = {
       var rollouts = data.rolloutSets[rolloutsID].rollout;
       var statistics = data.computeStatistics(rollouts);
       MDPVis.render.compare(rollouts, statistics);
-      MDPVis.brush._updateAllBrushPositions();
+      MDPVis.charts.updateAllBrushPositions();
 
       // Update the affix distance since its position shifted
       var countElement = $("#active-count");
@@ -472,6 +520,7 @@ var MDPVis = {
         };
       }
 
+      MDPVis.charts.updateAllBrushPositions();
       $(".rollouts-are-current-button").show();
     },
 
@@ -510,120 +559,6 @@ var MDPVis = {
     _createInitialStateAccessor: function(variableName, eventNumber) {
       return function(d) {
         return d[Math.min(eventNumber, d.length - 1)][variableName];
-      }
-    }
-  },
-
-  /**
-   * Functions associated with updating data and brushes following a brush event.
-   */
-  brush: {
-
-    /**
-     * A distribution chart's brush has changed.
-     * This will update the corresponding brush in the other charts and the
-     * rollouts will be filtered.
-     * @param {string} name The name of the variable being brushed.
-     * @param {array} extent The extent of the current brush.
-     */
-    brushDistributionChart: function(name, extent) {
-
-      // Remove filter if it was removed
-      if( extent[0] === extent[1] ) {
-        data.filters.removeFilter(name);
-      } else {
-        data.filters.addFilter(name, extent);
-      }
-
-      // Redraw each of the initial histograms
-      for( var variableName in MDPVis.charts.distributionCharts ){
-        MDPVis.charts.distributionCharts[variableName].brushCounts(data.filters.activeRollouts);
-      }
-
-      // Redraw each of the fan charts
-      for( variableName in MDPVis.charts.temporalCharts ){
-        var currentPercentiles = data.filters.statistics.percentiles[variableName];
-        MDPVis.charts.temporalCharts[variableName].updateData(currentPercentiles, data.filters.activeRollouts, false);
-      }
-      MDPVis.brush._updateAllBrushPositions();
-    },
-
-    /**
-     * Brush the visualization for a change in a temporal chart's brush.
-     * @param {object} chart The chart object being brushed.
-     */
-    brushTemporalChart: function(chart) {
-
-      var name = chart.name;
-      var extent = chart.brush.extent();
-
-      var newMax = extent[1][1];
-      var newMin = extent[0][1];
-      var filteredValueChange = (newMax !== newMin);
-      var filteredValueRemoved = false;
-
-      // Assign the event number.
-      // Don't add a filter if the eventNumber changed since the filter
-      // extent can't change when the eventNumber changes. This matters if the
-      // range changes upon changing the rollout set.
-      var eventNumber = Math.floor(extent[0][0]);
-      var eventNumberChange = data.filters.filteredTimePeriod !==  eventNumber &&
-        extent[0][0] !== extent[1][0];
-      if ( eventNumberChange ) {
-        data.filters.changeFilteredTimePeriod(eventNumber);
-      } else if( filteredValueChange ){
-        data.filters.addFilter(name, [newMin, newMax]);
-      } else {
-        filteredValueRemoved = true;
-        data.filters.removeFilter(name);
-      }
-
-      // Render the new data if the event depth changed,
-      // otherwise just brush the initial histograms and render the fan charts
-      var stats = data.filters.statistics;
-      if( eventNumberChange ) {
-        MDPVis.render.renderRollouts(data.filters.currentRollouts, stats, false);
-      } else if( filteredValueChange || filteredValueRemoved ) {
-
-        // Redraw each of the initial histograms
-        for( var variableName in MDPVis.charts.distributionCharts ){
-          MDPVis.charts.distributionCharts[variableName].brushCounts(data.filters.activeRollouts);
-        }
-        MDPVis.render.rendertemporalCharts(data.filters.activeRollouts, stats, false);
-      }
-
-      MDPVis.brush._updateAllBrushPositions();
-    },
-
-    /**
-     * Update the position of all the brushes for their currently defined filter
-     * positions. This does not change any data or filter values, it only changes
-     * where brushes are rendered on the charts.
-     */
-    _updateAllBrushPositions: function() {
-
-      var extent, eventDepth;
-
-      for( var variableName in MDPVis.charts.distributionCharts ){
-        if( data.filters.activeFilters[variableName] !== undefined ) {
-          extent = data.filters.activeFilters[variableName];
-          MDPVis.charts.distributionCharts[variableName].updateBrush(extent);
-        } else {
-          // Reset the brush
-          MDPVis.charts.distributionCharts[variableName].updateBrush([0,0]);
-        }
-      }
-      for( variableName in MDPVis.charts.temporalCharts ){
-        eventDepth = data.filters.filteredTimePeriod;
-        if( data.filters.activeFilters[variableName] !== undefined ) {
-          var yExtent = data.filters.activeFilters[variableName];
-          extent = [[eventDepth, yExtent[0]],[eventDepth + .5, yExtent[1]]];
-          MDPVis.charts.temporalCharts[variableName].updateBrush(extent);
-        } else {
-          // Reset the brush
-          extent = [[eventDepth, 0], [eventDepth + .5, 0]];
-          MDPVis.charts.temporalCharts[variableName].updateBrush(extent);
-        }
       }
     }
   },

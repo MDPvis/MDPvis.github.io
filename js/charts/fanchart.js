@@ -248,19 +248,31 @@ function FanChart(stats, name, rollouts) {
    */
   var brushEnd = function() {
     if (d3.event && !d3.event.sourceEvent) return; // only transition after input
-    var newExtent = that.brush.extent();
     if( that.brush.empty() ) {
-      that.brush.extent(defaultExtent);
-      that.brush(brushG.transition().duration(1000));
-      newExtent[1][1] = 0;
-      newExtent[0][1] = 0;
+      that.removeBrush();
+      return;
     }
-    MDPVis.brush.brushTemporalChart(that);
+    var extent = that.brush.extent();
+    var eventNumber = Math.floor(extent[0][0]);
+    var eventNumberChange = data.filters.filteredTimePeriod !==  eventNumber &&
+      extent[0][0] !== extent[1][0];
+    if ( eventNumberChange ) {
+      data.filters.changeFilteredTimePeriod(eventNumber);
+      MDPVis.render.renderRollouts(data.filters.currentRollouts, data.filters.statistics, false);
+    } else {
+      var name = that.name;
+      var newMax = extent[1][1];
+      var newMin = extent[0][1];
+      data.filters.addFilter(name, [newMin, newMax]);
+      MDPVis.charts.updateAll();
+    }
     that.updateContextPanel();
   }
   this.removeBrush = function() {
-    that.brush.extent(defaultExtent);
-    brushEnd();
+    that.brush.clear();
+    data.filters.removeFilter(that.name);
+    MDPVis.charts.updateAll();
+    that.updateContextPanel();
   }
 
   var defaultExtent = [[0, domainMin], [.5, domainMax]];//[[x0,y0],[x1,y1]]

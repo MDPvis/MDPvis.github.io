@@ -126,9 +126,10 @@ function BarChart (name, units, rollouts, accessor) {
     if( extent[0] === extent[1] ) {
       that.removeBrush();
     } else {
-      MDPVis.brush.brushDistributionChart(name, that.brush.extent());
+      data.filters.addFilter(that.name, extent);
+      MDPVis.charts.updateAll();
+      that.updateContextPanel();
     }
-    that.updateContextPanel();
   }
   var brushDrag = function() {
     var extent = that.brush.extent();
@@ -140,7 +141,8 @@ function BarChart (name, units, rollouts, accessor) {
   }
   this.removeBrush = function() {
     that.brush.clear();
-    MDPVis.brush.brushDistributionChart(name, [0,0]);
+    data.filters.removeFilter(that.name);
+    MDPVis.charts.updateAll();
     that.updateContextPanel();
   }
 

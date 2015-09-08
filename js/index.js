@@ -77,6 +77,14 @@ var MDPVis = {
         $(".policy-is-optimizing-button").hide();
         $(".rollouts-are-generating-button").hide();
 
+        var rollouts = response.rollouts;
+        data.filters.currentRollouts = rollouts;
+        var statistics = data.computeStatistics(rollouts);
+        data.filters.assignActiveRollouts(rollouts);
+        MDPVis.render.renderRollouts(rollouts, statistics);
+        MDPVis.server._addToHistory(rollouts, statistics, $.param(q));
+        $("input").prop('disabled', false);
+
         // Affix the rollout count when scrolling down
         var countElement = $("#active-count");
         countElement
@@ -87,13 +95,6 @@ var MDPVis = {
             }
         });
 
-        var rollouts = response.rollouts;
-        data.filters.currentRollouts = rollouts;
-        var statistics = data.computeStatistics(rollouts);
-        data.filters.assignActiveRollouts(rollouts);
-        MDPVis.render.renderRollouts(rollouts, statistics);
-        MDPVis.server._addToHistory(rollouts, statistics, $.param(q));
-        $("input").prop('disabled', false);
       })
       .fail(function(response) {
         alert("Failed to fetch rollouts. Try reloading.");

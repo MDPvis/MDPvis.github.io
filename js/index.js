@@ -361,6 +361,10 @@ var MDPVis = {
       $(".policy-is-optimized-button").hide();
       $(".optimize-policy-button").show();
       MDPVis.updateHash();
+
+      // Update the affix distance since its position shifted
+      var countElement = $("#active-count");
+      countElement.data('bs.affix').options.offset.top = countElement.offset().top;
     },
 
     /**
@@ -422,6 +426,10 @@ var MDPVis = {
       var statistics = data.computeStatistics(rollouts);
       MDPVis.render.compare(rollouts, statistics);
       MDPVis.brush._updateAllBrushPositions();
+
+      // Update the affix distance since its position shifted
+      var countElement = $("#active-count");
+      countElement.data('bs.affix').options.offset.top = countElement.offset().top;
     }
   },
 

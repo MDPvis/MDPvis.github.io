@@ -55,7 +55,7 @@ var data = {
      */
     changeFilteredTimePeriod: function(eventNumber) {
       data.filters.filteredTimePeriod = eventNumber;
-      data.filters._updateActiveAndStats();
+      data.filters.updateActiveAndStats();
       data.updateAffix();
     },
 
@@ -67,7 +67,7 @@ var data = {
      */
     addFilter: function(name, extent) {
       data.filters.activeFilters[name] = [extent[0], extent[1]];
-      data.filters._updateActiveAndStats();
+      data.filters.updateActiveAndStats();
       data.updateAffix();
     },
 
@@ -78,7 +78,7 @@ var data = {
      */
     removeFilter: function(name) {
       delete data.filters.activeFilters[name];
-      data.filters._updateActiveAndStats();
+      data.filters.updateActiveAndStats();
       data.updateAffix();
     },
 
@@ -122,13 +122,14 @@ var data = {
      * Update all the data following a change in a filter.
      * Filter the active rollouts and recompute the statistics.
      */
-    _updateActiveAndStats: function() {
+    updateActiveAndStats: function() {
       data.filteredPrimaryRollouts = data.filters.getActiveRollouts(data.eligiblePrimaryRollouts);
       data.primaryStatistics = data.computeStatistics(data.filteredPrimaryRollouts);
       if( ! $.isEmptyObject(data.eligibleSecondaryRollouts) ) {
         data.filteredSecondaryRollouts = data.filters.getActiveRollouts(data.eligibleSecondaryRollouts);
         data.secondaryStatistics = data.computeStatistics(data.filteredPrimaryRollouts);
       }
+      data.updateAffix();
     }
   },
 

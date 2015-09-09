@@ -193,14 +193,14 @@ function BarChart (name, units, rollouts, accessor) {
   /**
    * Updates the displayed counts on the chart
    */
-  this.brushCounts = function(rollouts) {
+  this.brushCounts = function() {
 
     if( intersected ) {
       intersectedBrushCounts();
       return;
     }
 
-    bins = binData(accessor, domain, binStep, rollouts, false); // Update the counts
+    bins = binData(accessor, domain, binStep, data.filteredPrimaryRollouts, false); // Update the counts
 
     // Move existing bars.
     bar.data(bins).transition().duration(1000).attr("transform", function(d, idx) {

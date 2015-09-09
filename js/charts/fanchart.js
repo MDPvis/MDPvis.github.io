@@ -140,7 +140,7 @@ function FanChart(stats, name, rollouts) {
    * @param {boolean} isNewData indicates whether the data is new
    * or it was just filtered.
    */
-  this.updateData = function(percentiles, rollouts, isNewData) {
+  this.updateData = function(percentiles, isNewData) {
 
     // Hide the centerline from comparison mode
     centerLine.style("display", "none");
@@ -167,8 +167,8 @@ function FanChart(stats, name, rollouts) {
     }
 
     // Show lines instead of percentiles if there are not many lines
-    if( rollouts.length < 20 ) {
-      this.renderLines(rollouts);
+    if( data.filteredPrimaryRollouts.length < 20 ) {
+      this.renderLines(data.filteredPrimaryRollouts);
       return;
     }
     $("[data-line-name='" + name + "']").remove();

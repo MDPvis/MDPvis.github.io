@@ -17,13 +17,13 @@ var MDPVis = {
     updateAll: function() {
       // Redraw each of the initial histograms
       for( var variableName in MDPVis.charts.distributionCharts ){
-        MDPVis.charts.distributionCharts[variableName].brushCounts(data.filteredPrimaryRollouts);
+        MDPVis.charts.distributionCharts[variableName].brushCounts();
       }
 
       // Redraw each of the fan charts
       for( variableName in MDPVis.charts.temporalCharts ){
         var currentPercentiles = data.primaryStatistics.percentiles[variableName];
-        MDPVis.charts.temporalCharts[variableName].updateData(currentPercentiles, data.filteredPrimaryRollouts, false);
+        MDPVis.charts.temporalCharts[variableName].updateData(currentPercentiles, false);
       }
       MDPVis.charts.updateAllBrushPositions();
     },
@@ -125,14 +125,10 @@ var MDPVis = {
         $(".policy-is-optimizing-button").hide();
         $(".rollouts-are-generating-button").hide();
 
-        var rollouts = response.rollouts;
-        data.eligiblePrimaryRollouts = rollouts;
-        var statistics = data.computeStatistics(rollouts);
-        data.eligiblePrimaryRollouts = rollouts;
-        data.filteredPrimaryRollouts = data.filters.getActiveRollouts(rollouts);
-        data.updateAffix();
-        MDPVis.render.renderRollouts(rollouts, statistics);
-        MDPVis.server._addToHistory(rollouts, statistics, $.param(q));
+        data.eligiblePrimaryRollouts = response.rollouts;
+        data.filters.updateActiveAndStats();
+        MDPVis.render.renderRollouts();
+        MDPVis.server._addToHistory(data.eligiblePrimaryRollouts, data.primaryStatistics, $.param(q));
         $("input").prop('disabled', false);
 
         // Affix the rollout count when scrolling down
@@ -405,9 +401,8 @@ var MDPVis = {
       var statistics = data.rolloutSets[rolloutsID].statistics;
       $(".generate-rollouts-button").hide();
       data.eligiblePrimaryRollouts = rollouts;
-      data.filteredPrimaryRollouts = data.filters.getActiveRollouts(rollouts);
-      data.updateAffix();
-      MDPVis.render.renderRollouts(rollouts, statistics);
+      data.filters.updateActiveAndStats();
+      MDPVis.render.renderRollouts();
       MDPVis.charts.updateAllBrushPositions();
       $(".rollouts-are-current-button").show();
       $(".policy-is-optimized-button").hide();
@@ -492,11 +487,9 @@ var MDPVis = {
 
     /**
      * Render the newly returned rollouts to the visualization.
-     * @param {object} rollouts The rollouts object.
-     * @param {object} statistics The statistics computed for the selected rollouts.
      * @param {boolean} rescale optional parameter indicating whether temporal charts should be rescaled.
      */
-    renderRollouts: function(rollouts, statistics, rescale) {
+    renderRollouts: function(rescale) {
 
       // Default to rescaling axes
       if( typeof rescale !== "boolean" ) {
@@ -506,19 +499,27 @@ var MDPVis = {
       // If we have charts to update, else create all the things
       if ( Object.keys(MDPVis.charts.distributionCharts).length > 0 ) {
         for( var variableName in MDPVis.charts.distributionCharts ) {
-          MDPVis.charts.distributionCharts[variableName].updateData(rollouts,
+          MDPVis.charts.distributionCharts[variableName].updateData(data.filteredPrimaryRollouts,
             MDPVis.render._createInitialStateAccessor(variableName, data.filters.filteredTimePeriod));
         }
-        MDPVis.render.rendertemporalCharts(rollouts, statistics, rescale);
+        MDPVis.render.rendertemporalCharts(
+          data.filteredPrimaryRollouts,
+          data.primaryStatistics,
+          rescale);
       } else {
-        for( var variableName in rollouts[0][0] ){
+        for( var variableName in data.eligiblePrimaryRollouts[0][0] ){
           var barChart = new BarChart(
-            variableName, "units", rollouts,
+            variableName,
+            "units",
+            data.filteredPrimaryRollouts,
             MDPVis.render._createInitialStateAccessor(variableName, 0));
           MDPVis.charts.distributionCharts[variableName] = barChart;
           $(".initial-states").append(barChart.getDOMNode());
 
-          var fanChart = new FanChart(statistics.percentiles[variableName], variableName, rollouts);
+          var fanChart = new FanChart(
+            data.primaryStatistics.percentiles[variableName],
+            variableName,
+            data.filteredPrimaryRollouts);
           MDPVis.charts.temporalCharts[variableName] = fanChart;
           $(".line-charts").append(fanChart.getDOMNode());
         };
@@ -536,7 +537,7 @@ var MDPVis = {
      */
     rendertemporalCharts: function(rollouts, statistics, rescale) {
       for( var variableName in MDPVis.charts.temporalCharts ) {
-        MDPVis.charts.temporalCharts[variableName].updateData(statistics.percentiles[variableName], rollouts, rescale);
+        MDPVis.charts.temporalCharts[variableName].updateData(statistics.percentiles[variableName], rescale);
       }
     },
 

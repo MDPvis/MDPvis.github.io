@@ -125,6 +125,43 @@ An example of the expected return format is:
                }
            }
 
+# Adding Additional Visualizations
+
+There is a default set of visualizations, but if you want to add your own visualizations you should be aware of the three visualization types in MDPvis. These break Monte Carlo rollouts into visualizations for a single time step, variables through time (temporal distributions), and details on a single rollout. Details on these three aspects are below.
+
+**Single Time Step Distributions**
+
+Monte Carlo rollouts produce a distribution of states at every time step. This view gives details on the distribution for the currently selected time step. Users may select the current time step for all these visualizations simultaneously from the top of the visualization area, or from the temporal distribution area.
+
+* Histogram
+* Bar Chart (comparison mode)
+
+**Temporal Distributions**
+
+In this area we show how the distribution of state variables develops through time.
+
+* Fan Chart
+* Fan Chart (comparison mode)
+* Time Series
+
+**Single Rollout**
+
+Here a single rollout is shown. This could give a sequence of state snapshots provided as images from the MDP simulator.
+
+* State images (provided by simulator)
+* Stats panel
+
+## Implementing a New Visualization
+
+If you are interested in implementing a new visualization within MDPvis, we encourage you to make contact by opening an issue in this visualization. The code base is under active development and will be changing substantially to be more easily extensible.
+
+You've been warned. Here are the steps:
+
+1. Select a visualization aspect (Single Time Step Distributions, Temporal Distributions, Single Rollout)
+1. Copy an existing visualization's script that has the chosen aspect
+1. Add the script to index.html
+1. Update the index.js script to call your visualization and add it to the DOM.
+
 # Credits and Contact
 
 If you are having trouble integrating MDPvis, please open an issue on the repository or use one of the contacts found below.

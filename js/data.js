@@ -13,12 +13,12 @@ var data = {
   /**
    * All the rollouts that would be displayed if no filters are applied.
    */
-  eligiblePrimaryRollouts: {},
+  eligiblePrimaryRollouts: [],
 
   /**
    * All the rollouts that would be compared to if no filters are applied.
    */
-  eligibleSecondaryRollouts: {},
+  eligibleSecondaryRollouts: [],
 
   /**
    * A list of rollouts in eligiblePrimaryRollouts not filtered by the current brushes.
@@ -56,7 +56,6 @@ var data = {
     changeFilteredTimePeriod: function(eventNumber) {
       data.filters.filteredTimePeriod = eventNumber;
       data.filters.updateActiveAndStats();
-      data.updateAffix();
     },
 
     /**
@@ -68,7 +67,6 @@ var data = {
     addFilter: function(name, extent) {
       data.filters.activeFilters[name] = [extent[0], extent[1]];
       data.filters.updateActiveAndStats();
-      data.updateAffix();
     },
 
     /**

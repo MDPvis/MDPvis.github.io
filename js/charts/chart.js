@@ -64,7 +64,9 @@ function DistributionChart() {
    * state.
    */
   this.updateContextPanel = function(){
-    if( ! data.filters.activeFilters[that.name] ) {
+    if( that.intersected ) {
+      contextPanel.updatePanelText("Brushing dissabled.");
+    } else if( ! data.filters.activeFilters[that.name] ) {
       contextPanel.updatePanelText("No active filters.");
       contextPanel.dissableBrushButton();
     } else {
@@ -98,10 +100,7 @@ function TemporalChart() {
     if( that.intersected ) {
       contextPanel.dissableBrushButton();
       contextPanel.updatePanelText(
-        "You can only update the event " +
-        "number from the fan chart when comparing. " +
-        "You can brush the rollouts from the state " +
-        "distributions at a particular time step");
+        "Brushing dissabled.");
     } else if( ! data.filters.activeFilters[that.name] ) {
       contextPanel.updatePanelText("No active filters.");
       contextPanel.dissableBrushButton();

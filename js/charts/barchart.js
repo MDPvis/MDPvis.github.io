@@ -131,14 +131,6 @@ function BarChart (name, units, rollouts, accessor) {
       that.updateContextPanel();
     }
   }
-  var brushDrag = function() {
-    var extent = that.brush.extent();
-    if( extent[1] > 1 ) {
-      extent[0] = extent[0].toFixed(2);
-      extent[1] = extent[1].toFixed(2);
-    }
-    contextPanel.updatePanelText("Brush: [" + extent[0] + ", " + extent[1] + "]");
-  }
   this.removeBrush = function() {
     that.brush.clear();
     data.filters.removeFilter(that.name);
@@ -150,7 +142,7 @@ function BarChart (name, units, rollouts, accessor) {
   that.brush = d3.svg.brush()
       .x(x)
       .on("brushend", brushEnd)
-      .on("brush", brushDrag);
+      .on("brush", that.updateContextPanel);
   var gBrush = svg.append("g")
       .attr("class", "brush")
       .call(that.brush);
@@ -171,7 +163,7 @@ function BarChart (name, units, rollouts, accessor) {
   var yAxis = d3.svg.axis()
       .scale(y)
       .orient("left");
-  var intersected = false;
+  that.intersected = false;
   var comparatorRollouts, comparedBinStep, domainUnion, yAxisG;
   function intersectedBrushCounts() {
     var originalInNewBins = binData(accessor, domainUnion, comparedBinStep, rollouts, false);
@@ -195,11 +187,6 @@ function BarChart (name, units, rollouts, accessor) {
    */
   this.brushCounts = function() {
 
-    if( intersected ) {
-      intersectedBrushCounts();
-      return;
-    }
-
     bins = binData(accessor, domain, binStep, data.filteredPrimaryRollouts, false); // Update the counts
 
     // Move existing bars.
@@ -216,7 +203,7 @@ function BarChart (name, units, rollouts, accessor) {
    * @param {object} cRollouts The rollouts we are intersecting with.
    */
   this.intersectWithSecondRolloutSet = function(cRollouts) {
-    intersected = true;
+    that.intersected = true;
     comparatorRollouts = cRollouts;
     var comparatorDomain = d3.extent(comparatorRollouts, accessor);
     domainUnion = [
@@ -300,7 +287,7 @@ function BarChart (name, units, rollouts, accessor) {
     domain = d3.extent(rollouts, accessor);
 
     // Turn off comparisons (if it was on to begin with)
-    intersected = false;
+    that.intersected = false;
     if ( yAxisG ) {
       yAxisG.remove();
       yAxisG = false;

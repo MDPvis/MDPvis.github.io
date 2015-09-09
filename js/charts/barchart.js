@@ -165,22 +165,6 @@ function BarChart (name, units, rollouts, accessor) {
       .orient("left");
   that.intersected = false;
   var comparatorRollouts, comparedBinStep, domainUnion, yAxisG;
-  function intersectedBrushCounts() {
-    var originalInNewBins = binData(accessor, domainUnion, comparedBinStep, rollouts, false);
-    var comparatorBins = binData(accessor, domainUnion, comparedBinStep, comparatorRollouts, false); // Update the counts
-    var binDifferences = [];
-    for( var i = 0; i < originalInNewBins.length; i++ ) {
-      binDifferences.push(originalInNewBins[i] - comparatorBins[i]);
-    }
-
-    // Move existing bars.
-    bar.data(binDifferences).transition().duration(1000).attr("transform", function(d, idx) {
-        return "translate(" + x(domainUnion[0] + comparedBinStep*idx) + "," + Math.min(y(d), y(0)) + ")";});
-
-    // Plot the bar rectangles
-    rect.data(binDifferences).transition().duration(1000).attr("height", function(d,idx) {
-      return Math.abs(y(d) - height/2); });
-  }
 
   /**
    * Updates the displayed counts on the chart

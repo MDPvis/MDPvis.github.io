@@ -345,8 +345,9 @@ var MDPVis = {
           "data-rollout-number": data.rolloutSets.length - 1,
           "data-query-string": query,
           "data-tooltip-hover-message":
-            "This will clear the current brushes and show the" +
-            "comparison view for each visualization."
+            "This will clear the current brushes and show the " +
+            "comparison view for each visualization on the unfiltered " +
+            "rollouts."
           }).text('Compare To')
         );
       $("#history-buttons").prepend(newElement);
@@ -496,6 +497,8 @@ var MDPVis = {
         rescale = true;
       }
 
+      $(".brush").show();
+
       // If we have charts to update, else create all the things
       if ( Object.keys(MDPVis.charts.distributionCharts).length > 0 ) {
         for( var variableName in MDPVis.charts.distributionCharts ) {
@@ -548,6 +551,9 @@ var MDPVis = {
      * @param {object} statistics the stats for the set of rollouts we are comparing to.
      */
     compare: function(rollouts, statistics) {
+      $(".brush").hide();
+      data.filters.clearFilters();
+      MDPVis.charts.updateAll();
       for( var variableName in MDPVis.charts.distributionCharts ) {
         MDPVis.charts.distributionCharts[variableName].intersectWithSecondRolloutSet(rollouts);
       }

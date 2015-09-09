@@ -79,7 +79,16 @@ var data = {
     removeFilter: function(name) {
       delete data.filters.activeFilters[name];
       data.filters.updateActiveAndStats();
-      data.updateAffix();
+    },
+
+    /**
+     * Remove all filters.
+     */
+    clearFilters: function() {
+      for( filter in data.filters.activeFilters ) {
+        delete data.filters.activeFilters[filter];
+      }
+      data.filters.updateActiveAndStats();
     },
 
     /**

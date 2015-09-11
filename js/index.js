@@ -131,6 +131,8 @@ var MDPVis = {
         MDPVis.server._addToHistory(data.eligiblePrimaryRollouts, data.primaryStatistics, $.param(q));
         $("input").prop('disabled', false);
 
+        MDPVis.updateHash();
+
         // Affix the rollout count when scrolling down
         var countElement = $("#active-count");
         countElement
@@ -608,6 +610,7 @@ var MDPVis = {
     });
 
     params.initialization = data;
+    params.dataSource = MDPVis.server.dataEndpoint;
     var newHash = encodeURIComponent(JSON.stringify(params));
     window.location.hash = "#" + newHash;
   },
@@ -664,15 +667,6 @@ var MDPVis = {
      */
     var hash = window.location.hash.substring(1);
     var params = JSON.parse(decodeURIComponent(hash));
-    if( params.options && params.options.help === "hide") {
-      $(".help-message").hide();
-    }
-    if( params.options && params.options.tooltip === "context" ) {
-      console.log("todo");
-    }
-    if( params.dataSource ) {
-      MDPVis.server.dataEndpoint = params.dataSource;
-    }
     if( params.initialization ) {
       MDPVis.server._createButtons(params.initialization);
       MDPVis.server.getRollouts();
@@ -690,6 +684,16 @@ var MDPVis = {
    * in a modal window.
    */
   selectSimulator: function() {
+    var hash = window.location.hash.substring(1);
+    if( hash.length > 0 ) {
+      var params = JSON.parse(decodeURIComponent(hash));
+      if( params.dataSource ) {
+        MDPVis.server.dataEndpoint = params.dataSource;
+        $(".post-modal-show").show();
+        MDPVis.initialize();
+        return;
+      }
+    }
     $("button[data-open-link]").click(function(elem){
       var openLink = elem.currentTarget.getAttribute("data-open-link");
       window.open(openLink);

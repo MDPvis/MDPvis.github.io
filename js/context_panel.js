@@ -96,7 +96,7 @@ var contextPanel = {
         "style": "display:none;"
       });
       button.append($("<span/>",
-        {"class": "glyphicon glyphicon-plus"}
+        {"class": chart.chartIconClasses}
       ));
       button.append("Show Chart: " + chart.name);
       $(".show-chart-buttons").append(button);

@@ -126,7 +126,7 @@ function BarChart (name, units, rollouts, accessor) {
     if( extent[0] === extent[1] ) {
       that.removeBrush();
     } else {
-      data.filters.addFilter(that.name, extent);
+      data.filters.addFilter(that, extent);
       MDPVis.charts.updateAll();
       that.updateContextPanel();
     }

@@ -55,18 +55,45 @@ var data = {
      */
     changeFilteredTimePeriod: function(eventNumber) {
       data.filters.filteredTimePeriod = eventNumber;
+      $(".current-event-number").text(eventNumber);
       data.filters.updateActiveAndStats();
     },
 
     /**
      * Update a filter and update the data and statistics.
-     * @param {string} name The name of the variable whose filter
-     * we are updating.
+     * @param {object} chart The chart we are filtering.
      * @param {object} extent A pair giving the extent of the filter.
      */
-    addFilter: function(name, extent) {
+    addFilter: function(chart, extent) {
+      var name = chart.name;
       data.filters.activeFilters[name] = [extent[0], extent[1]];
       data.filters.updateActiveAndStats();
+      $(".no-filters").hide();
+      $(".remove-all-filters").show();
+
+      var button = $("[data-remove-filter-button-name='" + name + "']");
+      if( button.length > 0 ) {
+        button.empty();
+      } else {
+        button = $("<button/>", {
+          "class": "btn btn-default show-chart-button",
+          "style": "display:none;",
+          "data-remove-filter-button-name": name
+        });
+        $(".remove-filter-buttons").append(button);
+        button.fadeIn();
+        button.click(function(){
+          button.fadeOut(400, function(){
+            button.remove();
+          });
+          chart.removeBrush();
+        });
+      }
+      button.append($("<span/>",
+        {"class": "glyphicon glyphicon-minus"}
+      ));
+      var displayExtent = [extent[0].toFixed(2), extent[1].toFixed(2)];
+      button.append(name + ", [" + displayExtent + "]");
     },
 
     /**
@@ -76,6 +103,11 @@ var data = {
      */
     removeFilter: function(name) {
       delete data.filters.activeFilters[name];
+      $("[data-remove-filter-button-name='" + name + "']").remove();
+      if ( Object.keys( data.filters.activeFilters ).length === 0 ) {
+        $(".no-filters").show();
+        $(".remove-all-filters").hide();
+      }
       data.filters.updateActiveAndStats();
     },
 
@@ -85,8 +117,12 @@ var data = {
     clearFilters: function() {
       for( filter in data.filters.activeFilters ) {
         delete data.filters.activeFilters[filter];
+        $("[data-remove-filter-button-name='" + filter + "']").remove();
       }
+      $(".remove-all-filters").hide();
+      $(".no-filters").show();
       data.filters.updateActiveAndStats();
+      MDPVis.charts.updateAll();
     },
 
     /**
@@ -189,6 +225,7 @@ var data = {
     statistics.expectedValue = totalReward/activeRollouts.length;
 
     return statistics;
-  },
-
+  }
 }
+
+$(".remove-all-filters").click(data.filters.clearFilters);

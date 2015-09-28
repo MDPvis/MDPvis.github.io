@@ -273,3 +273,28 @@ body {
 .lighten {
   opacity: 0.5;
 }
+
+.counts {
+  font-weight: bold;
+  font-size: 1.4em;
+}
+
+.affix-panel {
+  padding: 0px 5px 5px 0px;
+}
+
+.text-right {
+  margin-right: 8px;
+}
+
+.margin {
+  margin: 8px;
+}
+
+.show-chart-button, .context-panel-button {
+  margin: 2px;
+}
+
+.affix-top {
+  min-height: 60px;
+}

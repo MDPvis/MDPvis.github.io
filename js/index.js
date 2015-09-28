@@ -134,7 +134,7 @@ var MDPVis = {
         MDPVis.updateHash();
 
         // Affix the rollout count when scrolling down
-        var countElement = $("#active-count");
+        var countElement = $(".affix-panel");
         countElement
           .css({width: countElement.width()})
           .affix({
@@ -413,7 +413,7 @@ var MDPVis = {
       MDPVis.updateHash();
 
       // Update the affix distance since its position shifted
-      var countElement = $("#active-count");
+      var countElement = $(".affix-panel");
       countElement.data('bs.affix').options.offset.top = countElement.offset().top;
     },
 
@@ -478,7 +478,7 @@ var MDPVis = {
       MDPVis.charts.updateAllBrushPositions();
 
       // Update the affix distance since its position shifted
-      var countElement = $("#active-count");
+      var countElement = $(".affix-panel");
       countElement.data('bs.affix').options.offset.top = countElement.offset().top;
     }
   },

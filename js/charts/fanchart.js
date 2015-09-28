@@ -258,12 +258,11 @@ function FanChart(stats, name, rollouts) {
       extent[0][0] !== extent[1][0];
     if ( eventNumberChange ) {
       data.filters.changeFilteredTimePeriod(eventNumber);
-      MDPVis.render.renderRollouts(data.eligiblePrimaryRollouts, data.primaryStatistics, false);
+      MDPVis.render.renderRollouts(false);
     } else {
-      var name = that.name;
       var newMax = extent[1][1];
       var newMin = extent[0][1];
-      data.filters.addFilter(name, [newMin, newMax]);
+      data.filters.addFilter(that, [newMin, newMax]);
       MDPVis.charts.updateAll();
     }
     that.updateContextPanel();

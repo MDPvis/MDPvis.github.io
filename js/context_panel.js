@@ -92,7 +92,7 @@ var contextPanel = {
     var node = chart.getDOMNode();
     $(node).fadeOut(400, function(){
       var button = $("<button/>", {
-        "class": "btn btn-default",
+        "class": "btn btn-default show-chart-button",
         "style": "display:none;"
       });
       button.append($("<span/>",

@@ -32,10 +32,10 @@
         <div class="maximized-context-panel">
           <div class="row">
             <div class="col-lg-7">
-              <button type="button" class="btn btn-sm btn-warning remove-brush">
-                Remove Brush
+              <button type="button" class="btn btn-sm btn-warning remove-brush context-panel-button">
+                Remove Filter
               </button>
-              <button type="button" class="btn btn-sm btn-warning hide-chart">
+              <button type="button" class="btn btn-sm btn-warning hide-chart context-panel-button">
                 <span class="glyphicon glyphicon-minus"></span>
                 Hide Chart
               </button>
@@ -136,21 +136,40 @@
           <p class="help-message"></p>
 
           <!-- Affixed panel -->
-          <div id="active-count" style="z-index:10;">
-            <div class="panel panel-primary">
-              <p class="comparison-warning" style="display:none;">Showing differences in values.</p>
-              <p class="no-data-warning" style="display:none;">
-                All data is filtered. Visualizations will stop updating until
-                you return to the sampled space.
-              </p>
-              <p>
-                &nbsp;
-                <span class="counts displayed-state-count">0</span>
-                rollouts displayed of
-                <span class="counts total-state-count">0</span>
-                &nbsp;
-              </p>
-              <div class="show-chart-buttons"></div>
+          <div style="min-height:110px;">
+            <div class="affix-panel" style="z-index:10;">
+              <div class="panel panel-primary">
+                <p class="comparison-warning" style="display:none;">
+                  Showing differences in values.
+                </p>
+                <p class="no-data-warning" style="display:none;">
+                  All data is filtered. Visualizations will stop updating until
+                  you return to the sampled space.
+                </p>
+                <div class="row post-getrollouts-show" style="display:none;">
+                  <div class="col-xs-9">
+                    <div class="no-filters margin">No filters.</div>
+                    <div>
+                      <button type="button" class="btn btn-warning remove-all-filters" style="display:none;">
+                        <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
+                        Remove All Filters
+                      </button>
+                    </div>
+                    <div class="remove-filter-buttons"></div>
+                    <div class="show-chart-buttons"></div>
+                  </div>
+                  <div class="col-xs-3">
+                    <p class="text-right">
+                      Displaying
+                      <span class="counts displayed-state-count">0</span>
+                      rollouts of
+                      <span class="counts total-state-count">0</span>
+                      for time Step
+                      <span class="counts current-event-number">0</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div><!-- /Affixed panel -->
 

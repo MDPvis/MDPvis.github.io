@@ -504,8 +504,9 @@ var MDPVis = {
       // If we have charts to update, else create all the things
       if ( Object.keys(MDPVis.charts.distributionCharts).length > 0 ) {
         for( var variableName in MDPVis.charts.distributionCharts ) {
-          MDPVis.charts.distributionCharts[variableName].updateData(data.filteredPrimaryRollouts,
-            MDPVis.render._createInitialStateAccessor(variableName, data.filters.filteredTimePeriod));
+          var accessor = MDPVis.render._createInitialStateAccessor(variableName, data.filters.filteredTimePeriod);
+          MDPVis.charts.distributionCharts[variableName].updateData(data.eligiblePrimaryRollouts, accessor);
+          MDPVis.charts.distributionCharts[variableName].brushCounts();
         }
         MDPVis.render.rendertemporalCharts(
           data.filteredPrimaryRollouts,

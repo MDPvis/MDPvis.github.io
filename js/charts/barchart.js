@@ -202,9 +202,14 @@ function BarChart (name, units, rollouts, accessor) {
 
     comparedBinStep = (domainUnion[1] - domainUnion[0])/(numBins-1);
 
+    var tickFormat = this.chartTickFormat(domainUnion);
+    var tickCount = this.chartTickCount(domainUnion, tickFormat);
     x.domain(domainUnion)
       .nice();
-    xAxis.scale(x);
+    xAxis
+      .scale(x)
+      .tickFormat(tickFormat)
+      .ticks(tickCount);
 
     y.domain([-1 * rollouts.length, 1 * rollouts.length]).range([height, 0]);
 

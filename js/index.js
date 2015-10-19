@@ -705,6 +705,11 @@ var MDPVis = {
       MDPVis.server.dataEndpoint = simulatorPath;
       MDPVis.initialize();
     });
+    $("#customServerSubmit").click(function(elem){
+      $(".post-modal-show").show();
+      MDPVis.server.dataEndpoint = $("#customServer").val();
+      MDPVis.initialize();
+    });
     $('#serverSelectionModal').modal();
   }
 

@@ -50,8 +50,10 @@ function BarChart (name, units, rollouts, accessor) {
       return bindex;
     }
     rollouts.forEach(function(rollout) {
-      if ( skipFilter || data.filters.isActiveRollout(rollout) ) {
-        bins[binIndex(rollout)] += 1;
+      if( data.filters.filteredTimePeriod < rollout.length ) {
+        if ( skipFilter || data.filters.isActiveRollout(rollout) ) {
+          bins[binIndex(rollout)] += 1;
+        }
       }
     });
     return bins;

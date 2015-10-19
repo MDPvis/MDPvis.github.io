@@ -11,6 +11,20 @@ directory.
 from flask import Flask, jsonify, request, redirect
 import sys
 
+print """
+Starting Flask Server...
+Note, you may be able to specify a domain at this point by adding it as a
+positional argument.
+"""
+
+# Specify which domain should be selected from the domain bridge.
+# This is an optional argument that is used for domain_bridges that sit
+# atop a collection of MDP domains. You should leave this as the
+# empty string unless you must select between domains.
+domain = ""
+if len(sys.argv) > 1:
+    domain = sys.argv[1]
+
 # Add the parent folder path to the sys.path list so
 # we can include its bridge
 sys.path.insert(0, '..')

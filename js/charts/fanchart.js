@@ -167,7 +167,7 @@ function FanChart(stats, name, rollouts) {
     }
 
     // Show lines instead of percentiles if there are not many lines
-    if( data.filteredPrimaryRollouts.length < 20 ) {
+    if( data.filteredPrimaryRollouts.length <= 100 ) {
       this.renderLines(data.filteredPrimaryRollouts);
       return;
     }
@@ -336,10 +336,12 @@ function FanChart(stats, name, rollouts) {
   // Hover behaviors for time series lines
   var lineMouseOver = function() {
     d3.select(this)
-        .style("stroke-width", "15px");
+        .style("stroke", "rgb(255, 51, 102)")
+        .style("stroke-width", "8px");
   }
   var lineMouseOut = function() {
     d3.select(this)
+        .style("stroke", "rgb(31, 119, 180)")
         .style("stroke-width", "2px");
   }
 
@@ -381,7 +383,7 @@ function FanChart(stats, name, rollouts) {
   }
 
   // Show lines if there are few enough, else unhide the fans
-  if( rollouts.length < 20 ) {
+  if( rollouts.length <= 100 ) {
     this.renderLines(rollouts);
   } else {
     for( var i = 0; i < paths.length; i++ ) {

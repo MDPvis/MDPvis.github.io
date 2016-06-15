@@ -218,6 +218,7 @@ body {
 .line {
   fill: none;
   stroke-width: 2px;
+  opacity: 0.3;
 }
 
 .state-detail {

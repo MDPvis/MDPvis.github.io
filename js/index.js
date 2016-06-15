@@ -706,7 +706,4 @@ var MDPVis = {
 
 }
 
-// Don't run the app if it is in the testing environment.
-if( d3.select("#reward-buttons").node() ) {
-  document.addEventListener('DOMContentLoaded', MDPVis.selectSimulator);
-}
+document.addEventListener('DOMContentLoaded', MDPVis.selectSimulator);

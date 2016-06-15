@@ -81,7 +81,7 @@ var MDPVis = {
         method: "GET"
       }).done(function(data) {
         MDPVis.server._createButtons(data);
-        MDPVis.server.getRollouts();
+        MDPVis.server.getTrajectories();
         $(".policy-is-optimized-button").hide();
         $(".optimize-policy-button")
           .prop("disabled", false)
@@ -96,25 +96,21 @@ var MDPVis = {
     /**
      * Gets the rollouts defined for the current set of parameters from the MDP server.
      */
-    getRollouts: function() {
+    getTrajectories: function() {
 
       $("input").prop('disabled', true);
 
       // Construct the query object
-      var q = {
-        reward: {},
-        transition: {},
-        policy: {}
-      };
+      var q = {};
 
       // collect all the button values and make a query string from them.
       $(".button_value").each(function(idx, v){
-        q[v.getAttribute("data-param-set")][v.getAttribute("name")] = v.value;
+        q[v.getAttribute("name")] = v.value;
       });
 
       // Fetch the initialization object from the server
       $.ajax({
-        url: MDPVis.server.dataEndpoint + "/rollouts",
+        url: MDPVis.server.dataEndpoint + "/trajectories",
         data: q
       })
       .done(function(response){
@@ -125,7 +121,7 @@ var MDPVis = {
         $(".policy-is-optimizing-button").hide();
         $(".rollouts-are-generating-button").hide();
 
-        data.eligiblePrimaryRollouts = response.rollouts;
+        data.eligiblePrimaryRollouts = response.trajectories;
         data.filters.updateActiveAndStats();
         MDPVis.render.renderRollouts();
         MDPVis.server._addToHistory(data.eligiblePrimaryRollouts, data.primaryStatistics, $.param(q));
@@ -157,15 +153,11 @@ var MDPVis = {
     getOptimizePolicy: function() {
 
       // Construct the query object
-      var q = {
-        reward: {},
-        transition: {},
-        policy: {}
-      };
+      var q = {};
 
       // collect all the button values and make a query string from them.
       $(".button_value").each(function(idx, v){
-        q[v.getAttribute("data-param-set")][v.getAttribute("name")] = v.value;
+        q[v.getAttribute("name")] = v.value;
       });
 
       $(".generate-rollouts-button").hide();
@@ -185,7 +177,7 @@ var MDPVis = {
             .val(data[policyVariable])
             .trigger( "input" ); // Forces resize
         }
-        MDPVis.server.getRollouts();
+        MDPVis.server.getTrajectories();
         $(".policy-is-optimizing-button").hide();
         $(".policy-is-optimized-button").show();
       })
@@ -261,46 +253,51 @@ var MDPVis = {
      * @param {object} init the initialization object as returned by the server.
      */
     _createButtons: function(init) {
-
-      var createButtonSection = function(ob, paramSet, appendTo) {
-        ob.forEach(function(vals){
+      var panelPrototype = $("#parameter-panel-prototype");
+      var parameterPanelRow = $("#parameter-panel-row");
+      var createButtonSection = function(paramSet) {
+        var newPanel = panelPrototype.clone().prependTo(parameterPanelRow);
+        paramSet["quantitative"].forEach(function(vals){
           var units = vals["units"] + "\u00A0";
           if ( units === "\u00A0" ) { units = "\u00A0"; } // Non breaking space
           var newElement = $('<p/>')
-          .append(document.createTextNode( units ))
           .append($('<input/>', {
             name: vals["name"],
             "class": "button_value",
             type: "number",
             "data-autosize-input": '{ "space": 15 }',
-            "data-min": vals["min"], // Used to restore state later
+            "data-min": vals["min"],
             min: vals["min"],
-            "data-max": vals["max"], // Used to restore state later
+            "data-max": vals["max"],
             max: vals["max"],
-            step: (vals["max"]-vals["min"])/25,
+            step: vals["step"],
             value: vals["current_value"],
             "data-param-set": paramSet,
             "data-initialization-value": JSON.stringify(vals)
           }))
           .append(document.createTextNode( " " ))
           .append($('<strong>' + vals["name"] + '</strong>'))
-          .append(document.createTextNode(" "))
+          .append(document.createTextNode(" (" + units + ") "))
           .append(
             $("<span/>", {
               "class": "glyphicon glyphicon-info-sign lighten",
               "data-tooltip-hover-message": vals["description"]
           }));
-          appendTo.append(newElement);
+          newPanel.append(newElement);
         });
+        // todo: add categorical variables as well
+        newPanel.find(".panel-icon").addClass(paramSet["panel_icon"]);
+        newPanel.find(".panel-name").text(paramSet["panel_title"]);
+        newPanel.find(".help-message").text(paramSet["description"]);
+        newPanel.show();
+
         $("input").autosizeInput(); // Grow/shrink the input for the contents
         learningTooltip.addHoverListeners();
       }
 
-      for( key in init ) {
-        var appendToID = "#" + key + "-buttons";
-        var appendTo = $(appendToID);
-        $(appendToID).empty();
-        createButtonSection(init[key], key, appendTo);
+      $(".parameter-panel:visible").remove()
+      for( var paramSetIndex in init["parameter_collections"] ) {
+        createButtonSection(init["parameter_collections"][paramSetIndex]);
       }
 
       function showServerRequestButtons() {
@@ -389,16 +386,14 @@ var MDPVis = {
         .addClass("btn-primary");
 
       // Assign Buttons
-      for ( section in queryObject ) {
-        for ( button in queryObject[section] ) {
-          var selector = "#"+section+"-buttons input[name='" + button + "']";
-          var input = $(selector);
-          input
-            .attr("max", input.attr("data-max"))
-            .attr("min", input.attr("data-min"))
-            .val(queryObject[section][button])
-            .trigger( "input" );
-        }
+      for ( var button in queryObject ) {
+        var selector = "input[name='" + button + "'].button_value";
+        var input = $(selector);
+        input
+          .attr("max", input.attr("data-max"))
+          .attr("min", input.attr("data-min"))
+          .val(queryObject[button])
+          .trigger( "input" );
       }
       var rollouts = data.rolloutSets[rolloutsID].rollout;
       var statistics = data.rolloutSets[rolloutsID].statistics;
@@ -589,11 +584,7 @@ var MDPVis = {
       params = {};
     }
     // Construct the query object
-    var data = {
-      reward: [],
-      transition: [],
-      policy: []
-    }
+    var data = [];
 
     // collect all the button values and make a query string from them.
     $(".button_value").each(function(idx, v){
@@ -607,7 +598,7 @@ var MDPVis = {
       current.min = currentInit.min;
       current.name = currentInit.name;
       current.units = currentInit.units;
-      data[v.getAttribute("data-param-set")].push(current);
+      data.push(current);
     });
 
     params.initialization = data;
@@ -632,7 +623,7 @@ var MDPVis = {
       $(".rollouts-are-current-button").hide();
       $(".policy-is-optimizing-button").hide();
       $(".rollouts-are-generating-button").show();
-      MDPVis.server.getRollouts();
+      MDPVis.server.getTrajectories();
     });
 
     $( ".optimize-policy-button" ).click(function() {
@@ -670,7 +661,7 @@ var MDPVis = {
     var params = JSON.parse(decodeURIComponent(hash));
     if( params.initialization ) {
       MDPVis.server._createButtons(params.initialization);
-      MDPVis.server.getRollouts();
+      MDPVis.server.getTrajectories();
       $(".policy-is-optimized-button").hide();
       $(".optimize-policy-button")
         .prop("disabled", true)

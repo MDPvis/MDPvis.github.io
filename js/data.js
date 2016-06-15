@@ -130,11 +130,11 @@ var data = {
      * @param {object} rollouts a set of rollouts that may be filtered.
      * @return {array} The set of unfiltered rollouts.
      */
-    getActiveRollouts: function(rollouts) {
+    getActiveRollouts: function(trajectories) {
       var activeRollouts = [];
-      rollouts.forEach(function(rollout) {
-        if( data.filters.isActiveRollout(rollout) ) {
-          activeRollouts.push(rollout);
+      trajectories.forEach(function(trajectory) {
+        if( data.filters.isActiveRollout(trajectory) ) {
+          activeRollouts.push(trajectory);
         }
       });
       return activeRollouts;

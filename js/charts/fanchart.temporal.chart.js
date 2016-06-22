@@ -2,9 +2,9 @@
  * Plot the starting charts.
  * @param {object} stats is the percentile statistics.
  * @param {string} name is the name of the variable.
- * @param {object} rollouts The rollouts whose percentiles will be plotted.
+ * @param {object} trajectories The trajectories whose percentiles will be plotted.
  */
-function FanChart(stats, name, rollouts) {
+function FanChart(stats, name, trajectories) {
 
   this.name = name;
   TemporalChart.call(this);
@@ -136,7 +136,6 @@ function FanChart(stats, name, rollouts) {
    * Update the path when the statistics change.
    * @param {object} percentiles The stats object containing the
    * percentiles.
-   * @param {array} rollouts The rollouts that will be rendered.
    * @param {boolean} isNewData indicates whether the data is new
    * or it was just filtered.
    */
@@ -167,8 +166,8 @@ function FanChart(stats, name, rollouts) {
     }
 
     // Show lines instead of percentiles if there are not many lines
-    if( data.filteredPrimaryRollouts.length <= 100 ) {
-      this.renderLines(data.filteredPrimaryRollouts);
+    if( data.filteredPrimaryTrajectories.length <= 100 ) {
+      this.renderLines(data.filteredPrimaryTrajectories);
       return;
     }
     $("[data-line-name='" + name + "']").remove();
@@ -183,9 +182,10 @@ function FanChart(stats, name, rollouts) {
 
   /**
    * Intersects data with a second dataset.
-   * @param {object} cRollouts The rollouts we are intersecting with.
+   * @param {object} basePercentiles The percentiles of the trajectories that are currently displayed.
+   * @param {object} comparatorPercentiles The percentiles we are intersecting with.
    */
-  this.intersectWithSecondRolloutSet = function(basePercentiles, comparatorPercentiles) {
+  this.intersectWithSecondTrajectorySet = function(basePercentiles, comparatorPercentiles) {
 
     that.intersected = true;
 
@@ -258,7 +258,7 @@ function FanChart(stats, name, rollouts) {
       extent[0][0] !== extent[1][0];
     if ( eventNumberChange ) {
       data.filters.changeFilteredTimePeriod(eventNumber);
-      MDPVis.render.renderRollouts(false);
+      MDPVis.render.renderTrajectories(false);
     } else {
       var newMax = extent[1][1];
       var newMin = extent[0][1];
@@ -355,22 +355,22 @@ function FanChart(stats, name, rollouts) {
 
 
   /**
-   * Render lines for the active rollouts instead of the percentiles.
+   * Render lines for the active trajectories instead of the percentiles.
    *
-   * When the number of active rollouts is small enough we can render the rollouts
+   * When the number of active trajectories is small enough we can render the trajectories
    * instead of the percentiles.
-   * @param {object} activeRollouts The rollouts we want to render as lines.
+   * @param {object} activeTrajectories The trajectories we want to render as lines.
    */
-  this.renderLines = function(activeRollouts) {
+  this.renderLines = function(activeTrajectories) {
     $("[data-line-name='" + name + "']").remove();
     $(".area").hide();
     var line = d3.svg.line()
         .x(function(d, idx) { return x(idx); })
         .y(function(d) { return y(d[name]); });
 
-    for(var i = 0; i < activeRollouts.length; i++) {
+    for(var i = 0; i < activeTrajectories.length; i++) {
       svg.append("path")
-            .datum(activeRollouts[i])
+            .datum(activeTrajectories[i])
             .attr("class", "line state-detail")
             .attr("data-line-name", name)
             .attr("d", line)
@@ -383,8 +383,8 @@ function FanChart(stats, name, rollouts) {
   }
 
   // Show lines if there are few enough, else unhide the fans
-  if( rollouts.length <= 100 ) {
-    this.renderLines(rollouts);
+  if( trajectories.length <= 100 ) {
+    this.renderLines(trajectories);
   } else {
     for( var i = 0; i < paths.length; i++ ) {
       paths[i].style("display","");

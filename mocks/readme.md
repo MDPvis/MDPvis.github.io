@@ -28,13 +28,13 @@ The current value is the value the parameter should be initialized to in the int
 
 The max and the min values are the maximum and minimum values the visualization should allow for that parameter.
 
-# Gets rollouts for the policy defined on the client
+# Gets trajectory for the policy defined on the client
 
-The visualization sends the policy it wants rollouts from along with any specifiable transition function parameters.
+The visualization sends the policy it wants trajectories from along with any specifiable transition function parameters.
 
 **Path**
 
-`/rollouts?policy[POLICY_PARAM1]=X&...&transition[TRANSITION_FUNCTION_PARAM1]=I&...`
+`/trajectories?policy[POLICY_PARAM1]=X&...&transition[TRANSITION_FUNCTION_PARAM1]=I&...`
 
 **Parameters**
 
@@ -43,7 +43,7 @@ transition[PARAM]: a list of transition parameters and their values.
 
 **Returns**
 
-Gives the rollout object.
+Gives the trajectories object.
 
     [
       [{"variable name":"variable value", ...}, {"variable name":"variable value", ...}],
@@ -61,7 +61,7 @@ The visualization requests all the hidden state variables for a particular state
 
 **Parameters**
 
-event: an identifier for the particular event to be shown. This identifier should be included in the rollouts and it could include any of the elements required to re-generate the hidden state variables.
+event: an identifier for the particular event to be shown. This identifier should be included in the trajectories and it could include any of the elements required to re-generate the hidden state variables.
 
 **Returns**
 
@@ -75,7 +75,7 @@ Optimize a new policy from the currently specified policy
 
 `/optimize?policy[POLICY_PARAM1]=X&...&transition[TRANSITION_FUNCTION_PARAM1]=I&...&reward[PARAM]`
 
-(post current rewards, transition function, and current policy return same object as get rollouts)
+(post current rewards, transition function, and current policy return same object as get trajectories)
 
 **Parameters**
 
@@ -91,6 +91,6 @@ reward[PARAM]: a list of reward parameters and their values.
       "policy": [{"name": "NAME", "current_value": 11111, "max": 999999, "min": 0, "units": "$"},...]
     }
 
-The visualization should then request rollouts from the returned policy.
+The visualization should then request trajectories from the returned policy.
 
 

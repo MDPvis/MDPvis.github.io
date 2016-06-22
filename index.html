@@ -75,15 +75,15 @@
           <div id="history-button-controls">
             <div class="row">
               <div class="col-sm-6">
-                <button style="display:none;" class="btn btn-lg btn-success btn-block rollouts-are-current-button" disabled>
+                <button style="display:none;" class="btn btn-lg btn-success btn-block trajectories-are-current-button" disabled>
                   <span class="glyphicon glyphicon-ok"></span>
                   Trajectories are Current
                 </button>
-                <button style="display:none;" class="btn btn-lg btn-danger btn-block generate-rollouts-button">
+                <button style="display:none;" class="btn btn-lg btn-danger btn-block generate-trajectories-button">
                   <span class="glyphicon glyphicon-refresh"></span>
                   Generate Trajectories
                 </button>
-                <button class="btn btn-lg btn-warning btn-block rollouts-are-generating-button" disabled>
+                <button class="btn btn-lg btn-warning btn-block trajectories-are-generating-button" disabled>
                   <span class="glyphicon glyphicon-refresh spinning"></span>
                   Simulating...
                 </button>
@@ -110,7 +110,7 @@
         </div>
       </div>
 
-      <div class="row post-getrollouts-show" style="display:none;">
+      <div class="row post-gettrajectories-show" style="display:none;">
         <div id="messages"></div>
         <div class="col-xs-12">
           <h2>
@@ -130,7 +130,7 @@
                   All data is filtered. Visualizations will stop updating until
                   you return to the sampled space.
                 </p>
-                <div class="row post-getrollouts-show" style="display:none;">
+                <div class="row post-gettrajectories-show" style="display:none;">
                   <div class="col-xs-9">
                     <div class="no-filters margin">No filters.</div>
                     <div>
@@ -146,7 +146,7 @@
                     <p class="text-right">
                       Displaying
                       <span class="counts displayed-state-count">0</span>
-                      rollouts of
+                      trajectories of
                       <span class="counts total-state-count">0</span>
                       for time Step
                       <span class="counts current-event-number">0</span>
@@ -161,7 +161,7 @@
         </div>
       </div>
 
-      <div class="row post-getrollouts-show" style="display:none;">
+      <div class="row post-gettrajectories-show" style="display:none;">
         <div class="col-xs-12">
           <h2>
             <span class="glyphicon glyphicon-indent-left"></span>
@@ -185,20 +185,20 @@
           </p>
         </div>
       </div>
-      <div class="row post-getrollouts-show" style="display:none;">
+      <div class="row post-gettrajectories-show" style="display:none;">
         <div class="col-xs-12 line-charts">
         </div>
       </div>
-      <div class="row post-getrollouts-show" style="display:none;">
+      <div class="row post-gettrajectories-show" style="display:none;">
         <div class="col-xs-12">
           <h2><span class="glyphicon glyphicon-picture"></span> State Detail </h2>
           <p class="help-message"></p>
         </div>
       </div>
-      <div class="row images-row post-getrollouts-show" style="display:none;">
+      <div class="row images-row post-gettrajectories-show" style="display:none;">
         <div class="col-m-3">
           <div class="statistics-area">
-            Filter the rollouts until individual lines appear in the fan chart,
+            Filter the trajectories until individual lines appear in the fan chart,
             then click a line to show visualizations specific to the current
             domain.
           </div>
@@ -391,11 +391,13 @@
     <script src="js/vendor/d3.v3.min.js"></script>
     <script src="js/data.js"></script>
     <script src="js/tooltip.js"></script>
-    <script src="js/charts/chart.js"></script>
     <script src="js/percentiles.js"></script>
     <script src="js/index.js"></script>
-    <script src="js/charts/barchart.js"></script>
-    <script src="js/charts/fanchart.js"></script>
+    <script src="js/charts/chart.js"></script>
+    <script src="js/charts/slice.chart.js"></script>
+    <script src="js/charts/temporal.chart.js"></script>
+    <script src="js/charts/barchart.slice.chart.js"></script>
+    <script src="js/charts/fanchart.temporal.chart.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
     <script src="js/context_panel.js"></script>
   </body>

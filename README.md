@@ -84,9 +84,9 @@ of each parameter. An example of this data structure in Python is:
 
 In the MDPvis user interface, each control will be grouped into panels for the reward, model (transition function), and policy.
 
-## /rollouts?QUERY
+## /trajectories?QUERY
 
-When requesting Monte Carlo rollouts, MDPvis will send the current set of parameters as defined in the initialization and assigned in the user interface. The job of the domain bridge is to map the parameters of the user interface into parameters to invoke the simulator. After simulations have completed, the data should be JSON serialized. An example of the data in Python is:
+When requesting Monte Carlo trajectories, MDPvis will send the current set of parameters as defined in the initialization and assigned in the user interface. The job of the domain bridge is to map the parameters of the user interface into parameters to invoke the simulator. After simulations have completed, the data should be JSON serialized. An example of the data in Python is:
 
     return [
         [
@@ -97,11 +97,11 @@ When requesting Monte Carlo rollouts, MDPvis will send the current set of parame
         ]
     ]
 
-These data are two rollouts of two states each.
+These data are two trajectories of two states each.
 
 ## /optimize?QUERY
 
-MDPvis does not require you to integrate `/optimize` and `/state`, but it is very useful for exploring most problems. Here all the same parameters as are sent to `/rollouts` are sent to `/optimize`, but this query only returns an updated policy. Here is a python example:
+MDPvis does not require you to integrate `/optimize` and `/state`, but it is very useful for exploring most problems. Here all the same parameters as are sent to `/trajectories` are sent to `/optimize`, but this query only returns an updated policy. Here is a python example:
 
     return [
             {"Constant": 10},
@@ -111,7 +111,7 @@ MDPvis does not require you to integrate `/optimize` and `/state`, but it is ver
 
 ## /state?QUERY
 
-This query will be issued when a user clicks an individual rollout in the visualization. All the parameters used to generate the rollout will be sent, with an additional parameter for the rollout number. The expectation is you will use this information to re-generate the rollout and use the simulator to generate descriptive statistics and/or images for the states.
+This query will be issued when a user clicks an individual trajectory in the visualization. All the parameters used to generate the trajectory will be sent, with an additional parameter for the trajectory number. The expectation is you will use this information to re-generate the trajectory and use the simulator to generate descriptive statistics and/or images for the states.
 
 An example of the expected return format is:
 
@@ -127,11 +127,11 @@ An example of the expected return format is:
 
 # Adding Additional Visualizations
 
-There is a default set of visualizations, but if you want to add your own visualizations you should be aware of the three visualization types in MDPvis. These break Monte Carlo rollouts into visualizations for a single time step, variables through time (temporal distributions), and details on a single rollout. Details on these three aspects are below.
+There is a default set of visualizations, but if you want to add your own visualizations you should be aware of the three visualization types in MDPvis. These break Monte Carlo trajectories into visualizations for a single time step, variables through time (temporal distributions), and details on a single trajectory. Details on these three aspects are below.
 
 **Single Time Step Distributions**
 
-Monte Carlo rollouts produce a distribution of states at every time step. This view gives details on the distribution for the currently selected time step. Users may select the current time step for all these visualizations simultaneously from the top of the visualization area, or from the temporal distribution area.
+Monte Carlo trajectories produce a distribution of states at every time step. This view gives details on the distribution for the currently selected time step. Users may select the current time step for all these visualizations simultaneously from the top of the visualization area, or from the temporal distribution area.
 
 * Histogram
 * Bar Chart (comparison mode)
@@ -144,9 +144,9 @@ In this area we show how the distribution of state variables develops through ti
 * Fan Chart (comparison mode)
 * Time Series
 
-**Single Rollout**
+**Single Trajectory**
 
-Here a single rollout is shown. This could give a sequence of state snapshots provided as images from the MDP simulator.
+Here a single trajectory is shown. This could give a sequence of state snapshots provided as images from the MDP simulator.
 
 * State images (provided by simulator)
 * Stats panel
@@ -157,7 +157,7 @@ If you are interested in implementing a new visualization within MDPvis, we enco
 
 You've been warned. Here are the steps:
 
-1. Select a visualization aspect (Single Time Step Distributions, Temporal Distributions, Single Rollout)
+1. Select a visualization aspect (Single Time Step Distributions, Temporal Distributions, Single Trajectory)
 1. Copy an existing visualization's script that has the chosen aspect
 1. Add the script to index.html
 1. Update the index.js script to call your visualization and add it to the DOM.

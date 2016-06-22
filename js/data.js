@@ -1,34 +1,34 @@
 /**
- * @namespace for storing and filtering rollouts.
+ * @namespace for storing and filtering trajectories.
  */
 var data = {
 
   /**
-   * Each set of rollouts are stored here so that they can be re-loaded
-   * or compared to later. The rollouts are stored with their computed statistics
-   * [{rollout:[], statistics:{percentiles: {VARIABLE:[{percentile0:0, ..., percentile100:999},...]}}},...]
+   * Each set of trajectories are stored here so that they can be re-loaded
+   * or compared to later. The trajectories are stored with their computed statistics
+   * [{trajectory:[], statistics:{percentiles: {VARIABLE:[{percentile0:0, ..., percentile100:999},...]}}},...]
    */
-  rolloutSets: [],
+  trajectorySets: [],
 
   /**
-   * All the rollouts that would be displayed if no filters are applied.
+   * All the trajectories that would be displayed if no filters are applied.
    */
-  eligiblePrimaryRollouts: [],
+  eligiblePrimaryTrajectories: [],
 
   /**
-   * All the rollouts that would be compared to if no filters are applied.
+   * All the trajectories that would be compared to if no filters are applied.
    */
-  eligibleSecondaryRollouts: [],
+  eligibleSecondaryTrajectories: [],
 
   /**
-   * A list of rollouts in eligiblePrimaryRollouts not filtered by the current brushes.
+   * A list of trajectories in eligiblePrimaryTrajectories not filtered by the current brushes.
    */
-  filteredPrimaryRollouts: [],
+  filteredPrimaryTrajectories: [],
 
   /**
-   * A list of rollouts in eligibleSecondaryRollouts not filtered by the current brushes.
+   * A list of trajectories in eligibleSecondaryTrajectories not filtered by the current brushes.
    */
-  filteredSecondaryRollouts: [],
+  filteredSecondaryTrajectories: [],
 
   /**
    * The statistics as computed for the filtered primary data.
@@ -126,35 +126,35 @@ var data = {
     },
 
     /**
-     * Filter a set of rollouts to those not filtered.
-     * @param {object} rollouts a set of rollouts that may be filtered.
-     * @return {array} The set of unfiltered rollouts.
+     * Filter a set of trajectories to those not filtered.
+     * @param {object} trajectories a set of trajectories that may be filtered.
+     * @return {array} The set of unfiltered trajectories.
      */
-    getActiveRollouts: function(trajectories) {
-      var activeRollouts = [];
+    getActiveTrajectories: function(trajectories) {
+      var activeTrajectories = [];
       trajectories.forEach(function(trajectory) {
-        if( data.filters.isActiveRollout(trajectory) ) {
-          activeRollouts.push(trajectory);
+        if( data.filters.isActiveTrajectory(trajectory) ) {
+          activeTrajectories.push(trajectory);
         }
       });
-      return activeRollouts;
+      return activeTrajectories;
     },
 
     /**
-     * Determines whether the current rollout is brushed by the active filters.
-     * @param {object} rollout The rollout that we want to know the state of.
-     * @return {boolean} Indicates (true) that the rollout is not brushed.
+     * Determines whether the current trajectory is brushed by the active filters.
+     * @param {object} trajectory The trajectory that we want to know the state of.
+     * @return {boolean} Indicates (true) that the trajectory is not brushed.
      */
-    isActiveRollout: function(rollout) {
-      // Don't include shorter rollouts than the current filter
+    isActiveTrajectory: function(trajectory) {
+      // Don't include shorter trajectories than the current filter
       var timePeriod = data.filters.filteredTimePeriod;
-      if( rollout.length - 1 < timePeriod ) {
+      if( trajectory.length - 1 < timePeriod ) {
         return false;
       }
       for( var variable in data.filters.activeFilters ) {
-        if(rollout[timePeriod][variable] < data.filters.activeFilters[variable][0]){
+        if(trajectory[timePeriod][variable] < data.filters.activeFilters[variable][0]){
           return false;
-        } else if(rollout[timePeriod][variable] > data.filters.activeFilters[variable][1]){
+        } else if(trajectory[timePeriod][variable] > data.filters.activeFilters[variable][1]){
           return false;
         }
       }
@@ -163,14 +163,14 @@ var data = {
 
     /**
      * Update all the data following a change in a filter.
-     * Filter the active rollouts and recompute the statistics.
+     * Filter the active trajectories and recompute the statistics.
      */
     updateActiveAndStats: function() {
-      data.filteredPrimaryRollouts = data.filters.getActiveRollouts(data.eligiblePrimaryRollouts);
-      data.primaryStatistics = data.computeStatistics(data.filteredPrimaryRollouts);
-      if( ! $.isEmptyObject(data.eligibleSecondaryRollouts) ) {
-        data.filteredSecondaryRollouts = data.filters.getActiveRollouts(data.eligibleSecondaryRollouts);
-        data.secondaryStatistics = data.computeStatistics(data.filteredPrimaryRollouts);
+      data.filteredPrimaryTrajectories = data.filters.getActiveTrajectories(data.eligiblePrimaryTrajectories);
+      data.primaryStatistics = data.computeStatistics(data.filteredPrimaryTrajectories);
+      if( ! $.isEmptyObject(data.eligibleSecondaryTrajectories) ) {
+        data.filteredSecondaryTrajectories = data.filters.getActiveTrajectories(data.eligibleSecondaryTrajectories);
+        data.secondaryStatistics = data.computeStatistics(data.filteredSecondaryTrajectories);
       }
       data.updateAffix();
     }
@@ -180,19 +180,19 @@ var data = {
    * Update the affixed message panel.
    */
   updateAffix: function() {
-    $(".displayed-state-count").text(data.filteredPrimaryRollouts.length);
-    $(".total-state-count").text(data.eligiblePrimaryRollouts.length);
+    $(".displayed-state-count").text(data.filteredPrimaryTrajectories.length);
+    $(".total-state-count").text(data.eligiblePrimaryTrajectories.length);
   },
 
   /**
-   * Compute the derived statistics for the rollouts.
-   * @param {object} rollouts The rollouts object we compute stats on.
+   * Compute the derived statistics for the trajectories.
+   * @param {object} activeTrajectories The trajectories object we compute stats on.
    * @return {object} The statistics object we compute.
    */
-  computeStatistics: function(activeRollouts) {
-    if(activeRollouts.length > 1000 ) {
+  computeStatistics: function(activeTrajectories) {
+    if(activeTrajectories.length > 1000 ) {
       console.warn("todo: implement sampling since this will be costly computationally");
-    } else if( activeRollouts.length < 1 ) {
+    } else if( activeTrajectories.length < 1 ) {
       $('.no-data-warning').show();
       return;
     }
@@ -201,10 +201,10 @@ var data = {
     var statistics = {};
     statistics.percentiles = {};
 
-    var maxRolloutDepth = d3.max(data.eligiblePrimaryRollouts, function(d){return d.length;});
-    for( var variableName in activeRollouts[0][0] ){
+    var maxTrajectoryDepth = d3.max(data.eligiblePrimaryTrajectories, function(d){return d.length;});
+    for( var variableName in activeTrajectories[0][0] ){
       statistics.percentiles[variableName] = []; // [{percentile0:0,...,percentile100:999}]
-      for( var eventIndex = 0; eventIndex < maxRolloutDepth; eventIndex++ ) {
+      for( var eventIndex = 0; eventIndex < maxTrajectoryDepth; eventIndex++ ) {
         var accessor = function(d) {
           if( eventIndex >= d.length ) {
             return d[d.length - 1][variableName];
@@ -212,17 +212,17 @@ var data = {
             return d[eventIndex][variableName];
           }
         }
-        var stat = percentiles.getPercentiles(activeRollouts, accessor, eventIndex);
+        var stat = percentiles.getPercentiles(activeTrajectories, accessor, eventIndex);
         statistics.percentiles[variableName].push(stat);
       }
     }
     var totalReward = 0;
-    for ( var rolloutNumber = 0; rolloutNumber < activeRollouts.length; rolloutNumber++ ) {
-      for( var eventIndex = 0; eventIndex < activeRollouts[rolloutNumber].length; eventIndex++ ) {
-        totalReward += activeRollouts[rolloutNumber][eventIndex]["Discounted Reward"];
+    for ( var trajectoryNumber = 0; trajectoryNumber < activeTrajectories.length; trajectoryNumber++ ) {
+      for( var eventIndex = 0; eventIndex < activeTrajectories[trajectoryNumber].length; eventIndex++ ) {
+        totalReward += activeTrajectories[trajectoryNumber][eventIndex]["Discounted Reward"];
       }
     }
-    statistics.expectedValue = totalReward/activeRollouts.length;
+    statistics.expectedValue = totalReward/activeTrajectories.length;
 
     return statistics;
   }

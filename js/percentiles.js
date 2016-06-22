@@ -1,5 +1,5 @@
 /**
- * Utility functions for recalculating the percentiles of rollouts.
+ * Utility functions for recalculating the percentiles of trajectories.
  */
 var percentiles = {
   
@@ -21,32 +21,32 @@ var percentiles = {
    * There are two values if the cardinality is even,
    * else there is one value.
    * @param {array} targets An array of the percentiles to collect.
-   * @param {array of arrays} rollouts The rollouts to get percentiles from.
+   * @param {array of arrays} trajectories The trajectories to get percentiles from.
    * @param {int} Year The year that we want the percentiles from.
    * @return {array} The percentile values requested.
    */
-  percentiles: function(targets, rollouts, accessor, year) {
-    rollouts.sort(percentiles.compareFunction(accessor));
+  percentiles: function(targets, trajectories, accessor, year) {
+    trajectories.sort(percentiles.compareFunction(accessor));
     var values = [];
     targets.forEach(function(current){
-      var idx = Math.floor(((rollouts.length - 1) / 100) * current);
-      values.push(accessor(rollouts[idx]));
+      var idx = Math.floor(((trajectories.length - 1) / 100) * current);
+      values.push(accessor(trajectories[idx]));
     })
     
     return values;
   },
 
   /**
-   * Get the percentiles defined for the current set of rollouts on
+   * Get the percentiles defined for the current set of trajectories on
    * a particular event and attribute.
-   * @param {array} filteredRollouts The currently active rollouts.
-   * @param {function} accessor A function to access the rollout.
+   * @param {array} filteredTrajectories The currently active trajectories.
+   * @param {function} accessor A function to access the trajectory.
    * @param {int} eventNumber The identifier for the current event.
    */
-  getPercentiles: function(filteredRollouts, accessor, eventNumber) {
+  getPercentiles: function(filteredTrajectories, accessor, eventNumber) {
     var current = percentiles.percentiles(
       [100, 0, 90, 10, 80, 20, 70, 30, 60, 40],
-      filteredRollouts, accessor, eventNumber);
+      filteredTrajectories, accessor, eventNumber);
     var stat = {
       eventNumber: eventNumber,
       percentile100: current[0],

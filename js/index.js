@@ -8,7 +8,7 @@ var MDPVis = {
    * Each of the chart objects. These are the callable objects when things need to update.
    */
   charts: {
-    distributionCharts: {},
+    sliceCharts: {},
     temporalCharts: {},
 
     /**
@@ -16,8 +16,8 @@ var MDPVis = {
      */
     updateAll: function() {
       // Redraw each of the initial histograms
-      for( var variableName in MDPVis.charts.distributionCharts ){
-        MDPVis.charts.distributionCharts[variableName].brushCounts();
+      for( var variableName in MDPVis.charts.sliceCharts ){
+        MDPVis.charts.sliceCharts[variableName].brushCounts();
       }
 
       // Redraw each of the fan charts
@@ -36,13 +36,13 @@ var MDPVis = {
     updateAllBrushPositions: function(){
       var extent, eventDepth;
 
-      for( var variableName in MDPVis.charts.distributionCharts ){
+      for( var variableName in MDPVis.charts.sliceCharts ){
         if( data.filters.activeFilters[variableName] !== undefined ) {
           extent = data.filters.activeFilters[variableName];
-          MDPVis.charts.distributionCharts[variableName].updateBrush(extent);
+          MDPVis.charts.sliceCharts[variableName].updateBrush(extent);
         } else {
           // Reset the brush
-          MDPVis.charts.distributionCharts[variableName].updateBrush([0,0]);
+          MDPVis.charts.sliceCharts[variableName].updateBrush([0,0]);
         }
       }
       for( variableName in MDPVis.charts.temporalCharts ){
@@ -66,13 +66,13 @@ var MDPVis = {
   server: {
 
     /**
-     * The domain that answers to the initialize, rollouts, optimize, and state requests.
+     * The domain that answers to the initialize, trajectories, optimize, and state requests.
      */
     dataEndpoint: "",
 
     /**
      * Ask the server for the starting parameters, put them onto the page,
-     * then request the rollouts associated with the starting parameters.
+     * then request the trajectories associated with the starting parameters.
      */
     getInitialize: function() {
       $.ajax({
@@ -94,7 +94,7 @@ var MDPVis = {
     },
 
     /**
-     * Gets the rollouts defined for the current set of parameters from the MDP server.
+     * Gets the trajectories defined for the current set of parameters from the MDP server.
      */
     getTrajectories: function() {
 
@@ -114,22 +114,22 @@ var MDPVis = {
         data: q
       })
       .done(function(response){
-        $(".post-getrollouts-show").show();
-        $(".generate-rollouts-button").hide();
+        $(".post-gettrajectories-show").show();
+        $(".generate-trajectories-button").hide();
         $(".optimize-policy-button").prop("disabled", false);
-        $(".rollouts-are-current-button").hide();
+        $(".trajectories-are-current-button").hide();
         $(".policy-is-optimizing-button").hide();
-        $(".rollouts-are-generating-button").hide();
+        $(".trajectories-are-generating-button").hide();
 
-        data.eligiblePrimaryRollouts = response.trajectories;
+        data.eligiblePrimaryTrajectories = response.trajectories;
         data.filters.updateActiveAndStats();
-        MDPVis.render.renderRollouts();
-        MDPVis.server._addToHistory(data.eligiblePrimaryRollouts, data.primaryStatistics, $.param(q));
+        MDPVis.render.renderTrajectories();
+        MDPVis.server._addToHistory(data.eligiblePrimaryTrajectories, data.primaryStatistics, $.param(q));
         $("input").prop('disabled', false);
 
         MDPVis.updateHash();
 
-        // Affix the rollout count when scrolling down
+        // Affix the trajectory count when scrolling down
         var countElement = $(".affix-panel");
         countElement
           .css({width: countElement.width()})
@@ -141,8 +141,8 @@ var MDPVis = {
 
       })
       .fail(function(response) {
-        alert("Failed to fetch rollouts. Try reloading.");
-        console.error("Failed to fetch rollouts.");
+        alert("Failed to fetch trajectories. Try reloading.");
+        console.error("Failed to fetch trajectories.");
         console.error(response.responseText);
       });
     },
@@ -160,11 +160,11 @@ var MDPVis = {
         q[v.getAttribute("name")] = v.value;
       });
 
-      $(".generate-rollouts-button").hide();
+      $(".generate-trajectories-button").hide();
       $(".optimize-policy-button").hide();
-      $(".rollouts-are-current-button").hide();
+      $(".trajectories-are-current-button").hide();
       $(".policy-is-optimizing-button").show();
-      $(".rollouts-are-generating-button").show();
+      $(".trajectories-are-generating-button").show();
 
       // Fetch the initialization object from the server
       $.ajax({
@@ -189,7 +189,7 @@ var MDPVis = {
     },
 
     /**
-     * Get the state details from the server for the given rollout.
+     * Get the state details from the server for the given trajectory.
      * @param {int} pathwayID The identifier for the pathway of interest.
      * @param {int} eventNumber The identifier for the event of interest.
      */
@@ -302,12 +302,12 @@ var MDPVis = {
 
       function showServerRequestButtons() {
         MDPVis.updateHash();
-        $(".generate-rollouts-button").show();
+        $(".generate-trajectories-button").show();
         $(".optimize-policy-button").show();
         $(".policy-is-optimized-button").hide();
-        $(".rollouts-are-current-button").hide();
+        $(".trajectories-are-current-button").hide();
         $(".policy-is-optimizing-button").hide();
-        $(".rollouts-are-generating-button").hide();
+        $(".trajectories-are-generating-button").hide();
       }
       $( ".button_value" )
         .change(showServerRequestButtons)
@@ -315,54 +315,54 @@ var MDPVis = {
     },
 
     /**
-     * Store the rollout object and create the buttons necessary to re-load it later.
+     * Store the trajectory object and create the buttons necessary to re-load it later.
      */
-    _addToHistory: function(rollout, statistics, query) {
+    _addToHistory: function(trajectories, statistics, query) {
 
       // Highlight the proper buttons
-      $(".primary-rollouts")
+      $(".primary-trajectories")
         .removeClass("btn-primary")
         .addClass("btn-default");
-      $(".comparator-rollouts")
+      $(".comparator-trajectories")
         .removeClass("btn-error")
         .addClass("btn-default");
 
-      // Save the rollout set and the statistics
-      data.rolloutSets.push({rollout: rollout, statistics: statistics});
+      // Save the trajectory set and the statistics
+      data.trajectorySets.push({trajectories: trajectories, statistics: statistics});
       var newElement = $('<p/>')
         .append(document.createTextNode(" Expected Value $ " + d3.round(statistics.expectedValue, 2)))
         .append($('<br/>'))
         .append($('<button/>', {
-          "class": "btn btn-sm btn-primary load-button primary-rollouts",
-          "data-rollout-number": data.rolloutSets.length - 1,
+          "class": "btn btn-sm btn-primary load-button primary-trajectories",
+          "data-trajectory-number": data.trajectorySets.length - 1,
           "data-query-string": query
-          }).text('View Rollout Set ' + data.rolloutSets.length)
+          }).text('View Trajectory Set ' + data.trajectorySets.length)
         )
         .append('&nbsp;')
         .append($('<button/>', {
-          "class": "btn btn-sm btn-default compare-to-button comparator-rollouts",
-          "data-rollout-number": data.rolloutSets.length - 1,
+          "class": "btn btn-sm btn-default compare-to-button comparator-trajectories",
+          "data-trajectory-number": data.trajectorySets.length - 1,
           "data-query-string": query,
           "data-tooltip-hover-message":
             "This will clear the current brushes and show the " +
             "comparison view for each visualization on the unfiltered " +
-            "rollouts."
+            "trajectories."
           }).text('Compare To')
         );
       $("#history-buttons").prepend(newElement);
 
       learningTooltip.addHoverListeners();
 
-      $(".load-button").click(MDPVis.server._viewStoredRollouts);
-      $(".compare-to-button").click(MDPVis.server._compareRollouts);
+      $(".load-button").click(MDPVis.server._viewStoredTrajectories);
+      $(".compare-to-button").click(MDPVis.server._compareTrajectories);
     },
 
     /**
-     * Render a rollout set that was returned previously.
+     * Render a trajectory set that was returned previously.
      * @param {event} ev The event that the button triggered.
      */
-    _viewStoredRollouts: function(ev) {
-      var rolloutsID = ev.currentTarget.getAttribute("data-rollout-number");
+    _viewStoredTrajectories: function(ev) {
+      var trajectoriesID = ev.currentTarget.getAttribute("data-trajectory-number");
       var queryString = ev.currentTarget.getAttribute("data-query-string");
       var queryObject = $.deparam(queryString);
 
@@ -375,10 +375,10 @@ var MDPVis = {
       $(".comparison-warning").hide();
 
       // Highlight the proper buttons
-      $(".primary-rollouts")
+      $(".primary-trajectories")
         .removeClass("btn-primary")
         .addClass("btn-default");
-      $(".comparator-rollouts")
+      $(".comparator-trajectories")
         .removeClass("btn-primary")
         .addClass("btn-default");
       $(ev.currentTarget)
@@ -395,14 +395,14 @@ var MDPVis = {
           .val(queryObject[button])
           .trigger( "input" );
       }
-      var rollouts = data.rolloutSets[rolloutsID].rollout;
-      var statistics = data.rolloutSets[rolloutsID].statistics;
-      $(".generate-rollouts-button").hide();
-      data.eligiblePrimaryRollouts = rollouts;
+      var trajectories = data.trajectorySets[trajectoriesID].trajectories;
+      var statistics = data.trajectorySets[trajectoriesID].statistics;
+      $(".generate-trajectories-button").hide();
+      data.eligiblePrimaryTrajectories = trajectories;
       data.filters.updateActiveAndStats();
-      MDPVis.render.renderRollouts();
+      MDPVis.render.renderTrajectories();
       MDPVis.charts.updateAllBrushPositions();
-      $(".rollouts-are-current-button").show();
+      $(".trajectories-are-current-button").show();
       $(".policy-is-optimized-button").hide();
       $(".optimize-policy-button").show();
       MDPVis.updateHash();
@@ -413,26 +413,26 @@ var MDPVis = {
     },
 
     /**
-     * Render a rollout set that was returned previously.
+     * Compare two sets of trajectories.
      * @param {event} ev The event that the button triggered.
      */
-    _compareRollouts: function(ev) {
-      var rolloutsID = ev.currentTarget.getAttribute("data-rollout-number");
+    _compareTrajectories: function(ev) {
+      var trajectoriesID = ev.currentTarget.getAttribute("data-trajectory-number");
 
       // Highlight the proper buttons
-      $(".comparator-rollouts")
+      $(".comparator-trajectories")
         .removeClass("btn-primary")
         .addClass("btn-default");
       $(ev.currentTarget)
         .removeClass("btn-default")
         .addClass("btn-primary");
 
-      $(".generate-rollouts-button").hide();
+      $(".generate-trajectories-button").hide();
       $(".policy-is-optimized-button").hide();
       $(".optimize-policy-button").hide();
-      $(".rollouts-are-current-button").show();
+      $(".trajectories-are-current-button").show();
       $(".policy-is-optimizing-button").hide();
-      $(".rollouts-are-generating-button").hide();
+      $(".trajectories-are-generating-button").hide();
 
       // Show comparison warning
       $(".comparison-warning").show();
@@ -441,7 +441,7 @@ var MDPVis = {
       $("input").prop('disabled', true);
 
       // Assign the buttons to the difference of their values
-      var primaryElement = $(".primary-rollouts:visible").siblings("[data-query-string]")[0];
+      var primaryElement = $(".primary-trajectories:visible").siblings("[data-query-string]")[0];
       var primaryQueryString = primaryElement.getAttribute("data-query-string");
       var primaryQueryObject = $.deparam(primaryQueryString);
       var comparatorQueryString = ev.currentTarget.getAttribute("data-query-string");
@@ -467,9 +467,9 @@ var MDPVis = {
         }
       }
 
-      var rollouts = data.rolloutSets[rolloutsID].rollout;
-      var statistics = data.computeStatistics(rollouts);
-      MDPVis.render.compare(rollouts, statistics);
+      var trajectories = data.trajectorySets[trajectoriesID].trajectories;
+      var statistics = data.computeStatistics(trajectories);
+      MDPVis.render.compare(trajectories, statistics);
       MDPVis.charts.updateAllBrushPositions();
 
       // Update the affix distance since its position shifted
@@ -484,10 +484,10 @@ var MDPVis = {
   render: {
 
     /**
-     * Render the newly returned rollouts to the visualization.
+     * Render the newly returned trajectories to the visualization.
      * @param {boolean} rescale optional parameter indicating whether temporal charts should be rescaled.
      */
-    renderRollouts: function(rescale) {
+    renderTrajectories: function(rescale) {
 
       // Default to rescaling axes
       if( typeof rescale !== "boolean" ) {
@@ -497,67 +497,67 @@ var MDPVis = {
       $(".brush").show();
 
       // If we have charts to update, else create all the things
-      if ( Object.keys(MDPVis.charts.distributionCharts).length > 0 ) {
-        for( var variableName in MDPVis.charts.distributionCharts ) {
+      if ( Object.keys(MDPVis.charts.sliceCharts).length > 0 ) {
+        for( var variableName in MDPVis.charts.sliceCharts ) {
           var accessor = MDPVis.render._createInitialStateAccessor(variableName, data.filters.filteredTimePeriod);
-          MDPVis.charts.distributionCharts[variableName].updateData(data.eligiblePrimaryRollouts, accessor);
-          MDPVis.charts.distributionCharts[variableName].brushCounts();
+          MDPVis.charts.sliceCharts[variableName].updateData(data.eligiblePrimaryTrajectories, accessor);
+          MDPVis.charts.sliceCharts[variableName].brushCounts();
         }
-        MDPVis.render.rendertemporalCharts(
-          data.filteredPrimaryRollouts,
+        MDPVis.render.renderTemporalCharts(
+          data.filteredPrimaryTrajectories,
           data.primaryStatistics,
           rescale);
       } else {
-        for( var variableName in data.eligiblePrimaryRollouts[0][0] ){
+        for( var variableName in data.eligiblePrimaryTrajectories[0][0] ){
           var barChart = new BarChart(
             variableName,
             "units",
-            data.filteredPrimaryRollouts,
+            data.filteredPrimaryTrajectories,
             MDPVis.render._createInitialStateAccessor(variableName, 0));
-          MDPVis.charts.distributionCharts[variableName] = barChart;
+          MDPVis.charts.sliceCharts[variableName] = barChart;
           $(".initial-states").append(barChart.getDOMNode());
 
           var fanChart = new FanChart(
             data.primaryStatistics.percentiles[variableName],
             variableName,
-            data.filteredPrimaryRollouts);
+            data.filteredPrimaryTrajectories);
           MDPVis.charts.temporalCharts[variableName] = fanChart;
           $(".line-charts").append(fanChart.getDOMNode());
         };
       }
 
       MDPVis.charts.updateAllBrushPositions();
-      $(".rollouts-are-current-button").show();
+      $(".trajectories-are-current-button").show();
     },
 
     /**
      * Update the fan charts with new data.
-     * @param {object} rollouts The rollouts object.
-     * @param {object} statistics The statistics computed for the selected rollouts.
+     * @param {object} trajectories The trajectories object.
+     * @param {object} statistics The statistics computed for the selected trajectories.
      * @param {boolean} rescale Rescale the axis on update.
      */
-    rendertemporalCharts: function(rollouts, statistics, rescale) {
+    renderTemporalCharts: function(trajectories, statistics, rescale) {
       for( var variableName in MDPVis.charts.temporalCharts ) {
         MDPVis.charts.temporalCharts[variableName].updateData(statistics.percentiles[variableName], rescale);
       }
     },
 
     /**
-     * Put all the plots into comparison mode with the currently displayed rollouts and the
-     * rollouts given as an argument.
-     * @param {object} rollouts the rollouts we are wanting to compare the current set to.
-     * @param {object} statistics the stats for the set of rollouts we are comparing to.
+     * Put all the plots into comparison mode with the currently displayed trajectories and the
+     * trajectories given as an argument.
+     * @param {object} trajectories the trajectories we are wanting to compare the current set to.
+     * @param {object} statistics the stats for the set of trajectories we are comparing to.
      */
-    compare: function(rollouts, statistics) {
+    compare: function(trajectories, statistics) {
       $(".brush").hide();
       data.filters.clearFilters();
       MDPVis.charts.updateAll();
-      for( var variableName in MDPVis.charts.distributionCharts ) {
-        MDPVis.charts.distributionCharts[variableName].intersectWithSecondRolloutSet(rollouts);
+      for( var variableName in MDPVis.charts.sliceCharts ) {
+        MDPVis.charts.sliceCharts[variableName].intersectWithSecondTrajectorySet(trajectories);
       }
-      var baseStatistics = data.computeStatistics(data.filteredPrimaryRollouts);
+      var baseStatistics = data.computeStatistics(data.filteredPrimaryTrajectories);
       for( var variableName in MDPVis.charts.temporalCharts ) {
-        MDPVis.charts.temporalCharts[variableName].intersectWithSecondRolloutSet(baseStatistics.percentiles[variableName], statistics.percentiles[variableName]);
+        MDPVis.charts.temporalCharts[variableName].intersectWithSecondTrajectorySet(baseStatistics.percentiles[variableName], statistics.percentiles[variableName]);
       }
     },
 
@@ -616,24 +616,24 @@ var MDPVis = {
     // Create the tooltip element
     learningTooltip.startTooltip();
 
-    $( ".generate-rollouts-button" ).click(function() {
-      $(".generate-rollouts-button").hide();
+    $( ".generate-trajectories-button" ).click(function() {
+      $(".generate-trajectories-button").hide();
       $(".optimize-policy-button").prop("disabled", true);
       $(".policy-is-optimized-button").hide();
-      $(".rollouts-are-current-button").hide();
+      $(".trajectories-are-current-button").hide();
       $(".policy-is-optimizing-button").hide();
-      $(".rollouts-are-generating-button").show();
+      $(".trajectories-are-generating-button").show();
       MDPVis.server.getTrajectories();
     });
 
     $( ".optimize-policy-button" ).click(function() {
-      $(".generate-rollouts-button").hide();
+      $(".generate-trajectories-button").hide();
       $(".optimize-policy-button")
         .prop("disabled", false)
         .hide();
-      $(".rollouts-are-current-button").hide();
+      $(".trajectories-are-current-button").hide();
       $(".policy-is-optimizing-button").show();
-      $(".rollouts-are-generating-button").show();
+      $(".trajectories-are-generating-button").show();
       MDPVis.server.getOptimizePolicy();
     });
 

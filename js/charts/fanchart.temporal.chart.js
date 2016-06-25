@@ -134,12 +134,14 @@ function FanChart(stats, name, trajectories) {
 
   /**
    * Update the path when the statistics change.
-   * @param {object} percentiles The stats object containing the
+   * @param {object} statistics The stats object containing the
    * percentiles.
    * @param {boolean} isNewData indicates whether the data is new
    * or it was just filtered.
    */
-  this.updateData = function(percentiles, isNewData) {
+  this.updateData = function(statistics, isNewData) {
+
+    var percentiles = statistics.percentiles[that.name];
 
     // Hide the centerline from comparison mode
     centerLine.style("display", "none");
@@ -157,37 +159,36 @@ function FanChart(stats, name, trajectories) {
       xAxis.scale(x);
 
       xAxisG.transition().duration(1000).call(xAxis);
-
-      // Update the brushes for the new scale
-      if( data.filters.activeFilters[name] === undefined ) {
-        defaultExtent[0][1] = domainMax;
-        defaultExtent[1][1] = domainMin;
-      }
     }
 
     // Show lines instead of percentiles if there are not many lines
-    if( data.filteredPrimaryTrajectories.length <= 100 ) {
+    if( data.filteredPrimaryTrajectories.length <= 30 ) {
       this.renderLines(data.filteredPrimaryTrajectories);
-      return;
-    }
-    $("[data-line-name='" + name + "']").remove();
-    $(".area").show();
+    } else {
+      $("[data-line-name='" + name + "']").remove();
+      $(".area").show();
 
-    paths.forEach(function(path, idx){
-      path.datum(percentiles)
-          .transition().duration(1000)
-          .attr("d", areas[idx]);
-    });
-  }
+      paths.forEach(function(path, idx){
+        path.datum(percentiles)
+            .transition().duration(1000)
+            .attr("d", areas[idx]);
+      });
+    }
+    that.plotSliceSelectors();
+  };
 
   /**
    * Intersects data with a second dataset.
-   * @param {object} basePercentiles The percentiles of the trajectories that are currently displayed.
-   * @param {object} comparatorPercentiles The percentiles we are intersecting with.
+   * @param {object} baseStatistics The stats object containing percentiles of the
+   * trajectories that are currently displayed.
+   * @param {object} comparatorStatistics The stats object containing percentiles we are intersecting with.
    */
-  this.intersectWithSecondTrajectorySet = function(basePercentiles, comparatorPercentiles) {
+  this.intersectWithSecondTrajectorySet = function(baseStatistics, comparatorStatistics) {
 
     that.intersected = true;
+
+    var basePercentiles = baseStatistics.percentiles[that.name];
+    var comparatorPercentiles = comparatorStatistics.percentiles[that.name];
 
     $("[data-line-name='" + name + "']").remove();
     $(".area").show();
@@ -240,110 +241,93 @@ function FanChart(stats, name, trajectories) {
   //
 
   /**
-   * Tell MDPVis that a brushing event has ended in the chart.
-   * This will result in (1) the initial histogram's brush being updated,
-   * (2) other fan chart brushes being update if the depth changed, (3) the
-   * data being filtered and re-plotted across both chart types, and
-   * (4) updating the scale and domain of the histograms if the depth changed.
+   * Show a histogram time slice of the Monte Carlo trajectories for the current variable name
+   * and the selected time step.
+   * @param timeStep
    */
-  var brushEnd = function() {
-    if (d3.event && !d3.event.sourceEvent) return; // only transition after input
-    if( that.brush.empty() ) {
-      that.removeBrush();
-      return;
-    }
-    var extent = that.brush.extent();
-    var eventNumber = Math.floor(extent[0][0]);
-    var eventNumberChange = data.filters.filteredTimePeriod !==  eventNumber &&
-      extent[0][0] !== extent[1][0];
-    if ( eventNumberChange ) {
-      data.filters.changeFilteredTimePeriod(eventNumber);
-      MDPVis.render.renderTrajectories(false);
-    } else {
-      var newMax = extent[1][1];
-      var newMin = extent[0][1];
-      data.filters.addFilter(that, [newMin, newMax]);
-      MDPVis.charts.updateAll();
-    }
-    that.updateContextPanel();
-  }
-  this.removeBrush = function() {
-    that.brush.clear();
-    data.filters.removeFilter(that.name);
-    MDPVis.charts.updateAll();
-    that.updateContextPanel();
-  }
-
-  var defaultExtent = [[0, domainMin], [.5, domainMax]];//[[x0,y0],[x1,y1]]
-  that.brush = d3.svg.brush()
-      .x(x)
-      .y(y)
-      .extent(defaultExtent)
-      .on("brushend", brushEnd)
-      .on("brush", this.updateContextPanel);
-
-  // Overload the "empty" function since we display a full
-  // brush even when it isn't filtering.
-  var nativeEmpty = that.brush.empty;
-  that.brush.empty = function() {
-    var extent = that.brush.extent();
-    return nativeEmpty() || (
-      extent[0][0] === defaultExtent[0][0] &&
-      extent[0][1] === defaultExtent[0][1] &&
-      extent[1][0] === defaultExtent[1][0] &&
-      extent[1][1] === defaultExtent[1][1]
-      );
-  }
-
-  var brushG = svg.append("g")
-      .attr("class", "brush")
-      .call(that.brush)
-      .call(that.brush.event);
+  this.showSlice = function(timeStep) {
+    var barChart = new BarChart(
+        that.name,
+        data.filteredPrimaryTrajectories,
+        timeStep);
+    MDPVis.charts.sliceCharts[that.name] = barChart;
+    $("#affixed-panel-charts")
+        .empty()
+        .append(barChart.getDOMNode());
+  };
 
   /**
-   * Update the initial state brush as it is rendered on the fan chart.
-   * @param {array} extent A pair of the [low, high] values for the brush.
+   * Plot rectangles for selecting the slices for a detail view.
    */
-  this.updateBrush = function(extent) {
-
-    // Don't overshoot the top or bottom
-    var top = Math.min(extent[1][1], domainMax);
-    var bottom = Math.max(extent[0][1], domainMin);
-
-    // If the brush was not deselected the y values will be different
-    if ( extent[0][1] === extent[1][1] ) {
-      top = domainMax;
-      bottom = domainMin;
+  this.plotSliceSelectors = function() {
+    svg.selectAll("rect").remove();
+    var timeStepCount = data.primaryStatistics.percentiles[that.name].length;
+    for( var i = 0; i < timeStepCount; i++ ) {
+      const j = i;
+      svg.append("rect")
+          .attr("class", "temporal_zoom")
+          .attr("x", x(j))
+          .attr("width", width / timeStepCount - 1)
+          .attr("height", divHeight)
+          .on("click", function(){that.showSlice(j)});
     }
+  };
+  this.plotSliceSelectors();
 
-    var left, right;
-    if(extent[0][0] !== extent[1][0] ) {
-      left = Math.floor(extent[0][0]);
-      right = left + 0.5;
-      defaultExtent[0][0] = left;
-      defaultExtent[1][0] = right;
-    } else {
-      left = defaultExtent[0][0];
-      right = defaultExtent[1][0];
+  /**
+   * Annotate the location of filters on the charts.
+   *
+   * @param {object} filters The filters we will use to annotate the chart.
+   */
+  this.updateBrushes = function() {
+    function addBrushLine(yCoordinate) {
+      svg.append("line")
+          .attr("class", "temporal-brush-boundary")
+          .attr("x1", x(timePeriod -.5))
+          .attr("x2", x(timePeriod +.5))
+          .attr("y1", y(yCoordinate))
+          .attr("y2", y(yCoordinate))
+          .attr("stroke", "gray")
+          .attr("stroke-width", "5");
     }
-
-    var newExtent = [[left, bottom], [right, top]];
-    that.brush.extent(newExtent);
-
-    that.brush(brushG.transition().duration(1000));
-  }
+    svg.selectAll(".temporal-brush-boundary").remove();
+    for ( var i = 0; i < data.filters.activeFilters.length; i++ ) {
+      var filter = data.filters.activeFilters[i];
+      if( filter.name === that.name ) {
+        var extent = filter.extent;
+        var timePeriod = filter.timePeriod;
+        addBrushLine(extent[0]);
+        addBrushLine(extent[1]);
+        svg.append("text")
+            .attr("class", "temporal-brush-boundary")
+            .attr("x", x(timePeriod - 0.5))
+            .attr("y", y(extent[1]) + 5)
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "20px")
+            .attr("fill", "black")
+            .style("cursor", "pointer")
+            .text("X")
+            .on("click", function(timePeriod){
+              return function(){
+                data.filters.removeFilter(that.name, timePeriod);
+                MDPVis.charts.updateAll();
+              };
+            }(timePeriod));
+      }
+    }
+  };
 
   // Hover behaviors for time series lines
   var lineMouseOver = function() {
     d3.select(this)
         .style("stroke", "rgb(255, 51, 102)")
         .style("stroke-width", "8px");
-  }
+  };
   var lineMouseOut = function() {
     d3.select(this)
         .style("stroke", "rgb(31, 119, 180)")
         .style("stroke-width", "2px");
-  }
+  };
 
   // Event handler for making requests for the state detail on clicking a line
   var lineClick = function(d, index) {
@@ -351,7 +335,7 @@ function FanChart(stats, name, trajectories) {
     MDPVis.server.getState(
       d[0]["Pathway Number"],
       Math.floor(x.invert(d3.mouse(this)[0])));
-  }
+  };
 
 
   /**
@@ -380,10 +364,10 @@ function FanChart(stats, name, trajectories) {
               return lineColor(d[0]["Pathway Number"]); })
             .on("click", lineClick);
     }
-  }
+  };
 
   // Show lines if there are few enough, else unhide the fans
-  if( trajectories.length <= 100 ) {
+  if( trajectories.length <= 30 ) {
     this.renderLines(trajectories);
   } else {
     for( var i = 0; i < paths.length; i++ ) {

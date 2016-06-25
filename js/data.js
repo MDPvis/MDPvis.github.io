@@ -46,18 +46,12 @@ var data = {
    * histograms.
    */
   filters: {
-    activeFilters: {}, // The set of filters on the initial state
-    filteredTimePeriod: 0, // The event numbers the filters are applied to
 
     /**
-     * Update the event number filters are applied to and update the data and statistics.
-     * @param {int} eventNumber The event number we are going to filter.
+     * Array of objects containing the filters currently applied to the data.
+     * [{name: "string", timePeriod: 0, extent: [0,1]},...]
      */
-    changeFilteredTimePeriod: function(eventNumber) {
-      data.filters.filteredTimePeriod = eventNumber;
-      $(".current-event-number").text(eventNumber);
-      data.filters.updateActiveAndStats();
-    },
+    activeFilters: [],
 
     /**
      * Update a filter and update the data and statistics.
@@ -66,7 +60,23 @@ var data = {
      */
     addFilter: function(chart, extent) {
       var name = chart.name;
-      data.filters.activeFilters[name] = [extent[0], extent[1]];
+      var timePeriod = chart.timePeriod;
+      var newFilter = {
+        name: name,
+        timePeriod: timePeriod,
+        extent: extent
+      };
+      var notReplaced = true;
+      for( var i = 0; i < data.filters.activeFilters.length; i++ ) {
+        var f = data.filters.activeFilters[i];
+        if(f.name === name && f.timePeriod === timePeriod) {
+          f.extent = extent;
+          notReplaced = false;
+        }
+      }
+      if( notReplaced ) {
+        data.filters.activeFilters.push(newFilter);
+      }
       data.filters.updateActiveAndStats();
       $(".no-filters").hide();
       $(".remove-all-filters").show();
@@ -101,10 +111,15 @@ var data = {
      * @param {string} name The name of the variable whose filter
      * we are removing.
      */
-    removeFilter: function(name) {
-      delete data.filters.activeFilters[name];
-      $("[data-remove-filter-button-name='" + name + "']").remove();
-      if ( Object.keys( data.filters.activeFilters ).length === 0 ) {
+    removeFilter: function(name, timePeriod) {
+      for( var i = 0; i < data.filters.activeFilters.length; i++ ) {
+        if( data.filters.activeFilters[i].name == name && data.filters.activeFilters[i].timePeriod == timePeriod) {
+          data.filters.activeFilters.splice(i, 1);
+          break;
+        }
+      }
+      $("[data-remove-filter-button-name='" + name + "']").remove(); // todo: update this for multiple filters
+      if ( data.filters.activeFilters.length === 0 ) {
         $(".no-filters").show();
         $(".remove-all-filters").hide();
       }
@@ -115,10 +130,8 @@ var data = {
      * Remove all filters.
      */
     clearFilters: function() {
-      for( filter in data.filters.activeFilters ) {
-        delete data.filters.activeFilters[filter];
-        $("[data-remove-filter-button-name='" + filter + "']").remove();
-      }
+      data.filters.activeFilters = [];
+      $("[data-remove-filter-button-name]").remove();
       $(".remove-all-filters").hide();
       $(".no-filters").show();
       data.filters.updateActiveAndStats();
@@ -128,7 +141,7 @@ var data = {
     /**
      * Filter a set of trajectories to those not filtered.
      * @param {object} trajectories a set of trajectories that may be filtered.
-     * @return {array} The set of unfiltered trajectories.
+     * @return {Array} The set of unfiltered trajectories.
      */
     getActiveTrajectories: function(trajectories) {
       var activeTrajectories = [];
@@ -146,15 +159,15 @@ var data = {
      * @return {boolean} Indicates (true) that the trajectory is not brushed.
      */
     isActiveTrajectory: function(trajectory) {
-      // Don't include shorter trajectories than the current filter
-      var timePeriod = data.filters.filteredTimePeriod;
-      if( trajectory.length - 1 < timePeriod ) {
-        return false;
-      }
-      for( var variable in data.filters.activeFilters ) {
-        if(trajectory[timePeriod][variable] < data.filters.activeFilters[variable][0]){
+      for( var i = 0; i < data.filters.activeFilters.length; i++ ) {
+        var name = data.filters.activeFilters[i].name;
+        var timePeriod = data.filters.activeFilters[i].timePeriod;
+        var extent = data.filters.activeFilters[i].extent;
+        if( trajectory.length - 1 < timePeriod ) {
+          return false; // Don't include shorter trajectories than the current filter
+        } else if(trajectory[timePeriod][name] < extent[0]){
           return false;
-        } else if(trajectory[timePeriod][variable] > data.filters.activeFilters[variable][1]){
+        } else if(trajectory[timePeriod][name] > extent[1]){
           return false;
         }
       }

@@ -32,9 +32,6 @@
         <div class="maximized-context-panel">
           <div class="row">
             <div class="col-lg-7">
-              <button type="button" class="btn btn-sm btn-warning remove-brush context-panel-button">
-                Remove Filter
-              </button>
               <button type="button" class="btn btn-sm btn-warning hide-chart context-panel-button">
                 <span class="glyphicon glyphicon-minus"></span>
                 Hide Chart
@@ -111,14 +108,11 @@
       </div>
 
       <div class="row post-gettrajectories-show" style="display:none;">
-        <div id="messages"></div>
         <div class="col-xs-12">
           <h2>
-            <span class="glyphicon glyphicon-equalizer"></span>
-            State Distributions for a Fixed Time Step
+            <span class="glyphicon glyphicon-indent-left"></span>
+            State Development
           </h2>
-          <p class="help-message"></p>
-
           <!-- Affixed panel -->
           <div style="min-height:110px;">
             <div class="affix-panel" style="z-index:10;">
@@ -153,36 +147,33 @@
                     </p>
                   </div>
                 </div>
+                <div class="row">
+                  <div class="col-xs-12">
+                    <p class="help-message margin">
+                      Percentiles Key:
+                      <span class="fan_percentile100">&nbsp;100th&nbsp;</span> &middot;
+                      <span class="fan_percentile90">&nbsp;90th&nbsp;</span> &middot;
+                      <span class="fan_percentile80">&nbsp;80th&nbsp;</span> &middot;
+                      <span class="fan_percentile70">&nbsp;70th&nbsp;</span> &middot;
+                      <span class="fan_percentile60">&nbsp;60th&nbsp;</span>
+                      <span class="glyphicon glyphicon-arrow-left"></span>
+                      center
+                      <span class="glyphicon glyphicon-arrow-right"></span>
+                      <span class="fan_percentile40">&nbsp;40th&nbsp;</span> &middot;
+                      <span class="fan_percentile30">&nbsp;30th&nbsp;</span> &middot;
+                      <span class="fan_percentile20">&nbsp;20th&nbsp;</span> &middot;
+                      <span class="fan_percentile10">&nbsp;10th&nbsp;</span> &middot;
+                      <span class="fan_percentile0">&nbsp;&nbsp;0th&nbsp;</span>
+                    </p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div id="affixed-panel-charts" class="col-sm-12">
+                  </div>
+                </div>
               </div>
             </div>
           </div><!-- /Affixed panel -->
-
-          <div class="initial-states"></div>
-        </div>
-      </div>
-
-      <div class="row post-gettrajectories-show" style="display:none;">
-        <div class="col-xs-12">
-          <h2>
-            <span class="glyphicon glyphicon-indent-left"></span>
-            State Development
-          </h2>
-          <p class="help-message">
-            Percentiles:
-            <span class="fan_percentile100">&nbsp;100th&nbsp;</span> &middot;
-            <span class="fan_percentile90">&nbsp;90th&nbsp;</span> &middot;
-            <span class="fan_percentile80">&nbsp;80th&nbsp;</span> &middot;
-            <span class="fan_percentile70">&nbsp;70th&nbsp;</span> &middot;
-            <span class="fan_percentile60">&nbsp;60th&nbsp;</span>
-            <span class="glyphicon glyphicon-arrow-left"></span>
-            center
-            <span class="glyphicon glyphicon-arrow-right"></span>
-            <span class="fan_percentile40">&nbsp;40th&nbsp;</span> &middot;
-            <span class="fan_percentile30">&nbsp;30th&nbsp;</span> &middot;
-            <span class="fan_percentile20">&nbsp;20th&nbsp;</span> &middot;
-            <span class="fan_percentile10">&nbsp;10th&nbsp;</span> &middot;
-            <span class="fan_percentile0">&nbsp;&nbsp;0th&nbsp;</span>
-          </p>
         </div>
       </div>
       <div class="row post-gettrajectories-show" style="display:none;">

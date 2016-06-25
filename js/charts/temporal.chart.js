@@ -14,21 +14,6 @@ function TemporalChart() {
    * state.
    */
   this.updateContextPanel = function(){
-    if( that.intersected ) {
-      contextPanel.dissableBrushButton();
-      contextPanel.updatePanelText(
-        "Brushing dissabled.");
-    } else if( ! data.filters.activeFilters[that.name] ) {
-      contextPanel.updatePanelText("No active filters.");
-      contextPanel.dissableBrushButton();
-    } else {
-      var extent = that.brush.extent();
-      extent[1][0] = extent[1][0].toFixed(2);
-      extent[1][1] = extent[1][1].toFixed(2);
-      var eventNumber = Math.floor(extent[0][0]);
-      contextPanel.updatePanelText("Event: " + eventNumber + ", [" + extent[1][0] + ", " + extent[1][1] + "]");
-      contextPanel.enableBrushButton();
-    }
     $(".highlight").removeClass("highlight");
     $(that.getDOMNode()).addClass("highlight");
     contextPanel.showPanel(that);

@@ -22,8 +22,7 @@ var MDPVis = {
 
       // Redraw each of the fan charts
       for( variableName in MDPVis.charts.temporalCharts ){
-        var currentPercentiles = data.primaryStatistics.percentiles[variableName];
-        MDPVis.charts.temporalCharts[variableName].updateData(currentPercentiles, false);
+        MDPVis.charts.temporalCharts[variableName].updateData(data.primaryStatistics, false);
       }
       MDPVis.charts.updateAllBrushPositions();
     },
@@ -34,28 +33,18 @@ var MDPVis = {
      * where brushes are rendered on the charts.
      */
     updateAllBrushPositions: function(){
-      var extent, eventDepth;
-
-      for( var variableName in MDPVis.charts.sliceCharts ){
-        if( data.filters.activeFilters[variableName] !== undefined ) {
-          extent = data.filters.activeFilters[variableName];
-          MDPVis.charts.sliceCharts[variableName].updateBrush(extent);
-        } else {
-          // Reset the brush
-          MDPVis.charts.sliceCharts[variableName].updateBrush([0,0]);
-        }
-      }
-      for( variableName in MDPVis.charts.temporalCharts ){
-        eventDepth = data.filters.filteredTimePeriod;
-        if( data.filters.activeFilters[variableName] !== undefined ) {
-          var yExtent = data.filters.activeFilters[variableName];
-          extent = [[eventDepth, yExtent[0]],[eventDepth + .5, yExtent[1]]];
-          MDPVis.charts.temporalCharts[variableName].updateBrush(extent);
-        } else {
-          // Reset the brush
-          extent = [[eventDepth, 0], [eventDepth + .5, 0]];
-          MDPVis.charts.temporalCharts[variableName].updateBrush(extent);
-        }
+      var keys = Object.keys(MDPVis.charts.sliceCharts);
+      data.filters.activeFilters.forEach(function(elem){
+        var variableName = elem.name;
+        var extent = elem.extent;
+        keys.splice(keys.indexOf(variableName), 1);
+        MDPVis.charts.sliceCharts[variableName].updateBrush(extent);
+      });
+      keys.forEach(function(elem){
+        MDPVis.charts.sliceCharts[elem].updateBrush([0,0]);
+      });
+      for( var variableName in MDPVis.charts.temporalCharts ){
+        MDPVis.charts.temporalCharts[variableName].updateBrushes();
       }
     }
   },
@@ -497,10 +486,11 @@ var MDPVis = {
       $(".brush").show();
 
       // If we have charts to update, else create all the things
-      if ( Object.keys(MDPVis.charts.sliceCharts).length > 0 ) {
+      if ( Object.keys(MDPVis.charts.temporalCharts).length > 0 ) {
         for( var variableName in MDPVis.charts.sliceCharts ) {
-          var accessor = MDPVis.render._createInitialStateAccessor(variableName, data.filters.filteredTimePeriod);
-          MDPVis.charts.sliceCharts[variableName].updateData(data.eligiblePrimaryTrajectories, accessor);
+          MDPVis.charts.sliceCharts[variableName].updateData(
+              data.eligiblePrimaryTrajectories,
+              0);
           MDPVis.charts.sliceCharts[variableName].brushCounts();
         }
         MDPVis.render.renderTemporalCharts(
@@ -509,14 +499,6 @@ var MDPVis = {
           rescale);
       } else {
         for( var variableName in data.eligiblePrimaryTrajectories[0][0] ){
-          var barChart = new BarChart(
-            variableName,
-            "units",
-            data.filteredPrimaryTrajectories,
-            MDPVis.render._createInitialStateAccessor(variableName, 0));
-          MDPVis.charts.sliceCharts[variableName] = barChart;
-          $(".initial-states").append(barChart.getDOMNode());
-
           var fanChart = new FanChart(
             data.primaryStatistics.percentiles[variableName],
             variableName,
@@ -538,7 +520,7 @@ var MDPVis = {
      */
     renderTemporalCharts: function(trajectories, statistics, rescale) {
       for( var variableName in MDPVis.charts.temporalCharts ) {
-        MDPVis.charts.temporalCharts[variableName].updateData(statistics.percentiles[variableName], rescale);
+        MDPVis.charts.temporalCharts[variableName].updateData(statistics, rescale);
       }
     },
 
@@ -557,17 +539,7 @@ var MDPVis = {
       }
       var baseStatistics = data.computeStatistics(data.filteredPrimaryTrajectories);
       for( var variableName in MDPVis.charts.temporalCharts ) {
-        MDPVis.charts.temporalCharts[variableName].intersectWithSecondTrajectorySet(baseStatistics.percentiles[variableName], statistics.percentiles[variableName]);
-      }
-    },
-
-    /**
-     * Gives an accessor for the initial state's bar charts.
-     * When you change the initial year this needs to be updated.
-     */
-    _createInitialStateAccessor: function(variableName, eventNumber) {
-      return function(d) {
-        return d[Math.min(eventNumber, d.length - 1)][variableName];
+        MDPVis.charts.temporalCharts[variableName].intersectWithSecondTrajectorySet(baseStatistics, statistics);
       }
     }
   },

@@ -1,22 +1,28 @@
 /**
  * The chart is constructed but not placed into the dom since the caller has that responsibility
  */
-function BarChart (name, units, trajectories, accessor) {
-
-  this.name = name;
-  DistributionChart.call(this);
-
-  // The number of bins in the histogram
-  var numBins = 10;
+function BarChart (name, trajectories, eventNumber) {
 
   // Reference for closures
   var that = this;
+  that.name = name;
+  that.timePeriod = eventNumber;
+
+  SliceChart.call(this);
+
+  // Function to grab the proper data
+  var accessor = function(d) {
+    return d[Math.min(eventNumber, d.length - 1)][that.name];
+  };
+
+  // The number of bins in the histogram
+  var numBins = 15;
 
   // Set the margins if they have not been assigned
   var margin = {top: 10, right: 30, bottom: 50, left: 60};
 
   // Set the height and width from the style of the div element
-  var divWidth = 400;
+  var divWidth = 700;
   var divHeight = 250;
 
   // A formatter for counts.
@@ -48,12 +54,10 @@ function BarChart (name, units, trajectories, accessor) {
     var binIndex = function(d) {
       var bindex = Math.floor((accessor(d) - domain[0])/binStep);
       return bindex;
-    }
+    };
     trajectories.forEach(function(trajectory) {
-      if( data.filters.filteredTimePeriod < trajectory.length ) {
-        if ( skipFilter || data.filters.isActiveTrajectory(trajectory) ) {
-          bins[binIndex(trajectory)] += 1;
-        }
+      if ( skipFilter || data.filters.isActiveTrajectory(trajectory) ) {
+        bins[binIndex(trajectory)] += 1;
       }
     });
     return bins;
@@ -113,7 +117,7 @@ function BarChart (name, units, trajectories, accessor) {
 
   // Put the X-axis in place
   var xAxisG = svg.append("g")
-      .attr("class", "x axis")
+      .attr("class", "x axis show")
       .attr("transform", "translate(0," + height + ")")
       .call(xAxis);
   xAxisG.append("text")
@@ -135,7 +139,7 @@ function BarChart (name, units, trajectories, accessor) {
   }
   this.removeBrush = function() {
     that.brush.clear();
-    data.filters.removeFilter(that.name);
+    data.filters.removeFilter(that.name, that.timePeriod);
     MDPVis.charts.updateAll();
     that.updateContextPanel();
   }
@@ -272,8 +276,12 @@ function BarChart (name, units, trajectories, accessor) {
    * bar will be static and is just an outline that is visible when the solid bar gets
    * filtered.
    */
-  this.updateData = function(newTrajectories, newAccessor) {
-    accessor = newAccessor;
+  this.updateData = function(newTrajectories, eventNumber) {
+
+    accessor = function(d) {
+      return d[Math.min(eventNumber, d.length - 1)][that.name];
+    }
+
     trajectories = newTrajectories;
     domain = d3.extent(trajectories, accessor);
 

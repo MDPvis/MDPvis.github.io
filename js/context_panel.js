@@ -119,20 +119,6 @@ var contextPanel = {
   },
 
   /**
-   * Dissable the button for removing the brush.
-   */
-  dissableBrushButton: function() {
-    $( ".remove-brush" ).prop( "disabled", true );
-  },
-
-  /**
-   * Enable the button for removing the brush.
-   */
-  enableBrushButton: function() {
-    $( ".remove-brush" ).prop( "disabled", false );
-  },
-
-  /**
    * Add longform sentences to the context panel.
    * @param {string} text The text we want to display in the panel.
    */

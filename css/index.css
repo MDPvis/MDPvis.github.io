@@ -70,6 +70,10 @@ body {
   display: none;
 }
 
+.x.axis.show path {
+    display: inherit;
+}
+
 .fire_histogram_axis_label {
   font-size: large;
 }
@@ -222,7 +226,7 @@ body {
 }
 
 .state-detail {
-  cursor: help;
+  cursor: pointer;
 }
 
 .statistics-area {
@@ -298,4 +302,14 @@ body {
 
 .affix-top {
   min-height: 60px;
+}
+
+.temporal_zoom {
+  opacity: 0;
+}
+
+.temporal_zoom:hover {
+  opacity: 0.1;
+  color: #222222;
+  cursor: zoom-in;
 }

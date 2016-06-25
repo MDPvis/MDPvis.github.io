@@ -1,7 +1,7 @@
 /**
- * Superclass for distribution charts.
+ * Superclass for Slice charts.
  */
-function DistributionChart() {
+function SliceChart() {
   Chart.call(this);
   var that = this;
 
@@ -22,10 +22,8 @@ function DistributionChart() {
       return 10;
     } else if( maxLength < 4 ) {
       return 8;
-    } else if( maxLength < 7 ) {
-      return 6;
     } else {
-      return 4;
+      return 6;
     }
   };
 
@@ -55,13 +53,11 @@ function DistributionChart() {
       contextPanel.updatePanelText("Brushing dissabled.");
     } else if( ! data.filters.activeFilters[that.name] ) {
       contextPanel.updatePanelText("No active filters.");
-      contextPanel.dissableBrushButton();
     } else {
       var extent = that.brush.extent();
       extent[0] = extent[0].toFixed(2);
       extent[1] = extent[1].toFixed(2);
       contextPanel.updatePanelText("Brush: [" + extent[0] + ", " + extent[1] + "]");
-      contextPanel.enableBrushButton();
     }
     $(".highlight").removeClass("highlight");
     $(that.getDOMNode()).addClass("highlight");

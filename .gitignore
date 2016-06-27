@@ -8,3 +8,4 @@
 *.ps
 static/*
 *.pyc
+.idea

@@ -178,62 +178,29 @@ var MDPVis = {
     },
 
     /**
-     * Get the state details from the server for the given trajectory.
-     * @param {int} pathwayID The identifier for the pathway of interest.
-     * @param {int} eventNumber The identifier for the event of interest.
+     * Display the images associated with the trajectory.
+     * @param {object} trajectory The trajectory object
      */
-    getState: function(pathwayID, eventNumber) {
-
-      console.log("getting pathway " + pathwayID + " event " + eventNumber);
-
-      // Construct the query object
-      var q = {
-        "Event Number": eventNumber,
-        "Pathway Number": pathwayID,
-        reward: {},
-        transition: {},
-        policy: {}
-      };
-
-      // collect all the button values and make a query string from them.
-      $(".button_value").each(function(idx, v){
-        q[v.getAttribute("data-param-set")][v.getAttribute("name")] = v.value;
-      });
-
-      // Fetch the initialization object from the server
-      $.ajax({
-        url: MDPVis.server.dataEndpoint + "/state",
-        data: q
-      })
-      .done(function(data){
-        var stats = data["statistics"];
-        var statisticsArea = $(".statistics-area");
-        statisticsArea.empty();
-        for( var stat in stats ) {
-          statisticsArea.append($("<p><strong>" + stat + "</strong>: " + stats[stat]  + "</p>"));
+    getState: function(trajectory) {
+      var imagesArea = $(".images-row");
+      $(".image-column").remove();
+      var columnSize = Math.max(Math.floor(12/trajectory[0]["image row"].length), 1);
+      for( var timeStep = 0; timeStep <  trajectory.length ; timeStep++ ) {
+        var imageRow = $("<div class='row'></div>");
+        for ( var i = 0; i < trajectory[timeStep]["image row"].length; i++ ) {
+          var imageColumn = $("<div class='col-xs-" + columnSize + " image-column'></div>");
+          var imageName = trajectory[timeStep]["image row"][i];
+          imageColumn
+            .append($('<p>' + imageName + '</p>'))
+            .append($('<img/>', {
+              src: MDPVis.server.dataEndpoint + "/state?image=" + imageName,
+              "class": "img-responsive",
+              "width": "1200px" // max width since it is responsive
+            }));
+          imageRow.append(imageColumn);
         }
-        var images = data["images"];
-        var imagesArea = $(".images-row");
-        $(".image-column").remove();
-        for( var i = 0; i <  images.length ; i++ ) {
-          var imageColumn = $("<div class='col-xs-3 image-column'></div>")
-          for ( var j = 0; j < images[i].length; j++ ) {
-            imageColumn
-              .append($('<p>' + images[i][j] + '</p>'))
-              .append($('<img/>', {
-                src: MDPVis.server.dataEndpoint + "/" + images[i][j],
-                "class": "img-responsive",
-                "width": "1200px" // max width since it is responsive
-              }));
-          }
-          imagesArea.append(imageColumn);
-        }
-      })
-      .fail(function(data) {
-        alert("Failed to get state. Check your server.");
-        console.error("Failed to get state.");
-        console.error(data.responseText);
-      });
+        imagesArea.append(imageRow);
+      }
     },
 
     /**
@@ -499,6 +466,9 @@ var MDPVis = {
           rescale);
       } else {
         for( var variableName in data.eligiblePrimaryTrajectories[0][0] ){
+          if( variableName === "image row" ) {
+            continue;
+          }
           var fanChart = new FanChart(
             data.primaryStatistics.percentiles[variableName],
             variableName,

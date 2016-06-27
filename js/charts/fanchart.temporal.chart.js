@@ -332,9 +332,7 @@ function FanChart(stats, name, trajectories) {
   // Event handler for making requests for the state detail on clicking a line
   var lineClick = function(d, index) {
     if (d3.event.defaultPrevented) return;
-    MDPVis.server.getState(
-      d[0]["Pathway Number"],
-      Math.floor(x.invert(d3.mouse(this)[0])));
+    MDPVis.server.getState(d);
   };
 
 

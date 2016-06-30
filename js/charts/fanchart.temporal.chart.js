@@ -205,11 +205,8 @@ function FanChart(stats, name, trajectories) {
     $("[data-line-name='" + name + "']").remove();
     $(".area").show();
 
-    var newDomainMax = d3.max(basePercentiles, function(d){return d["percentile100"]});
-    newDomainMax = Math.max(newDomainMax, d3.max(comparatorPercentiles, function(d){return d["percentile100"]}));
-    var newDomainMin = d3.min(basePercentiles, function(d){return d["percentile0"]});
-    newDomainMin = Math.min(newDomainMin, d3.min(comparatorPercentiles, function(d){return d["percentile0"]}));
     var newScale = Math.max(basePercentiles.length, comparatorPercentiles.length);
+    var minLength = Math.min(basePercentiles.length, comparatorPercentiles.length);
     var rescale = x.domain()[1] !== newScale;
 
     if( rescale ) {
@@ -217,10 +214,16 @@ function FanChart(stats, name, trajectories) {
       xAxis.scale(x);
       xAxisG.transition().duration(1000).call(xAxis);
     }
-    domainMax = newDomainMax;
-    domainMin = newDomainMin;
-    var spread = newDomainMax - newDomainMin;
-    rescaleYAxis(-2*spread, 2*spread);
+
+    var maxDistance = 0;
+    for ( i = 0; i < minLength; i++ ) {
+      maxDistance = Math.max(maxDistance,
+        Math.abs(basePercentiles[i]["percentile100"] - comparatorPercentiles[i]["percentile100"]));
+      maxDistance = Math.max(maxDistance,
+        Math.abs(basePercentiles[i]["percentile0"] - comparatorPercentiles[i]["percentile0"]));
+    }
+
+    rescaleYAxis(-maxDistance, maxDistance);
 
     var diffsInPercentiles = [];
     for( var i = 0; i < basePercentiles.length; i++ ) {

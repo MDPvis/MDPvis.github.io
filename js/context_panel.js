@@ -142,14 +142,22 @@ var contextPanel = {
   onScreenResize: function() {
     var windowWidth = $(document).width();
     $(".context-panel").width(windowWidth);
+  },
+
+  /**
+   * Change the representation of the data within the chart.
+   */
+  contextPanelChangeChartType: function() {
+    contextPanel.currentChart.changeChartType();
   }
-}
+};
 
 // Register the button handlers.
 $(".minimize-context-panel").click(contextPanel.minimizePanel);
 $(".maximize-context-panel").click(contextPanel.maximizePanel);
 $(".remove-brush").click(contextPanel.removeBrush);
 $(".hide-chart").click(contextPanel.hideChart);
+$(".change-chart-type").click(contextPanel.contextPanelChangeChartType);
 
 // Handle window resizes
 $( window ).resize(contextPanel.onScreenResize);

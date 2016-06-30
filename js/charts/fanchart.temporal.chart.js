@@ -88,14 +88,14 @@ function FanChart(stats, name, trajectories) {
   domainMin = Math.floor(domainMin);
   y.domain([domainMin, domainMax]);
 
-  var paths = [];
+  that.paths = [];
   percentilesToPlot.forEach(function(percentile, idx){
     var currentPath = svg.append("path")
         .datum(stats)
         .attr("class", "area fan_percentile" + percentile)
         .attr("d", areas[idx])
         .style("display", "none");
-    paths.push(currentPath);
+    that.paths.push(currentPath);
   });
 
   var xAxisG = svg.append("g")
@@ -141,6 +141,8 @@ function FanChart(stats, name, trajectories) {
    */
   this.updateData = function(statistics, isNewData) {
 
+    $(".change-chart-type").show();
+
     var percentiles = statistics.percentiles[that.name];
 
     // Hide the centerline from comparison mode
@@ -161,19 +163,27 @@ function FanChart(stats, name, trajectories) {
       xAxisG.transition().duration(1000).call(xAxis);
     }
 
-    // Show lines instead of percentiles if there are not many lines
-    if( data.filteredPrimaryTrajectories.length <= 30 ) {
+    if ( data.filteredPrimaryTrajectories.length > 30 ) {
+      that.linesAreDisplayed = false;
+    }
+
+    var pathDisplay = "";
+    if( that.linesAreDisplayed ) {
+      pathDisplay = "none";
+      for( var i = 0; i < that.paths.length; i++ ) {
+        that.paths[i].style("display", "none");
+      }
       this.renderLines(data.filteredPrimaryTrajectories);
     } else {
       $("[data-line-name='" + name + "']").remove();
       $(".area").show();
-
-      paths.forEach(function(path, idx){
-        path.datum(percentiles)
-            .transition().duration(1000)
-            .attr("d", areas[idx]);
-      });
     }
+    that.paths.forEach(function(path, idx){
+      path.datum(percentiles)
+        .transition().duration(1000)
+        .attr("d", areas[idx])
+        .style("display", pathDisplay);
+    });
     that.plotSliceSelectors();
   };
 
@@ -184,6 +194,8 @@ function FanChart(stats, name, trajectories) {
    * @param {object} comparatorStatistics The stats object containing percentiles we are intersecting with.
    */
   this.intersectWithSecondTrajectorySet = function(baseStatistics, comparatorStatistics) {
+
+    $(".change-chart-type").hide();
 
     that.intersected = true;
 
@@ -222,7 +234,7 @@ function FanChart(stats, name, trajectories) {
       diffsInPercentiles.push(cur);
     }
 
-    paths.forEach(function(path, idx){
+    that.paths.forEach(function(path, idx){
       path.datum(diffsInPercentiles)
           .transition().duration(1000)
           .attr("d", areas[idx]);
@@ -279,6 +291,7 @@ function FanChart(stats, name, trajectories) {
       svg.append("rect")
           .attr("class", "temporal_zoom")
           .attr("x", x(j))
+          .attr("z", -1)
           .attr("width", width / timeStepCount - 1)
           .attr("height", divHeight)
           .on("click", function(){that.showSlice(j)});
@@ -364,14 +377,26 @@ function FanChart(stats, name, trajectories) {
     }
   };
 
-  // Show lines if there are few enough, else unhide the fans
-  if( trajectories.length <= 30 ) {
-    this.renderLines(trajectories);
-  } else {
-    for( var i = 0; i < paths.length; i++ ) {
-      paths[i].style("display","");
-    }
+  that.linesAreDisplayed = true;
+  if( trajectories.length <= 10 ) {
+    that.linesAreDisplayed = false;
   }
+  this.changeChartType = function(){
+    var pathDisplay = "none";
+    if ( that.linesAreDisplayed ) {
+      pathDisplay = "";
+      $("[data-line-name='" + that.name + "']").remove();
+      that.linesAreDisplayed = false;
+    } else {
+      that.renderLines(data.filteredPrimaryTrajectories);
+      that.linesAreDisplayed = true
+    }
+    for( var i = 0; i < that.paths.length; i++ ) {
+      that.paths[i].attr("data-chart-name", that.name);
+      that.paths[i].style("display", pathDisplay);
+    }
+  };
+  that.changeChartType();
 
   return this;
 

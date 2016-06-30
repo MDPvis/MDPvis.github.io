@@ -124,7 +124,7 @@ function BarChart (name, trajectories, eventNumber) {
       .style("text-anchor", "middle")
       .style("font-weight","bold")
       .attr("transform", "translate(" + (divWidth/2 - margin.left) + "," + 35 + ")")
-      .text(name);
+      .text(name + " at time step " + that.timePeriod);
 
   // Brush applied to top histograms
   var brushEnd = function() {

@@ -313,3 +313,7 @@ body {
   color: #222222;
   cursor: zoom-in;
 }
+
+.temporal-brush-boundary {
+  cursor:pointer;
+}

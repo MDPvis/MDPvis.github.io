@@ -134,21 +134,18 @@ function BarChart (name, trajectories, eventNumber) {
     } else {
       data.filters.addFilter(that, extent);
       MDPVis.charts.updateAll();
-      that.updateContextPanel();
     }
-  }
+  };
   this.removeBrush = function() {
     that.brush.clear();
     data.filters.removeFilter(that.name, that.timePeriod);
     MDPVis.charts.updateAll();
-    that.updateContextPanel();
-  }
+  };
 
   // Brush controls
   that.brush = d3.svg.brush()
       .x(x)
-      .on("brushend", brushEnd)
-      .on("brush", that.updateContextPanel);
+      .on("brushend", brushEnd);
   var gBrush = svg.append("g")
       .attr("class", "brush")
       .call(that.brush);
@@ -339,8 +336,7 @@ function BarChart (name, trajectories, eventNumber) {
   };
 
   /**
-   * Update the extent of a brush. This is called when the initial state is brushed
-   * in the corresponding fan chart.
+   * Update the displayed extent of a brush.
    * @param {array} newExtent The extent the brush should be changed to.
    */
   this.updateBrush = function(newExtent) {

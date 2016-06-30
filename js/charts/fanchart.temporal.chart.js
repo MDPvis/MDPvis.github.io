@@ -247,13 +247,25 @@ function FanChart(stats, name, trajectories) {
    */
   this.showSlice = function(timeStep) {
     var barChart = new BarChart(
-        that.name,
-        data.filteredPrimaryTrajectories,
-        timeStep);
+      that.name,
+      data.eligiblePrimaryTrajectories,
+      timeStep);
+    barChart.brushCounts();
     MDPVis.charts.sliceCharts[that.name] = barChart;
+    var closeButton = $("<button type='button' class='btn' style='display: inline-block;'>Close Chart</button>");
+    closeButton.on("click", function(){
+      barChart.destroyChart();
+      closeButton.remove();
+    });
     $("#affixed-panel-charts")
         .empty()
-        .append(barChart.getDOMNode());
+        .append(barChart.getDOMNode())
+        .append(closeButton);  //<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>
+    for( var i = 0; i < data.filters.activeFilters.length; i++ ) {
+      if( data.filters.activeFilters[i].name === that.name && data.filters.activeFilters[i].timePeriod === timeStep ) {
+        barChart.updateBrush(data.filters.activeFilters[i].extent);
+      }
+    }
   };
 
   /**
@@ -280,7 +292,7 @@ function FanChart(stats, name, trajectories) {
    * @param {object} filters The filters we will use to annotate the chart.
    */
   this.updateBrushes = function() {
-    function addBrushLine(yCoordinate) {
+    function addBrushLine(yCoordinate, timePeriod) {
       svg.append("line")
           .attr("class", "temporal-brush-boundary")
           .attr("x1", x(timePeriod -.5))
@@ -288,7 +300,11 @@ function FanChart(stats, name, trajectories) {
           .attr("y1", y(yCoordinate))
           .attr("y2", y(yCoordinate))
           .attr("stroke", "gray")
-          .attr("stroke-width", "5");
+          .attr("stroke-width", "5")
+          .on("click", function(){
+              data.filters.removeFilter(that.name, timePeriod);
+              MDPVis.charts.updateAll();
+          });
     }
     svg.selectAll(".temporal-brush-boundary").remove();
     for ( var i = 0; i < data.filters.activeFilters.length; i++ ) {
@@ -296,23 +312,8 @@ function FanChart(stats, name, trajectories) {
       if( filter.name === that.name ) {
         var extent = filter.extent;
         var timePeriod = filter.timePeriod;
-        addBrushLine(extent[0]);
-        addBrushLine(extent[1]);
-        svg.append("text")
-            .attr("class", "temporal-brush-boundary")
-            .attr("x", x(timePeriod - 0.5))
-            .attr("y", y(extent[1]) + 5)
-            .attr("font-family", "sans-serif")
-            .attr("font-size", "20px")
-            .attr("fill", "black")
-            .style("cursor", "pointer")
-            .text("X")
-            .on("click", function(timePeriod){
-              return function(){
-                data.filters.removeFilter(that.name, timePeriod);
-                MDPVis.charts.updateAll();
-              };
-            }(timePeriod));
+        addBrushLine(extent[0], timePeriod);
+        addBrushLine(extent[1], timePeriod);
       }
     }
   };
@@ -345,7 +346,6 @@ function FanChart(stats, name, trajectories) {
    */
   this.renderLines = function(activeTrajectories) {
     $("[data-line-name='" + name + "']").remove();
-    $(".area").hide();
     var line = d3.svg.line()
         .x(function(d, idx) { return x(idx); })
         .y(function(d) { return y(d[name]); });

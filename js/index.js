@@ -37,8 +37,11 @@ var MDPVis = {
       data.filters.activeFilters.forEach(function(elem){
         var variableName = elem.name;
         var extent = elem.extent;
-        keys.splice(keys.indexOf(variableName), 1);
-        MDPVis.charts.sliceCharts[variableName].updateBrush(extent);
+        var timePeriod = elem.timePeriod;
+        if( MDPVis.charts.sliceCharts[variableName].timePeriod === timePeriod ) {
+          keys.splice(keys.indexOf(variableName), 1);
+          MDPVis.charts.sliceCharts[variableName].updateBrush(extent);
+        }
       });
       keys.forEach(function(elem){
         MDPVis.charts.sliceCharts[elem].updateBrush([0,0]);
@@ -300,7 +303,7 @@ var MDPVis = {
           "data-trajectory-number": data.trajectorySets.length - 1,
           "data-query-string": query,
           "data-tooltip-hover-message":
-            "This will clear the current brushes and show the " +
+            "This will clear the current filters and show the " +
             "comparison view for each visualization on the unfiltered " +
             "trajectories."
           }).text('Compare To')

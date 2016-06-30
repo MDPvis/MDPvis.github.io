@@ -43,26 +43,4 @@ function SliceChart() {
       return defaultFormat;
     }
   };
-
-  /**
-   * Show the context panel for this element, including the brush
-   * state.
-   */
-  this.updateContextPanel = function(){
-    if( that.intersected ) {
-      contextPanel.updatePanelText("Brushing dissabled.");
-    } else if( ! data.filters.activeFilters[that.name] ) {
-      contextPanel.updatePanelText("No active filters.");
-    } else {
-      var extent = that.brush.extent();
-      extent[0] = extent[0].toFixed(2);
-      extent[1] = extent[1].toFixed(2);
-      contextPanel.updatePanelText("Brush: [" + extent[0] + ", " + extent[1] + "]");
-    }
-    $(".highlight").removeClass("highlight");
-    $(that.getDOMNode()).addClass("highlight");
-    contextPanel.showPanel(that);
-  };
-  $(this.getDOMNode()).mouseenter(this.updateContextPanel);
-
 }

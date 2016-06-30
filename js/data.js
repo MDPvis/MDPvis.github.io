@@ -80,30 +80,6 @@ var data = {
       data.filters.updateActiveAndStats();
       $(".no-filters").hide();
       $(".remove-all-filters").show();
-
-      var button = $("[data-remove-filter-button-name='" + name + "']");
-      if( button.length > 0 ) {
-        button.empty();
-      } else {
-        button = $("<button/>", {
-          "class": "btn btn-default show-chart-button",
-          "style": "display:none;",
-          "data-remove-filter-button-name": name
-        });
-        $(".remove-filter-buttons").append(button);
-        button.fadeIn();
-        button.click(function(){
-          button.fadeOut(400, function(){
-            button.remove();
-          });
-          chart.removeBrush();
-        });
-      }
-      button.append($("<span/>",
-        {"class": "glyphicon glyphicon-minus"}
-      ));
-      var displayExtent = [extent[0].toFixed(2), extent[1].toFixed(2)];
-      button.append(name + ", [" + displayExtent + "]");
     },
 
     /**
@@ -113,7 +89,7 @@ var data = {
      */
     removeFilter: function(name, timePeriod) {
       for( var i = 0; i < data.filters.activeFilters.length; i++ ) {
-        if( data.filters.activeFilters[i].name == name && data.filters.activeFilters[i].timePeriod == timePeriod) {
+        if( data.filters.activeFilters[i].name === name && data.filters.activeFilters[i].timePeriod === timePeriod) {
           data.filters.activeFilters.splice(i, 1);
           break;
         }

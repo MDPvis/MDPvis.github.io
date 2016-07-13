@@ -317,3 +317,65 @@ body {
 .temporal-brush-boundary {
   cursor:pointer;
 }
+
+.hover_line:hover {
+    stroke: yellow;
+    stroke-width: 8px;
+    cursor: pointer;
+}
+
+.axis text {
+    text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+    cursor: move;
+}
+
+.color-cycle, .color-cycle.selected_line {
+    animation-name: selectedCycle;
+    animation-duration:6s;
+    animation-iteration-count:infinite;
+
+    -webkit-animation-name: selectedCycle;
+    -webkit-animation-duration:3s;
+    -webkit-animation-iteration-count:infinite; }
+
+@keyframes selectedCycle
+{
+    0% {stroke:green;}
+    25% {stroke:red;}
+    50% {stroke:green;}
+    75% {stroke:red;}
+}
+
+@-webkit-keyframes selectedCycle
+{
+    0% {stroke:green;}
+    25% {stroke:red;}
+    50% {stroke:green;}
+    75% {stroke:red;}
+}
+
+.parameter-line {
+    stroke: steelblue;
+    fill: none;
+    stroke-width: 2px;
+}
+
+.selected_line {
+    stroke-width: 4px;
+    stroke-dasharray: 5,10,5;
+    stroke: red;
+}
+
+.viewed-line {
+    stroke: green;
+    stroke-width: 4px;
+}
+
+.compared-line {
+    stroke: red;
+    stroke-width: 4px;
+}
+
+.btn {
+    min-width: 220px;
+}

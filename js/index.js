@@ -8,6 +8,7 @@ var MDPVis = {
    * Each of the chart objects. These are the callable objects when things need to update.
    */
   charts: {
+    parametersCharts: {},
     sliceCharts: {},
     temporalCharts: {},
 
@@ -72,12 +73,8 @@ var MDPVis = {
         data: "",
         method: "GET"
       }).done(function(data) {
-        MDPVis.server._createButtons(data);
+        MDPVis.server._displayParameters(data);
         MDPVis.server.getTrajectories();
-        $(".policy-is-optimized-button").hide();
-        $(".optimize-policy-button")
-          .prop("disabled", false)
-          .show();
       }).fail(function(data) {
         alert("Failed to fetch initialization. Try reloading.");
         console.error("Failed to fetch initialization object.");
@@ -171,7 +168,6 @@ var MDPVis = {
         }
         MDPVis.server.getTrajectories();
         $(".policy-is-optimizing-button").hide();
-        $(".policy-is-optimized-button").show();
       })
       .fail(function(data) {
         alert("Failed to fetch initialization. Try reloading.");
@@ -211,7 +207,12 @@ var MDPVis = {
      * The current buttons will first be cleared.
      * @param {object} init the initialization object as returned by the server.
      */
-    _createButtons: function(init) {
+    _displayParameters: function(init) {
+
+      MDPVis.charts.parametersCharts["parallelCoordinates"] = ParallelCoordinatesChart(init);
+      $("#parameter-visualization-area").append(
+        MDPVis.charts.parametersCharts["parallelCoordinates"].getDOMNode());
+
       var panelPrototype = $("#parameter-panel-prototype");
       var parameterPanelRow = $("#parameter-panel-row");
       var createButtonSection = function(paramSet) {
@@ -252,7 +253,7 @@ var MDPVis = {
 
         $("input").autosizeInput(); // Grow/shrink the input for the contents
         learningTooltip.addHoverListeners();
-      }
+      };
 
       $(".parameter-panel:visible").remove()
       for( var paramSetIndex in init["parameter_collections"] ) {
@@ -263,7 +264,6 @@ var MDPVis = {
         MDPVis.updateHash();
         $(".generate-trajectories-button").show();
         $(".optimize-policy-button").show();
-        $(".policy-is-optimized-button").hide();
         $(".trajectories-are-current-button").hide();
         $(".policy-is-optimizing-button").hide();
         $(".trajectories-are-generating-button").hide();
@@ -278,72 +278,19 @@ var MDPVis = {
      */
     _addToHistory: function(trajectories, statistics, query) {
 
-      // Highlight the proper buttons
-      $(".primary-trajectories")
-        .removeClass("btn-primary")
-        .addClass("btn-default");
-      $(".comparator-trajectories")
-        .removeClass("btn-error")
-        .addClass("btn-default");
+      MDPVis.charts.parametersCharts["parallelCoordinates"].newSample(query);
 
       // Save the trajectory set and the statistics
       data.trajectorySets.push({trajectories: trajectories, statistics: statistics});
-      var newElement = $('<p/>')
-        .append(document.createTextNode(" Expected Value $ " + d3.round(statistics.expectedValue, 2)))
-        .append($('<br/>'))
-        .append($('<button/>', {
-          "class": "btn btn-sm btn-primary load-button primary-trajectories",
-          "data-trajectory-number": data.trajectorySets.length - 1,
-          "data-query-string": query
-          }).text('View Trajectory Set ' + data.trajectorySets.length)
-        )
-        .append('&nbsp;')
-        .append($('<button/>', {
-          "class": "btn btn-sm btn-default compare-to-button comparator-trajectories",
-          "data-trajectory-number": data.trajectorySets.length - 1,
-          "data-query-string": query,
-          "data-tooltip-hover-message":
-            "This will clear the current filters and show the " +
-            "comparison view for each visualization on the unfiltered " +
-            "trajectories."
-          }).text('Compare To')
-        );
-      $("#history-buttons").prepend(newElement);
-
       learningTooltip.addHoverListeners();
-
-      $(".load-button").click(MDPVis.server._viewStoredTrajectories);
-      $(".compare-to-button").click(MDPVis.server._compareTrajectories);
     },
 
     /**
-     * Render a trajectory set that was returned previously.
-     * @param {event} ev The event that the button triggered.
+     * The string query that will be used to populate the inputs at the top of the page.
+     * @param queryString
      */
-    _viewStoredTrajectories: function(ev) {
-      var trajectoriesID = ev.currentTarget.getAttribute("data-trajectory-number");
-      var queryString = ev.currentTarget.getAttribute("data-query-string");
+    updateInputs: function(queryString) {
       var queryObject = $.deparam(queryString);
-
-      // Enable changing the input buttons
-      $("input")
-        .prop('disabled', false)
-        .css({color:""});
-
-      // Hide comparison warning
-      $(".comparison-warning").hide();
-
-      // Highlight the proper buttons
-      $(".primary-trajectories")
-        .removeClass("btn-primary")
-        .addClass("btn-default");
-      $(".comparator-trajectories")
-        .removeClass("btn-primary")
-        .addClass("btn-default");
-      $(ev.currentTarget)
-        .removeClass("btn-default")
-        .addClass("btn-primary");
-
       // Assign Buttons
       for ( var button in queryObject ) {
         var selector = "input[name='" + button + "'].button_value";
@@ -354,6 +301,32 @@ var MDPVis = {
           .val(queryObject[button])
           .trigger( "input" );
       }
+    },
+
+    /**
+     * Render a trajectory set that was returned previously.
+     * @param {event} ev The event that the button triggered.
+     */
+    _viewStoredTrajectories: function(ev) {
+      var trajectoriesID = ev.currentTarget.getAttribute("data-trajectory-number");
+      var queryString = ev.currentTarget.getAttribute("data-query-string");
+
+      for( var chart in MDPVis.charts.parametersCharts) {
+        MDPVis.charts.parametersCharts[chart].viewSelectedLine(trajectoriesID);
+      }
+
+      // Enable changing the input buttons
+      $("input")
+        .prop('disabled', false)
+        .css({color:""});
+
+      // Allow optimization from the stored trajectories' parameters
+      $(".optimize-policy-button").prop("disabled", false);
+
+      // Hide comparison warning
+      $(".comparison-warning").hide();
+
+      MDPVis.server.updateInputs(queryString);
       var trajectories = data.trajectorySets[trajectoriesID].trajectories;
       var statistics = data.trajectorySets[trajectoriesID].statistics;
       $(".generate-trajectories-button").hide();
@@ -361,9 +334,8 @@ var MDPVis = {
       data.filters.updateActiveAndStats();
       MDPVis.render.renderTrajectories();
       MDPVis.charts.updateAllBrushPositions();
-      $(".trajectories-are-current-button").show();
-      $(".policy-is-optimized-button").hide();
-      $(".optimize-policy-button").show();
+      $(".trajectories-are-current-button, .optimize-policy-button").show();
+      $("#compare-parameters-button, #view-parameters-button").prop("disabled", true);
       MDPVis.updateHash();
 
       // Update the affix distance since its position shifted
@@ -377,18 +349,15 @@ var MDPVis = {
      */
     _compareTrajectories: function(ev) {
       var trajectoriesID = ev.currentTarget.getAttribute("data-trajectory-number");
+      for( var chart in MDPVis.charts.parametersCharts ) {
+        MDPVis.charts.parametersCharts[chart].compareSelectedLine(trajectoriesID);
+      }
 
-      // Highlight the proper buttons
-      $(".comparator-trajectories")
-        .removeClass("btn-primary")
-        .addClass("btn-default");
-      $(ev.currentTarget)
-        .removeClass("btn-default")
-        .addClass("btn-primary");
+      $("#compare-parameters-button").prop("disabled", true);
+      learningTooltip.mouseLeave(); // Since the line above breaks the mouse enter/leave events
 
       $(".generate-trajectories-button").hide();
-      $(".policy-is-optimized-button").hide();
-      $(".optimize-policy-button").hide();
+      $(".optimize-policy-button").prop("disabled", true);
       $(".trajectories-are-current-button").show();
       $(".policy-is-optimizing-button").hide();
       $(".trajectories-are-generating-button").hide();
@@ -400,13 +369,13 @@ var MDPVis = {
       $("input").prop('disabled', true);
 
       // Assign the buttons to the difference of their values
-      var primaryElement = $(".primary-trajectories:visible").siblings("[data-query-string]")[0];
-      var primaryQueryString = primaryElement.getAttribute("data-query-string");
+      var primaryElement = $("#view-parameters-button");
+      var primaryQueryString = primaryElement.attr("data-query-string");
       var primaryQueryObject = $.deparam(primaryQueryString);
       var comparatorQueryString = ev.currentTarget.getAttribute("data-query-string");
       var comparatorQueryObject = $.deparam(comparatorQueryString);
-      for ( section in comparatorQueryObject ) {
-        for ( button in comparatorQueryObject[section] ) {
+      for ( var section in comparatorQueryObject ) {
+        for ( var button in comparatorQueryObject[section] ) {
           var difference = primaryQueryObject[section][button]
             - comparatorQueryObject[section][button];
           var selector = "#"+section+"-buttons input[name='" + button + "']";
@@ -564,7 +533,6 @@ var MDPVis = {
     $( ".generate-trajectories-button" ).click(function() {
       $(".generate-trajectories-button").hide();
       $(".optimize-policy-button").prop("disabled", true);
-      $(".policy-is-optimized-button").hide();
       $(".trajectories-are-current-button").hide();
       $(".policy-is-optimizing-button").hide();
       $(".trajectories-are-generating-button").show();
@@ -605,12 +573,9 @@ var MDPVis = {
     var hash = window.location.hash.substring(1);
     var params = JSON.parse(decodeURIComponent(hash));
     if( params.initialization ) {
-      MDPVis.server._createButtons(params.initialization);
+      MDPVis.server._displayParameters(params.initialization);
       MDPVis.server.getTrajectories();
-      $(".policy-is-optimized-button").hide();
-      $(".optimize-policy-button")
-        .prop("disabled", true)
-        .show();
+      $(".optimize-policy-button").prop("disabled", true);
     } else {
       MDPVis.server.getInitialize();
     }
@@ -631,6 +596,8 @@ var MDPVis = {
         return;
       }
     }
+    $("#view-parameters-button").click(MDPVis.server._viewStoredTrajectories);
+    $("#compare-parameters-button").click(MDPVis.server._compareTrajectories);
     $("button[data-open-link]").click(function(elem){
       var openLink = elem.currentTarget.getAttribute("data-open-link");
       window.open(openLink);
@@ -649,6 +616,6 @@ var MDPVis = {
     $('#serverSelectionModal').modal();
   }
 
-}
+};
 
 document.addEventListener('DOMContentLoaded', MDPVis.selectSimulator);

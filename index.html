@@ -67,47 +67,45 @@
           <p class="comparison-warning" style="display:none;">Showing differences in values.</p>
           <p class="help-message"></p>
         </div>
-        <div class="col-sm-4">
-          <h2>
-            <span class="glyphicon glyphicon-list"></span>
-            Exploration History
+      </div>
+
+      <div class="row post-gettrajectories-show">
+        <div class="col-xs-12">
+          <h2><span class="glyphicon glyphicon-cog"></span> Parameter Exploration
           </h2>
-          <p class="help-message"></p>
-          <div id="history-button-controls">
-            <div class="row">
-              <div class="col-sm-6">
-                <button style="display:none;" class="btn btn-lg btn-success btn-block trajectories-are-current-button" disabled>
-                  <span class="glyphicon glyphicon-ok"></span>
-                  Trajectories are Current
-                </button>
-                <button style="display:none;" class="btn btn-lg btn-danger btn-block generate-trajectories-button">
-                  <span class="glyphicon glyphicon-refresh"></span>
-                  Generate Trajectories
-                </button>
-                <button class="btn btn-lg btn-warning btn-block trajectories-are-generating-button" disabled>
-                  <span class="glyphicon glyphicon-refresh spinning"></span>
-                  Simulating...
-                </button>
-              </div>
-              <div class="col-sm-6">
-                <button style="display:none;" class="btn btn-lg btn-success btn-block policy-is-optimized-button" disabled>
-                  <span class="glyphicon glyphicon-ok"></span>
-                  Policy was Optimized
-                </button>
-                <button style="display:none;" class="btn btn-lg btn-danger btn-block optimize-policy-button">
-                  <span class="glyphicon glyphicon-refresh"></span>
-                  Optimize a New Policy
-                </button>
-                <button style="display:none;" class="btn btn-lg btn-warning btn-block policy-is-optimizing-button" disabled>
-                  <span class="glyphicon glyphicon-refresh spinning"></span>
-                  Policy is Optimizing...
-                </button>
-              </div>
-            </div>
-            <br />
-            <div id="history-buttons" class="pad-left">
-            </div>
-          </div>
+          <button style="display:none;" class="btn trajectories-are-current-button" disabled>
+            <span class="glyphicon glyphicon-ok"></span>
+            Simulations are Complete
+          </button>
+          <button style="display:none;" class="btn generate-trajectories-button">
+            <span class="glyphicon glyphicon-refresh"></span>
+            Simulate Parameters
+          </button>
+          <button class="btn btn-warning trajectories-are-generating-button" disabled>
+            <span class="glyphicon glyphicon-refresh spinning"></span>
+            Simulating...
+          </button>
+          <button class="btn optimize-policy-button" disabled>
+            <span class="glyphicon glyphicon-refresh"></span>
+            Optimize a New Policy
+          </button>
+          <button style="display:none;" class="btn policy-is-optimizing-button" disabled>
+            <span class="glyphicon glyphicon-refresh spinning"></span>
+            Policy is Optimizing...
+          </button>
+          <button id="view-parameters-button" type="button" class="btn btn-success" disabled>
+            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+            View Selection
+          </button>
+          <button id="compare-parameters-button" type="button" class="btn btn-danger"
+                  data-tooltip-hover-message="This will clear the current filters and show the comparison view for each visualization on the unfiltered trajectories."
+                  disabled>
+            <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+            Compare Against Selection
+          </button>
+        </div>
+        <div class="col-xs-12">
+          <div id="parameter-visualization-area"></div>
         </div>
       </div>
 
@@ -393,6 +391,8 @@
     <script src="js/charts/temporal.chart.js"></script>
     <script src="js/charts/barchart.slice.chart.js"></script>
     <script src="js/charts/fanchart.temporal.chart.js"></script>
+    <script src="js/charts/parameters.chart.js"></script>
+    <script src="js/charts/parallelcoordinates.parameters.chart.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
     <script src="js/context_panel.js"></script>
   </body>

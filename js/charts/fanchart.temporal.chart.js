@@ -334,18 +334,6 @@ function FanChart(stats, name, trajectories) {
     }
   };
 
-  // Hover behaviors for time series lines
-  var lineMouseOver = function() {
-    d3.select(this)
-        .style("stroke", "rgb(255, 51, 102)")
-        .style("stroke-width", "8px");
-  };
-  var lineMouseOut = function() {
-    d3.select(this)
-        .style("stroke", "rgb(31, 119, 180)")
-        .style("stroke-width", "2px");
-  };
-
   // Event handler for making requests for the state detail on clicking a line
   var lineClick = function(d, index) {
     if (d3.event.defaultPrevented) return;
@@ -369,11 +357,9 @@ function FanChart(stats, name, trajectories) {
     for(var i = 0; i < activeTrajectories.length; i++) {
       svg.append("path")
             .datum(activeTrajectories[i])
-            .attr("class", "line state-detail")
+            .attr("class", "line state-detail hover_line")
             .attr("data-line-name", name)
             .attr("d", line)
-            .on("mouseover", lineMouseOver)
-            .on("mouseout", lineMouseOut)
             .style("stroke", function(d) {
               return lineColor(d[0]["Pathway Number"]); })
             .on("click", lineClick);

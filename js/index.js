@@ -161,7 +161,7 @@ var MDPVis = {
         data: q
       })
       .done(function(data){
-        for( policyVariable in data ) {
+        for( var policyVariable in data ) {
           $("input[name='" + policyVariable + "']")
             .val(data[policyVariable])
             .trigger( "input" ); // Forces resize
@@ -255,7 +255,7 @@ var MDPVis = {
         learningTooltip.addHoverListeners();
       };
 
-      $(".parameter-panel:visible").remove()
+      $(".parameter-panel:visible").remove();
       for( var paramSetIndex in init["parameter_collections"] ) {
         createButtonSection(init["parameter_collections"][paramSetIndex]);
       }

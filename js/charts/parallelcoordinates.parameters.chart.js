@@ -81,10 +81,10 @@ function ParallelCoordinatesChart(initializationObject) {
     storedParameters.push(newData);
     svg
       .attr("class", "foreground")
-      .selectAll(".parameter-line")
+      .selectAll(".all-samples-line")
       .data(storedParameters)
       .enter().append("path")
-      .attr("class", "parameter-line hover_line")
+      .attr("class", "all-samples-line parameter-line hover_line")
       .attr("d", path)
       .on("click", selectLineFunction(query, trajectoriesID));
     that.foreground = svg

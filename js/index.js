@@ -74,6 +74,24 @@ var MDPVis = {
         method: "GET"
       }).done(function(data) {
         MDPVis.server._displayParameters(data);
+        if( window.location.hash ) {
+          /**
+           * initialization:
+           *   {
+           *       [{name: NAME, current_value: 999}, ...]
+           *   }
+           * dataSource: "http://CORS_ENABLED_DOMAIN.com"
+           * }
+           */
+          var hash = window.location.hash.substring(1);
+          var params = JSON.parse(decodeURIComponent(hash));
+          if( params.initialization ) {
+            for( var i = 0; i < params.initialization.length; i++ ) {
+              var currentName = params.initialization[i].name;
+              $("input[name='" + currentName + "']").val(params.initialization[i].current_value);
+            }
+          }
+        }
         MDPVis.server.getTrajectories();
       }).fail(function(data) {
         alert("Failed to fetch initialization. Try reloading.");
@@ -502,16 +520,10 @@ var MDPVis = {
 
     // collect all the button values and make a query string from them.
     $(".button_value").each(function(idx, v){
-      var currentInitString = v.getAttribute("data-initialization-value");
-      var currentInit = JSON.parse(currentInitString);
-
-      var current = {};
-      current.current_value = v.value;
-      current.description = currentInit.description;
-      current.max = currentInit.max;
-      current.min = currentInit.min;
-      current.name = currentInit.name;
-      current.units = currentInit.units;
+      var current = {
+        name: v.name,
+        current_value: v.value
+      };
       data.push(current);
     });
 
@@ -529,6 +541,9 @@ var MDPVis = {
 
     // Create the tooltip element
     learningTooltip.startTooltip();
+
+    $("#view-parameters-button").click(MDPVis.server._viewStoredTrajectories);
+    $("#compare-parameters-button").click(MDPVis.server._compareTrajectories);
 
     $( ".generate-trajectories-button" ).click(function() {
       $(".generate-trajectories-button").hide();
@@ -549,36 +564,7 @@ var MDPVis = {
       $(".trajectories-are-generating-button").show();
       MDPVis.server.getOptimizePolicy();
     });
-
-    // If there are no hash parameters, don't parse them
-    if( ! window.location.hash ) {
-      MDPVis.server.getInitialize();
-      return;
-    }
-
-    /**
-     * {
-     *  options:
-     *  {
-     *       help: "show|hide",
-     *       tooltip: "help|context"
-     *   }
-     * initialization:
-     *   {
-     *       SERVER_INITIALIZATION_OBJECT
-     *   }
-     * dataSource: "http://CORS_ENABLED_DOMAIN.com"
-     * }
-     */
-    var hash = window.location.hash.substring(1);
-    var params = JSON.parse(decodeURIComponent(hash));
-    if( params.initialization ) {
-      MDPVis.server._displayParameters(params.initialization);
-      MDPVis.server.getTrajectories();
-      $(".optimize-policy-button").prop("disabled", true);
-    } else {
-      MDPVis.server.getInitialize();
-    }
+    MDPVis.server.getInitialize();
   },
 
   /**
@@ -596,8 +582,6 @@ var MDPVis = {
         return;
       }
     }
-    $("#view-parameters-button").click(MDPVis.server._viewStoredTrajectories);
-    $("#compare-parameters-button").click(MDPVis.server._compareTrajectories);
     $("button[data-open-link]").click(function(elem){
       var openLink = elem.currentTarget.getAttribute("data-open-link");
       window.open(openLink);

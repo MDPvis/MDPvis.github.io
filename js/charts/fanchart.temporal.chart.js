@@ -145,6 +145,8 @@ function FanChart(stats, name, trajectories) {
 
     var percentiles = statistics.percentiles[that.name];
 
+    stats = percentiles;
+
     // Hide the centerline from comparison mode
     centerLine.style("display", "none");
 
@@ -189,17 +191,15 @@ function FanChart(stats, name, trajectories) {
 
   /**
    * Intersects data with a second dataset.
-   * @param {object} baseStatistics The stats object containing percentiles of the
-   * trajectories that are currently displayed.
    * @param {object} comparatorStatistics The stats object containing percentiles we are intersecting with.
    */
-  this.intersectWithSecondTrajectorySet = function(baseStatistics, comparatorStatistics) {
+  this.intersectWithSecondTrajectorySet = function(comparatorStatistics) {
 
     $(".change-chart-type").hide();
 
     that.intersected = true;
 
-    var basePercentiles = baseStatistics.percentiles[that.name];
+    var basePercentiles = data.primaryStatistics.percentiles[that.name];
     var comparatorPercentiles = comparatorStatistics.percentiles[that.name];
 
     $("[data-line-name='" + name + "']").remove();
@@ -280,6 +280,9 @@ function FanChart(stats, name, trajectories) {
       if( data.filters.activeFilters[i].name === that.name && data.filters.activeFilters[i].timePeriod === timeStep ) {
         barChart.updateBrush(data.filters.activeFilters[i].extent);
       }
+    }
+    if ( that.intersected ) {
+      barChart.intersectWithSecondTrajectorySet(data.eligibleSecondaryTrajectories);
     }
   };
 

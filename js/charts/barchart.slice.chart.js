@@ -128,6 +128,10 @@ function BarChart (name, trajectories, eventNumber) {
 
   // Brush applied to top histograms
   var brushEnd = function() {
+    if ( that.intersected ) {
+      d3.selectAll(".brush").remove();
+      return;
+    }
     var extent = that.brush.extent();
     if( extent[0] === extent[1] ) {
       that.removeBrush();
@@ -167,7 +171,7 @@ function BarChart (name, trajectories, eventNumber) {
       .scale(y)
       .orient("left");
   that.intersected = false;
-  var comparatortrajectories, comparedBinStep, domainUnion, yAxisG;
+  var comparedBinStep, domainUnion, yAxisG;
 
   /**
    * Updates the displayed counts on the chart
@@ -191,11 +195,10 @@ function BarChart (name, trajectories, eventNumber) {
    */
   this.intersectWithSecondTrajectorySet = function(cTrajectories) {
     that.intersected = true;
-    comparatorTrajectories = cTrajectories;
-    var comparatorDomain = d3.extent(comparatorTrajectories, accessor);
+    var comparatorDomain = d3.extent(cTrajectories, accessor);
     domainUnion = [
       Math.min(comparatorDomain[0], domain[0]),
-      Math.min(comparatorDomain[1], domain[1])
+      Math.max(comparatorDomain[1], domain[1])
     ];
 
     // Render the zero
@@ -225,7 +228,7 @@ function BarChart (name, trajectories, eventNumber) {
     }
 
     var originalInNewBins = binData(accessor, domainUnion, comparedBinStep, trajectories, true);
-    var comparatorBins = binData(accessor, domainUnion, comparedBinStep, comparatorTrajectories, true); // Update the counts
+    var comparatorBins = binData(accessor, domainUnion, comparedBinStep, cTrajectories, true);
 
     var binDifferences = [];
     for( var i = 0; i < originalInNewBins.length; i++ ) {
@@ -238,11 +241,6 @@ function BarChart (name, trajectories, eventNumber) {
 
     rectExtent.data(binDifferences).transition().duration(1000).attr("height", function(d,idx) {
             return Math.abs(y(d) - height/2); });
-
-
-    // todo: this is inneficient since it is binning twice
-    originalInNewBins = binData(accessor, domainUnion, comparedBinStep, trajectories, false);
-    comparatorBins = binData(accessor, domainUnion, comparedBinStep, comparatorTrajectories, false); // Update the counts
 
     // Move existing bars.
     bar.data(binDifferences).transition().duration(1000).attr("transform", function(d, idx) {
@@ -277,7 +275,7 @@ function BarChart (name, trajectories, eventNumber) {
 
     accessor = function(d) {
       return d[Math.min(eventNumber, d.length - 1)][that.name];
-    }
+    };
 
     trajectories = newTrajectories;
     domain = d3.extent(trajectories, accessor);

@@ -414,8 +414,7 @@ var MDPVis = {
       }
 
       var trajectories = data.trajectorySets[trajectoriesID].trajectories;
-      var statistics = data.computeStatistics(trajectories);
-      MDPVis.render.compare(trajectories, statistics);
+      MDPVis.render.compare(trajectories);
       MDPVis.charts.updateAllBrushPositions();
 
       // Update the affix distance since its position shifted
@@ -488,18 +487,19 @@ var MDPVis = {
      * Put all the plots into comparison mode with the currently displayed trajectories and the
      * trajectories given as an argument.
      * @param {object} trajectories the trajectories we are wanting to compare the current set to.
-     * @param {object} statistics the stats for the set of trajectories we are comparing to.
      */
-    compare: function(trajectories, statistics) {
+    compare: function(trajectories) {
+      data.eligibleSecondaryTrajectories = trajectories;
       $(".brush").hide();
       data.filters.clearFilters();
+      data.filters.updateActiveAndStats();
       MDPVis.charts.updateAll();
       for( var variableName in MDPVis.charts.sliceCharts ) {
         MDPVis.charts.sliceCharts[variableName].intersectWithSecondTrajectorySet(trajectories);
       }
-      var baseStatistics = data.computeStatistics(data.filteredPrimaryTrajectories);
+      data.secondaryStatistics = data.computeStatistics(trajectories);
       for( var variableName in MDPVis.charts.temporalCharts ) {
-        MDPVis.charts.temporalCharts[variableName].intersectWithSecondTrajectorySet(baseStatistics, statistics);
+        MDPVis.charts.temporalCharts[variableName].intersectWithSecondTrajectorySet(data.secondaryStatistics);
       }
     }
   },

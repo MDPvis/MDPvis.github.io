@@ -215,6 +215,6 @@ var data = {
 
     return statistics;
   }
-}
+};
 
 $(".remove-all-filters").click(data.filters.clearFilters);

@@ -1,6 +1,6 @@
 # About
 
-MDPvis is a visualization designed to assist in the MDP simulation and optimization process. See the forthcoming research paper for more details, "Facilitating Testing and Debugging of Markov Decision Processes with Interactive Visualization." To play with a live version of the visualization, visit [mdpvis.github.io/](http://mdpvis.github.io/).
+MDPvis is a visualization designed to assist in the MDP simulation and optimization process. See "[Facilitating Testing and Debugging of Markov Decision Processes with Interactive Visualization](http://ieeexplore.ieee.org/xpl/login.jsp?tp=&arnumber=7357198&url=http%3A%2F%2Fieeexplore.ieee.org%2Fxpls%2Fabs_all.jsp%3Farnumber%3D7357198)." To play with a live version of the visualization, visit [mdpvis.github.io/](http://mdpvis.github.io/).
 
 We built MDPvis as a web-based visualization so it would be:
 
@@ -22,71 +22,78 @@ If you don't use our hosted version of the MDPvis web application, you will need
 2. Clone MDPvis into your MDP simulator code base, `cd YOUR_SIMULATOR;git clone git@github.com:MDPvis/MDPvis.github.io.git`. You can use a [Git Submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) for this if you don't mind figuring out how they work. If you are going to contribute back to MDPvis, you should probably clone your fork of MDPvis.
 3. Install [Python 2.7](https://www.python.org/downloads/release/python-279/)
 4. Install a few Python libraries with `pip install -U flask-cors`.
-5. Navigate into the MDPvis directory and start the server with `python flask_server.py`
-
-At this point the server will start, but it will likely fail because the Flask server expects your MDP simulator to define a file in its code base called `domain_bridge.py`. The next (and final) section helps you define this file.
+5. Navigate into the MDPvis directory and start the server with `./serve.sh`
+6. Visit http://localhost:8000
+7. Select one of the pre-existing simulation and optimization servers, or bridge MDPvis to your domain
 
 # Bridging MDPvis and Your Domain
 
-MDPvis interfaces with any MDP simulator+optimizer that is callable by a web server. If you use the web server packages with MDPvis, you can update an example `domain_bridge.py` file found in `example_domain_bridges`, otherwise we recommend viewing the example domain bridges and writing a version of the file as appropriate for your platform.
+MDPvis interfaces with any MDP simulator+optimizer that is callable by a web server. We have a few read-to-go
 
-The bridges take the HTTP requests from the visualization, transforms the query parameters to those expected by the simulator or optimizer, invokes the simulator or optimizer, then returns the results to MDPvis. There are four distinct requests that the bridge should support. We detail these requests below
+Your domain web server is responsible for serving four HTTP requests from the visualization, transforms the query parameters to those expected by the simulator or optimizer, invokes the simulator or optimizer, then returns the results to MDPvis. There are four distinct requests that the bridge should support. We detail these requests below
 
 The visualization expects your code to support the following requests. If your domain is written in Python, we recommend porting one of the example `domain_bridge.py` files to your domain.
 
 ## /initialize
 
-The initialize endpoint doesn't query the simulator or optimizer, but it does provide a set of parameters that will influence those systems when requests are made. Here your responsibility is to return a [JSON](http://www.copterlabs.com/blog/json-what-it-is-how-it-works-how-to-use-it/) object listing the:
+The `/initialize` endpoint provides a set of parameters that will be sent to the simulator or optimizer on future requests. Here your responsibility is to return a [JSON](http://www.copterlabs.com/blog/json-what-it-is-how-it-works-how-to-use-it/) object listing the:
 
 * Name
 * Description
 * Current Value
 * Minimum Value
 * Maximum Value
+* Step (How fast the value changes when pressing a button)
+* Units
 
 of each parameter. An example of this data structure in Python is:
 
     return {
-            "reward": [
-                        {"name": "Discount",
-                         "description":"The per-year discount",
-                         "current_value": 1, "max": 1, "min": 0, "units": "~"},
-                        {"name": "Suppression Variable Cost",
-                         "description":"cost per hectare of suppression",
-                         "current_value": 500, "max": 999999, "min": 0, "units": "$"}
-                        ],
-            "transition": [
-                         {"name": "Years to simulate",
-                          "description": "how far to look into the future",
-                          "current_value": 10, "max": 150, "min": 0, "units": "Y"},
-                         {"name": "Harvest Percent",
-                          "description": "timber harvest rate as a percent of annual increment",
-                          "current_value": 0.95, "max": 1, "min": 0, "units": "%"},
-                         {"name": "Minimum Timber Value",
-                          "description":"the minimum timber value required before harvest is allowed",
-                          "current_value": 50, "max":9999, "min": 0, "units": "$"},
-                          {"name": "Growth Model",
-                           "description": "set to 1 to use original model; or 2 for updated model.",
-                           "current_value": 1, "max":2, "min": 1, "units": "~"}
-                         ],
-            "policy": [
-                        {"name": "Constant",
-                         "description":"for the intercept",
-                         "current_value": 0, "max": 10, "min":-10, "units": ""},
-                        {"name": "Fuel Load 8",
-                         "description":"for the average fuel load in the 8 neighboring stands",
-                         "current_value": 0, "max": 10, "min":-10, "units": ""},
-                        {"name": "Fuel Load 24",
-                         "description":"for the average fuel load in the 24 neighboring stands",
-                         "current_value": 0, "max": 10, "min":-10, "units": ""}
-                      ]
-                }
 
-In the MDPvis user interface, each control will be grouped into panels for the reward, model (transition function), and policy.
+             # The control panels that appear at the top of the screen
+             "parameter_collections": [
+                 {
+                     "panel_title": "Sampling Effort",
+                     "panel_icon": "glyphicon-retweet",
+                     "panel_description": "Define how many trajectories you want to generate, and to what time horizon.",
+                     "quantitative": [  # Real valued parameters
+                                        {
+                                            "name": "Sample Count",
+                                            "description": "Specify how many trajectories to generate",
+                                            "current_value": 10,
+                                            "max": 1000,
+                                            "min": 1,
+                                            "step": 10,
+                                            "units": "#"
+                                        },
+                                        {
+                                            "name": "Horizon",
+                                            "description": "The time step at which simulation terminates",
+                                            "current_value": 10,
+                                            "max": 10000,
+                                            "min": 1,
+                                            "step": 10,
+                                            "units": "Time Steps"
+                                        },
+                                        {
+                                            "name": "Seed",
+                                            "description": "The random seed used for simulations",
+                                            "current_value": 0,
+                                            "max": 100000,
+                                            "min": 1,
+                                            "step": 1,
+                                            "units": "NA"
+                                        }
+                     ]
+                 }
+             ]
+           }
+
+In the MDPvis user interface, each control will be grouped into panels under the `panel_title`.
 
 ## /trajectories?QUERY
 
-When requesting Monte Carlo trajectories, MDPvis will send the current set of parameters as defined in the initialization and assigned in the user interface. The job of the domain bridge is to map the parameters of the user interface into parameters to invoke the simulator. After simulations have completed, the data should be JSON serialized. An example of the data in Python is:
+When requesting Monte Carlo trajectories, MDPvis will send the current set of parameters as defined in the initialization and assigned in the user interface. The job of the web server is to map the parameters of the user interface into parameters to invoke the simulator. After simulations have completed, the data should be JSON serialized. An example of the data in Python is:
 
     return [
         [
@@ -97,59 +104,38 @@ When requesting Monte Carlo trajectories, MDPvis will send the current set of pa
         ]
     ]
 
-These data are two trajectories of two states each.
+These data are two trajectories of two states each. An additional special state variable, `image row`, gives
+an array of images or videos that should be displayed when selecting a trajectory. For example:
+
+    return [
+        [
+          {"Burn Time": 4.261, "Timber Harvested": 251, "image row": ["traj1-1.png"]}, {"Burn Time": 40.261, "Timber Harvested": 0, , "image row": ["traj1-2.png"]}
+        ],
+        [
+          {"Burn Time": 0.0, "Timber Harvested": 342, "image row": ["traj2-1.mp4"]}, {"Burn Time": 45.261, "Timber Harvested": 20, "image row": ["traj2-1.mp4"]}
+        ]
+    ]
+
+will attempt to display the images `traj1-1.png` and `traj1-1.png` when the user clicks the associated trajectory.
 
 ## /optimize?QUERY
 
-MDPvis does not require you to integrate `/optimize` and `/state`, but it is very useful for exploring most problems. Here all the same parameters as are sent to `/trajectories` are sent to `/optimize`, but this query only returns an updated policy. Here is a python example:
+MDPvis does not require you to integrate `/optimize` and `/state`, but it is very useful for exploring most problems. Here all the same parameters as are sent to `/trajectories` are sent to `/optimize`, but this query only returns an updated policy. Here is a python example for a logistic regression based policy:
+
+    return {"Constant": 10,
+            "Fuel Load 8": 3,
+            "Fuel Load 24": -1}
+
+Here is an example where the policy parameters represent versions of a neural network. This would allow for comparing between the performances of different neural networks and
+asking for additional training of an existing network.
 
     return [
-            {"Constant": 10},
-            {"Fuel Load 8": 3},
-            {"Fuel Load 24": -1}
+            {"network version": 5}
           ]
 
-## /state?QUERY
+## /STATE_DETAIL
 
-This query will be issued when a user clicks an individual trajectory in the visualization. All the parameters used to generate the trajectory will be sent, with an additional parameter for the trajectory number. The expectation is you will use this information to re-generate the trajectory and use the simulator to generate descriptive statistics and/or images for the states.
-
-An example of the expected return format is:
-
-    return {
-               "images": [
-                          ["file_row1_column1.png", "file_row1_column2.png"],
-                          ["file_row2_column1.png", "file_row2_column2.png"]]
-               "statistics": {
-                 "stat 1": 5,
-                 "stat 2": -100
-               }
-           }
-
-# Adding Additional Visualizations
-
-There is a default set of visualizations, but if you want to add your own visualizations you should be aware of the three visualization types in MDPvis. These break Monte Carlo trajectories into visualizations for a single time step, variables through time (temporal distributions), and details on a single trajectory. Details on these three aspects are below.
-
-**Single Time Step Distributions**
-
-Monte Carlo trajectories produce a distribution of states at every time step. This view gives details on the distribution for the currently selected time step. Users may select the current time step for all these visualizations simultaneously from the top of the visualization area, or from the temporal distribution area.
-
-* Histogram
-* Bar Chart (comparison mode)
-
-**Temporal Distributions**
-
-In this area we show how the distribution of state variables develops through time.
-
-* Fan Chart
-* Fan Chart (comparison mode)
-* Time Series
-
-**Single Trajectory**
-
-Here a single trajectory is shown. This could give a sequence of state snapshots provided as images from the MDP simulator.
-
-* State images (provided by simulator)
-* Stats panel
+This query will be issued when a user clicks an individual trajectory in the visualization and the state detail area populates with the images and videos specified by the trajectory's "image row" variable. The expectation is you will use the file name to re-generate the trajectory and use the simulator to generate descriptive statistics, videos, and/or images for the states.
 
 ## Implementing a New Visualization
 

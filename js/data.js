@@ -203,19 +203,11 @@ var data = {
           } else {
             return d[eventIndex][variableName];
           }
-        }
+        };
         var stat = percentiles.getPercentiles(activeTrajectories, accessor, eventIndex);
         statistics.percentiles[variableName].push(stat);
       }
     }
-    var totalReward = 0;
-    for ( var trajectoryNumber = 0; trajectoryNumber < activeTrajectories.length; trajectoryNumber++ ) {
-      for( var eventIndex = 0; eventIndex < activeTrajectories[trajectoryNumber].length; eventIndex++ ) {
-        totalReward += activeTrajectories[trajectoryNumber][eventIndex]["Discounted Reward"];
-      }
-    }
-    statistics.expectedValue = totalReward/activeTrajectories.length;
-
     return statistics;
   }
 };

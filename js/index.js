@@ -477,7 +477,7 @@ var MDPVis = {
             data.filteredPrimaryTrajectories);
           MDPVis.charts.temporalCharts[variableName] = fanChart;
           $(".line-charts").append(fanChart.getDOMNode());
-        };
+        }
       }
 
       MDPVis.charts.updateAllBrushPositions();

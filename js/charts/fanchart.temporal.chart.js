@@ -290,6 +290,7 @@ function FanChart(stats, name, trajectories) {
     closeButton.on("click", function(){
       barChart.destroyChart();
       closeButton.remove();
+      contextPanel.positionPanel();
     });
     $("#affixed-panel-charts")
         .empty()
@@ -303,6 +304,7 @@ function FanChart(stats, name, trajectories) {
     if ( that.intersected ) {
       barChart.intersectWithSecondTrajectorySet(data.eligibleSecondaryTrajectories);
     }
+    contextPanel.showPanel(that);
   };
 
   /**

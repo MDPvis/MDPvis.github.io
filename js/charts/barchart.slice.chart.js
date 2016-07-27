@@ -12,7 +12,11 @@ function BarChart (name, trajectories, eventNumber) {
 
   // Function to grab the proper data
   var accessor = function(d) {
-    return d[Math.min(eventNumber, d.length - 1)][that.name];
+    if ( eventNumber >= d.length ) {
+      return false;
+    } else {
+      return d[eventNumber][that.name];
+    }
   };
 
   // The number of bins in the histogram
@@ -56,6 +60,9 @@ function BarChart (name, trajectories, eventNumber) {
       return bindex;
     };
     trajectories.forEach(function(trajectory) {
+      if( accessor(trajectory) === false ) {
+        return;
+      }
       if ( skipFilter || data.filters.isActiveTrajectory(trajectory) ) {
         bins[binIndex(trajectory)] += 1;
       }
@@ -274,7 +281,11 @@ function BarChart (name, trajectories, eventNumber) {
   this.updateData = function(newTrajectories, eventNumber) {
 
     accessor = function(d) {
-      return d[Math.min(eventNumber, d.length - 1)][that.name];
+      if ( eventNumber >= d.length ) {
+        return false;
+      } else {
+        return d[eventNumber][that.name];
+      }
     };
 
     trajectories = newTrajectories;

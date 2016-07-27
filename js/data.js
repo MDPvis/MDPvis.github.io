@@ -139,7 +139,7 @@ var data = {
         var name = data.filters.activeFilters[i].name;
         var timePeriod = data.filters.activeFilters[i].timePeriod;
         var extent = data.filters.activeFilters[i].extent;
-        if( trajectory.length - 1 < timePeriod ) {
+        if( trajectory.length <= timePeriod ) {
           return false; // Don't include shorter trajectories than the current filter
         } else if(trajectory[timePeriod][name] < extent[0]){
           return false;

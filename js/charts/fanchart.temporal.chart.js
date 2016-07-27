@@ -47,13 +47,24 @@ function FanChart(stats, name, trajectories) {
     var accessorStringTop = "percentile" + percentile;
     var accessorStringBottom = "percentile" + (100 - percentile);
     var currentArea = d3.svg.area()
-        .x(function(d) {return x(d.eventNumber); })
-        .y0(function(d) {
-          if(d[accessorStringTop] === d[accessorStringBottom]) {
-            return y(d[accessorStringTop]) + 2;
-          }
-          return y(d[accessorStringTop]); })
-        .y1(function(d) {return y(d[accessorStringBottom]); });
+      .x(function(d) {
+        if(d[accessorStringTop] === undefined) {
+          return x(d.eventNumber - 1); // No trajectories of full length may be displayed
+        }
+        return x(d.eventNumber); })
+      .y0(function(d) {
+        if( d[accessorStringTop] === undefined ) {
+          return 0; // No trajectories of full length may be displayed
+        }
+        if(d[accessorStringTop] === d[accessorStringBottom]) {
+          return y(d[accessorStringTop]) + 2;
+        }
+        return y(d[accessorStringTop]); })
+      .y1(function(d) {
+        if( d[accessorStringTop] === undefined ) {
+          return 0; // No trajectories of full length may be displayed
+        }
+        return y(d[accessorStringBottom]); });
     areas.push(currentArea);
   });
 

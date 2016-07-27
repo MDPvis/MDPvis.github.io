@@ -92,6 +92,7 @@ var MDPVis = {
             }
           }
         }
+        $("input").keyup(); // Grow/shrink the input for the contents
         MDPVis.server.getTrajectories();
       }).fail(function(data) {
         alert("Failed to fetch initialization. Try reloading.");

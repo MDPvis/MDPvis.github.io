@@ -76,12 +76,20 @@ function FanChart(stats, name, trajectories) {
   DOMCol.setAttribute("class", "col-xs-10");
   DOMRow.appendChild(DOMCol);
 
-  // Append the title
-  var DOMCol2 = document.createElement("div");
-  DOMCol2.setAttribute("class", "col-xs-2");
-  DOMCol2.style["font-size"] = "x-large";
-  DOMCol2.textContent = name;
-  DOMRow.appendChild(DOMCol2);
+  // Append the title or image
+  if ( name.indexOf(".png") > 0 || name.indexOf(".jpg") > 0 || name.indexOf(".gif") > 0 ) {
+    var img = document.createElement("img");
+    img.setAttribute("src", MDPVis.server.dataEndpoint + "/" + name);
+    img.setAttribute("class", "img-responsive");
+    img.style["max-height"] = "250px";
+    DOMRow.appendChild(img);
+  } else {
+    var DOMCol2 = document.createElement("div");
+    DOMCol2.setAttribute("class", "col-xs-2");
+    DOMCol2.style["font-size"] = "x-large";
+    DOMCol2.textContent = name;
+    DOMRow.appendChild(DOMCol2);
+  }
 
   DOMDiv.appendChild(DOMRow);
 

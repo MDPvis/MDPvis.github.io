@@ -192,6 +192,9 @@ var data = {
 
     var maxTrajectoryDepth = d3.max(data.eligiblePrimaryTrajectories, function(d){return d.length;});
     for( var variableName in activeTrajectories[0][0] ){
+      if( variableName === "image row" ) {
+        continue;
+      }
       statistics.percentiles[variableName] = []; // [{percentile0:0,...,percentile100:999}]
       for( var eventIndex = 0; eventIndex < maxTrajectoryDepth; eventIndex++ ) {
         var accessor = function(d) {

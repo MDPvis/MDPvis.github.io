@@ -204,16 +204,29 @@ var MDPVis = {
       var columnSize = Math.max(Math.floor(12/trajectory[0]["image row"].length), 1);
       for( var timeStep = 0; timeStep <  trajectory.length ; timeStep++ ) {
         var imageRow = $("<div class='row'></div>");
+        if( typeof(trajectory[timeStep]["image row"]) === "undefined" ) continue;
         for ( var i = 0; i < trajectory[timeStep]["image row"].length; i++ ) {
           var imageColumn = $("<div class='col-xs-" + columnSize + " image-column'></div>");
           var imageName = trajectory[timeStep]["image row"][i];
-          imageColumn
-            .append($('<p>' + imageName + '</p>'))
-            .append($('<img/>', {
+          if ( imageName.indexOf("mp4") > 0 ) {
+            var imageTag = $('<video/>', {
+              "controls":"controls"
+            });
+            imageTag.append($('<source/>', {
+              src: MDPVis.server.dataEndpoint + "/state?image=" + imageName,
+              "type": "video/mp4",
+              "width": "1200px" // max width since it is responsive
+            }));
+          } else {
+            imageTag = $('<img/>', {
               src: MDPVis.server.dataEndpoint + "/state?image=" + imageName,
               "class": "img-responsive",
               "width": "1200px" // max width since it is responsive
-            }));
+            });
+          }
+          imageColumn
+            .append($('<p>' + imageName + '</p>'))
+            .append(imageTag);
           imageRow.append(imageColumn);
         }
         imagesArea.append(imageRow);

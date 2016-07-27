@@ -196,7 +196,7 @@ var data = {
       for( var eventIndex = 0; eventIndex < maxTrajectoryDepth; eventIndex++ ) {
         var accessor = function(d) {
           if( eventIndex >= d.length ) {
-            return d[d.length - 1][variableName];
+            return false;
           } else {
             return d[eventIndex][variableName];
           }

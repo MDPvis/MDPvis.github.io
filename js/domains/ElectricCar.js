@@ -414,6 +414,19 @@ var domain = {
   },
 
   /**
+   * Return a cloned state object.
+   * @param state
+   * @private
+   */
+  _cloneState: function(state) {
+    var clone = {};
+    for( var key in state ) {
+      clone[key] = state[key];
+    }
+    return clone;
+  },
+
+  /**
    * Sample a trajectory from the database.
    * @private
    */
@@ -421,15 +434,19 @@ var domain = {
     var trajectory = [];
     var currentState = domain._initialStateFromDatabase(database, sampleWithReplacement);
     var policy = domain._policyFactory(policyID, seed);
-    trajectory.push(currentState);
+    var clone = domain._cloneState(currentState);
+    var action = policy(clone);
+    clone["action"] = action;
+    trajectory.push(clone);
     for( var j = 0; j < domain.parameters.numberTransitions; j++ ) {
-      var action = policy(currentState);
       currentState = domain._getClosestResult(currentState, action, database, includeAction, includeExogenous, sampleWithReplacement, includeBiasCorrectionSample, requireExactActionMatch);
-      trajectory[trajectory.length - 1]["action"] = action; // Set the pre-transition's action now that we know its result
+      clone = domain._cloneState(currentState);
+      action = policy(currentState);
+      clone["action"] = action;
       if( j === domain.parameters.numberTransitions - 1 ) {
-        currentState["action"] = 0;
+        clone["action"] = 0;
       }
-      trajectory.push(currentState);
+      trajectory.push(clone);
     }
     return trajectory;
   },
@@ -450,7 +467,7 @@ var domain = {
     var requireExactActionMatch = parseInt(query["Require Matching Action"]) === 1;
     var includeActionsInMetric = parseInt(query["Include Actions in Metric"]) === 1;
     var includeExogenousInMetric = parseInt(query["Include Exogenous Variables in Metric"]) === 1;
-    var sampleWithReplacement = parseInt(query["Sample with Replacement"]) === 1; // todo, use this properly. It currently doesn't work because I reassign the action to the database trajectory when I add it to the trajecotries. The next time the action is accessed it has the new action. I need to clone all the states before adding them to the trajectories object.
+    var sampleWithReplacement = parseInt(query["Sample with Replacement"]) === 1;
     var databaseTrajectoryCount = parseInt(query["Database Trajectory Count"]);
     var database = [];
 

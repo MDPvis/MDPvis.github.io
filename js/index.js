@@ -68,11 +68,9 @@ var MDPVis = {
      * then request the trajectories associated with the starting parameters.
      */
     getInitialize: function() {
-      $.ajax({
-        url: MDPVis.server.dataEndpoint + "/initialize",
-        data: "",
-        method: "GET"
-      }).done(function(data) {
+
+      var data = domain.returnIntitialize()
+
         MDPVis.server._displayParameters(data);
         if( window.location.hash ) {
           /**
@@ -94,11 +92,7 @@ var MDPVis = {
         }
         $("input").keyup(); // Grow/shrink the input for the contents
         MDPVis.server.getTrajectories();
-      }).fail(function(data) {
-        alert("Failed to fetch initialization. Try reloading.");
-        console.error("Failed to fetch initialization object.");
-        console.error(data.responseText);
-      });
+
     },
 
     /**
@@ -116,12 +110,7 @@ var MDPVis = {
         q[v.getAttribute("name")] = v.value;
       });
 
-      // Fetch the initialization object from the server
-      $.ajax({
-        url: MDPVis.server.dataEndpoint + "/trajectories",
-        data: q
-      })
-      .done(function(response){
+      data.eligiblePrimaryTrajectories = domain.returnTrajectories(q)["trajectories"];
         $(".post-gettrajectories-show").show();
         $(".generate-trajectories-button").hide();
         $(".optimize-policy-button").prop("disabled", false);
@@ -129,7 +118,6 @@ var MDPVis = {
         $(".policy-is-optimizing-button").hide();
         $(".trajectories-are-generating-button").hide();
 
-        data.eligiblePrimaryTrajectories = response.trajectories;
         data.filters.updateActiveAndStats();
         MDPVis.render.renderTrajectories();
         MDPVis.server._addToHistory(data.eligiblePrimaryTrajectories, data.primaryStatistics, $.param(q));
@@ -147,12 +135,6 @@ var MDPVis = {
             }
         });
 
-      })
-      .fail(function(response) {
-        alert("Failed to fetch trajectories. Try reloading.");
-        console.error("Failed to fetch trajectories.");
-        console.error(response.responseText);
-      });
     },
 
     /**
@@ -234,10 +216,12 @@ var MDPVis = {
       }
     },
 
+
     /**
      * Create the buttons with the current values as specified by the init object.
      * The current buttons will first be cleared.
      * @param {object} init the initialization object as returned by the server.
+     * @private
      */
     _displayParameters: function(init) {
 
@@ -469,7 +453,7 @@ var MDPVis = {
           rescale);
       } else {
         for( var variableName in data.eligiblePrimaryTrajectories[0][0] ){
-          if( variableName === "image row" ) {
+          if( variableName === "image row" || variableName === "additionalData") {
             continue;
           }
           var fanChart = new FanChart(

@@ -68,9 +68,11 @@ var MDPVis = {
      * then request the trajectories associated with the starting parameters.
      */
     getInitialize: function() {
-
-      var data = domain.returnIntitialize()
-
+      $.ajax({
+        url: MDPVis.server.dataEndpoint + "/initialize",
+        data: "",
+        method: "GET"
+      }).done(function(data) {
         MDPVis.server._displayParameters(data);
         if( window.location.hash ) {
           /**
@@ -92,7 +94,11 @@ var MDPVis = {
         }
         $("input").keyup(); // Grow/shrink the input for the contents
         MDPVis.server.getTrajectories();
-
+      }).fail(function(data) {
+        alert("Failed to fetch initialization. Try reloading.");
+        console.error("Failed to fetch initialization object.");
+        console.error(data.responseText);
+      });
     },
 
     /**
@@ -110,7 +116,12 @@ var MDPVis = {
         q[v.getAttribute("name")] = v.value;
       });
 
-      data.eligiblePrimaryTrajectories = domain.returnTrajectories(q)["trajectories"];
+      // Fetch the initialization object from the server
+      $.ajax({
+        url: MDPVis.server.dataEndpoint + "/trajectories",
+        data: q
+      })
+      .done(function(response){
         $(".post-gettrajectories-show").show();
         $(".generate-trajectories-button").hide();
         $(".optimize-policy-button").prop("disabled", false);
@@ -118,6 +129,7 @@ var MDPVis = {
         $(".policy-is-optimizing-button").hide();
         $(".trajectories-are-generating-button").hide();
 
+        data.eligiblePrimaryTrajectories = response.trajectories;
         data.filters.updateActiveAndStats();
         MDPVis.render.renderTrajectories();
         MDPVis.server._addToHistory(data.eligiblePrimaryTrajectories, data.primaryStatistics, $.param(q));
@@ -135,6 +147,12 @@ var MDPVis = {
             }
         });
 
+      })
+      .fail(function(response) {
+        alert("Failed to fetch trajectories. Try reloading.");
+        console.error("Failed to fetch trajectories.");
+        console.error(response.responseText);
+      });
     },
 
     /**
@@ -589,6 +607,15 @@ var MDPVis = {
       var simulatorPath = elem.currentTarget.getAttribute("data-simulator-path");
       MDPVis.server.dataEndpoint = simulatorPath;
       MDPVis.initialize();
+    });
+    $("button[data-local-domain-name]").click(function(elem){
+      $(".post-modal-show").show();
+      var simulatorName = elem.currentTarget.getAttribute("data-local-domain-name");
+      var head = document.getElementsByTagName('head')[0];
+      var js = document.createElement("script");
+      js.type = "text/javascript";
+      js.src = "js/domains/" + simulatorName + ".js";
+      head.appendChild(js);
     });
     $("#customServerSubmit").click(function(elem){
       $(".post-modal-show").show();

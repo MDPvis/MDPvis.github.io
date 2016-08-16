@@ -508,3 +508,37 @@ var domain = {
     return "todo"
   }
 };
+
+/**
+ * Hack the AJAX function in jquery to never make an AJAX request. Instead, the
+ * domain defined in Javascript will be called.
+ * @param dict The query dictionary called by the AJAX function.
+ * @returns {retObject}
+ */
+function newDomainAjax(dict) {
+  function retObject() {}
+  retObject.fail = function(handler){
+    return retObject;
+  };
+  if( dict.url.indexOf("/initialize") === 0 ) {
+    retObject.done = function(handler){
+      handler(domain.returnIntitialize());
+      return retObject;
+    };
+    return retObject;
+  } else if( dict.url.indexOf("/trajectories") === 0 ) {
+    retObject.done = function(handler){
+      handler(domain.returnTrajectories(dict["data"]));
+      return retObject;
+    };
+    return retObject;
+  } else if( dict.url.indexOf("/optimize") === 0 ) {
+    retObject.done = function(handler){
+      handler(domain.returnOptimize());
+      return retObject;
+    };
+    return retObject;
+  }
+}
+$.ajax = newDomainAjax;
+MDPVis.initialize();

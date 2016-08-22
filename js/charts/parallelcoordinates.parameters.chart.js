@@ -18,6 +18,9 @@ function ParallelCoordinatesChart(initializationObject) {
   var width = divWidth - margin.left - margin.right;
   var height = divHeight - margin.top - margin.bottom;
 
+  // The request number identifier
+  var setNumber = 0;
+
   // Add a green line to indicate it is currently the primary dataset
   this.viewSelectedLine = function(trajectoryID) {
     $(".compared-line, .viewed-line").remove(); // todo: figure out why this was not working the normal way
@@ -78,6 +81,8 @@ function ParallelCoordinatesChart(initializationObject) {
     $(".button_value").each(function(idx, v){
       newData[v.getAttribute("name")] = Number(v.value);
     });
+    newData["set number"] = setNumber;
+    setNumber += 1;
     storedParameters.push(newData);
     svg
       .attr("class", "foreground")
@@ -124,6 +129,13 @@ function ParallelCoordinatesChart(initializationObject) {
       dimensions.push(parameterName);
     }
   }
+
+  // Add the request counter
+  y["set number"] = d3.scale.linear()
+    .domain([0, 10])
+    .range([height, 0]);
+  dimensions.push("set number");
+
   var storedParameters = [];
 
   // Extract the list of dimensions and create a scale for each.

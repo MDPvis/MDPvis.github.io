@@ -108,6 +108,9 @@ var MDPVis = {
 
       $("input").prop('disabled', true);
 
+      $(".trajectories-are-generating-button").show();
+      $(".generate-trajectories-button").hide();
+
       // Construct the query object
       var q = {};
 
@@ -123,8 +126,8 @@ var MDPVis = {
       })
       .done(function(response){
         $(".post-gettrajectories-show").show();
-        $(".generate-trajectories-button").hide();
-        $(".optimize-policy-button").prop("disabled", false);
+        $(".generate-trajectories-button").show();
+        $(".optimize-policy-button").prop("disabled", false).show();
         $(".trajectories-are-current-button").hide();
         $(".policy-is-optimizing-button").hide();
         $(".trajectories-are-generating-button").hide();
@@ -180,13 +183,14 @@ var MDPVis = {
         data: q
       })
       .done(function(data){
+        $(".policy-is-optimizing-button").hide();
+        $(".optimize-policy-button").prop('disabled', true).show();
         for( var policyVariable in data ) {
           $("input[name='" + policyVariable + "']")
             .val(data[policyVariable])
             .trigger( "input" ); // Forces resize
         }
         MDPVis.server.getTrajectories();
-        $(".policy-is-optimizing-button").hide();
       })
       .fail(function(data) {
         alert("Failed to fetch initialization. Try reloading.");
@@ -363,7 +367,6 @@ var MDPVis = {
       MDPVis.server.updateInputs(queryString);
       var trajectories = data.trajectorySets[trajectoriesID].trajectories;
       var statistics = data.trajectorySets[trajectoriesID].statistics;
-      $(".generate-trajectories-button").hide();
       data.eligiblePrimaryTrajectories = trajectories;
       data.filters.updateActiveAndStats();
       MDPVis.render.renderTrajectories();
@@ -572,9 +575,7 @@ var MDPVis = {
 
     $( ".optimize-policy-button" ).click(function() {
       $(".generate-trajectories-button").hide();
-      $(".optimize-policy-button")
-        .prop("disabled", false)
-        .hide();
+      $(".optimize-policy-button").hide();
       $(".trajectories-are-current-button").hide();
       $(".policy-is-optimizing-button").show();
       $(".trajectories-are-generating-button").show();

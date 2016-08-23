@@ -191,13 +191,6 @@ function FanChart(stats, name, trajectories) {
     var pathDisplay = "";
     if( that.linesAreDisplayed ) {
       pathDisplay = "none";
-      for( var i = 0; i < that.paths.length; i++ ) {
-        that.paths[i].style("display", "none");
-      }
-      this.renderLines(data.filteredPrimaryTrajectories);
-    } else {
-      $("[data-line-name='" + name + "']").remove();
-      $(".area").show();
     }
     that.paths.forEach(function(path, idx){
       path.datum(percentiles)
@@ -206,6 +199,15 @@ function FanChart(stats, name, trajectories) {
         .style("display", pathDisplay);
     });
     that.plotSliceSelectors();
+    if( that.linesAreDisplayed ) {
+      for( var i = 0; i < that.paths.length; i++ ) {
+        that.paths[i].style("display", "none");
+      }
+      this.renderLines(data.filteredPrimaryTrajectories);
+    } else {
+      $("[data-line-name='" + name + "']").remove();
+      $(".area").show();
+    }
   };
 
   /**

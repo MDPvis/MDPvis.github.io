@@ -28,15 +28,14 @@ If you don't use our hosted version of the MDPvis web application, you will need
 
 # Bridging MDPvis and Your Domain
 
-MDPvis interfaces with any MDP simulator+optimizer that is callable by a web server. We have a few read-to-go
+MDPvis interfaces with any MDP simulator+optimizer that is callable by a web server.
 
-Your domain web server is responsible for serving four HTTP requests from the visualization, transforms the query parameters to those expected by the simulator or optimizer, invokes the simulator or optimizer, then returns the results to MDPvis. There are four distinct requests that the bridge should support. We detail these requests below
+Your domain web server is responsible for serving four HTTP requests from the visualization, transforms the query parameters to those expected by the simulator or optimizer, invokes the simulator or optimizer, then returns the results to MDPvis. There are four distinct requests that the bridge should support. We detail these requests below.
 
-The visualization expects your code to support the following requests. If your domain is written in Python, we recommend porting one of the example `domain_bridge.py` files to your domain.
 
 ## /initialize
 
-The `/initialize` endpoint provides a set of parameters that will be sent to the simulator or optimizer on future requests. Here your responsibility is to return a [JSON](http://www.copterlabs.com/blog/json-what-it-is-how-it-works-how-to-use-it/) object listing the:
+The `/initialize` endpoint provides a set of parameters that will be sent to the simulator or optimizer on future requests. Here your responsibility is to return a [JSON](http://www.copterlabs.com/blog/json-what-it-is-how-it-works-how-to-use-it/) object listing these properties:
 
 * Name
 * Description
@@ -46,7 +45,7 @@ The `/initialize` endpoint provides a set of parameters that will be sent to the
 * Step (How fast the value changes when pressing a button)
 * Units
 
-of each parameter. An example of this data structure in Python is:
+An example of this data structure in Python is:
 
     return {
 
@@ -89,32 +88,33 @@ of each parameter. An example of this data structure in Python is:
              ]
            }
 
-In the MDPvis user interface, each control will be grouped into panels under the `panel_title`.
+In the MDPvis user interface, each control will be grouped into panels under the `panel_title`
+and display the [icon](http://getbootstrap.com/components/#glyphicons) specified by `panel_icon`.
 
 ## /trajectories?QUERY
 
 When requesting Monte Carlo trajectories, MDPvis will send the current set of parameters as defined in the initialization and assigned in the user interface. The job of the web server is to map the parameters of the user interface into parameters to invoke the simulator. After simulations have completed, the data should be JSON serialized. An example of the data in Python is:
 
-    return [
+    return {"trajectories": [
         [
           {"Burn Time": 4.261, "Timber Harvested": 251}, {"Burn Time": 40.261, "Timber Harvested": 0}
         ],
         [
           {"Burn Time": 0.0, "Timber Harvested": 342}, {"Burn Time": 45.261, "Timber Harvested": 20}
         ]
-    ]
+    ]}
 
 These data are two trajectories of two states each. An additional special state variable, `image row`, gives
 an array of images or videos that should be displayed when selecting a trajectory. For example:
 
-    return [
+    return {"trajectories": [
         [
           {"Burn Time": 4.261, "Timber Harvested": 251, "image row": ["traj1-1.png"]}, {"Burn Time": 40.261, "Timber Harvested": 0, , "image row": ["traj1-2.png"]}
         ],
         [
           {"Burn Time": 0.0, "Timber Harvested": 342, "image row": ["traj2-1.mp4"]}, {"Burn Time": 45.261, "Timber Harvested": 20, "image row": ["traj2-1.mp4"]}
         ]
-    ]
+    ]}
 
 will attempt to display the images `traj1-1.png` and `traj1-1.png` when the user clicks the associated trajectory.
 
@@ -158,4 +158,3 @@ Maintainer Mailing Address: PO Box 79, Corvallis, OR 97339, United States of Ame
 
 Implementation by: Sean McGregor  
 With: Hailey Buckingham, Thomas G. Dietterich, Rachel Houtman, Claire Montgomery, and Ronald Metoyer
-

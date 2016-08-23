@@ -379,3 +379,7 @@ body {
 .btn {
     min-width: 220px;
 }
+
+.modal-title {
+    text-align: center;
+}

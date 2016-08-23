@@ -29,7 +29,7 @@ function ParallelCoordinatesChart(initializationObject) {
 
   // Make the line green to indicate it is currently the primary dataset
   this.viewSelectedLine = function(trajectoryID) {
-    svg.selectAll(".viewed-parameter-line")
+    svg.selectAll(".viewed-parameter-line,.compared-parameter-line")
       .attr("class", "parameter-line hover_line");
     $("[data-parameters-trajectories-ID=" + trajectoryID + "]")
       .attr("class", "viewed-parameter-line parameter-line hover_line");

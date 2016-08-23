@@ -33,8 +33,8 @@ var domain = {
             {
               "name": "Sample Count",
               "description": "Specify how many trajectories to generate",
-              "current_value": 10,
-              "max": 1000,
+              "current_value": 40,
+              "max": 200,
               "min": 1,
               "step": 10,
               "units": "#"
@@ -43,7 +43,7 @@ var domain = {
               "name": "Seed",
               "description": "The random seed used for simulations",
               "current_value": 0,
-              "max": 100000,
+              "max": 100,
               "min": 1,
               "step": 1,
               "units": "NA"
@@ -110,8 +110,8 @@ var domain = {
             {
               "name": "Database Trajectory Count",
               "description": "Specify how many trajectories to sample into the database",
-              "current_value": 10,
-              "max": 1000,
+              "current_value": 40,
+              "max": 200,
               "min": 1,
               "step": 10,
               "units": "NA"
@@ -127,7 +127,7 @@ var domain = {
             },
             {
               "name": "Database Policy",
-              "description": "Probabilities for charging: (0) distance_remaining/starting_distance, (1) opposite of policy 1, (2) if charge < .5, (3) opposite of policy 2, (4) if traffic > .5, (5) opposite of policy 4.",
+              "description": "Probabilities for charging: (0) distance_remaining/starting_distance, (1) opposite of policy 1, (2) if charge < .5, (3) opposite of policy 2, (4) if exogenous1 > .5, (5) opposite of policy 4.",
               "current_value": 0,
               "max": 5,
               "min": 0,
@@ -152,7 +152,7 @@ var domain = {
           "quantitative": [
             {
               "name": "Evaluation Policy",
-              "description": "Probabilities for charging: (0) distance_remaining/starting_distance, (1) opposite of policy 1, (2) if charge < .5, (3) opposite of policy 2, (4) if traffic > .5, (5) opposite of policy 4.",
+              "description": "Probabilities for charging: (0) distance_remaining/starting_distance, (1) opposite of policy 1, (2) if charge < .5, (3) opposite of policy 2, (4) if exogenous 1 > .5, (5) opposite of policy 4.",
               "current_value": 0,
               "max": 5,
               "min": 0,
@@ -174,7 +174,6 @@ var domain = {
     return {
       "reward": 0,
       "charge level": prng(),
-      "distance to next charger": domain.parameters.distanceBetweenChargers,
       "total distance remaining": domain.parameters.distanceAcrossContent,
       "Stitched Distance": 0
     };
@@ -237,15 +236,21 @@ var domain = {
         }
       }
     } else if( policyIdentifier === 4 ) {
-      // todo, implement this
       policyFunction = function(state) {
-        goToFail();
+        if( state["exogenous 1"] > .5 ) {
+          return 1;
+        } else {
+          return 0;
+        }
       }
     } else if( policyIdentifier === 5 ) {
-      // todo, implement this
-      policyFunction = function(state) {
-        goToFail();
+      if( state["exogenous 1"] > .5 ) {
+        return 0;
+      } else {
+        return 1;
       }
+    } else {
+      alert("you selected an invalid policy");
     }
     return policyFunction;
   },
@@ -309,16 +314,15 @@ var domain = {
         chargeAtStart = 1;
         chargingCost = domain.parameters.chargingFixedCost;
       }
-      var chargeDepletion = (rn * currentState["distance to next charger"])/domain.parameters.distanceBetweenChargers;
+      var chargeDepletion = rn;
       if( chargeDepletion > chargeAtStart ) {
         resultState["reward"] = domain.parameters.depletionPenalty + chargingCost;
         resultState["charge level"] = 0;
       } else {
-        resultState["reward"] = currentState["distance to next charger"] + chargingCost;
+        resultState["reward"] = chargingCost;
         resultState["charge level"] = chargeAtStart - chargeDepletion;
       }
-      resultState["distance to next charger"] = domain.parameters.distanceBetweenChargers;
-      resultState["total distance remaining"] = currentState["total distance remaining"] - currentState["distance to next charger"];
+      resultState["total distance remaining"] = currentState["total distance remaining"] - domain.parameters.distanceBetweenChargers;
       resultState["Stitched Distance"] = 0;
       domain._addExogenousState(prng, exogenousCount, resultState);
       return resultState;

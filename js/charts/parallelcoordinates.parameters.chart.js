@@ -4,11 +4,11 @@
  */
 function ParallelCoordinatesChart(initializationObject) {
 
-  this.name = name;
-  ParametersChart.call(this);
-
   // Reference for closures
   var that = this;
+
+  this.name = name;
+  ParametersChart.call(this);
 
   // Set the height and width from the style of the div element
   var divWidth = $(window).width();
@@ -82,8 +82,90 @@ function ParallelCoordinatesChart(initializationObject) {
       newData[v.getAttribute("name")] = Number(v.value);
     });
     newData["set number"] = setNumber;
+    newData["varied dimensions will be added here"] = setNumber;
     setNumber += 1;
     storedParameters.push(newData);
+
+    // Find which dimensions vary
+    var current = {};
+    for( var k in storedParameters[0] ) {
+      current[k] = [storedParameters[0][k], storedParameters[0][k]]
+    }
+    for( k in storedParameters[0] ) {
+      for( var i = 1; i < storedParameters.length; i++ ) {
+        current[k][0] = Math.min(storedParameters[i][k], current[k][0]);
+        current[k][1] = Math.max(storedParameters[i][k], current[k][1]);
+      }
+    }
+    dimensions = [];
+    hiddenDimensions = [];
+    for( k in current ) {
+      if( current[k][0] !== current[k][1] && k !== "varied dimensions will be added here") {
+        y[k] = d3.scale.linear()
+          .domain([current[k][0], current[k][1]])
+          .range([height, 0]);
+        dimensions.push(k);
+      } else {
+        hiddenDimensions.push(k);
+      }
+    }
+    if( dimensions.length === 0 ) {
+      dimensions.push("set number");
+    }
+    if( dimensions.length === 1 ) {
+      dimensions.push("varied dimensions will be added here");
+    }
+    x.domain(dimensions);
+
+    function dragstartFunction(d) {
+      dragging[d] = x(d);
+    }
+    function dragFunction(d) {
+      dragging[d] = Math.min(width, Math.max(0, d3.event.x));
+      that.foreground.attr("d", path);
+      dimensions.sort(function(a, b) { return position(a) - position(b); });
+      x.domain(dimensions);
+      g.attr("transform", function(d) { return "translate(" + position(d) + ")"; })
+    }
+    function dragendFunction(d) {
+      delete dragging[d];
+      transition(d3.select(this)).attr("transform", "translate(" + x(d) + ")");
+      transition(that.foreground).attr("d", path);
+    }
+
+    // Create the axes
+    var g = svg.selectAll(".dimension")
+      .data(dimensions);
+      g.attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+      .call(d3.behavior.drag()
+        .origin(function(d) { return {x: x(d)}; })
+        .on("dragstart", dragstartFunction)
+        .on("drag", dragFunction)
+        .on("dragend", dragendFunction))
+      .enter()
+      .append("g")
+      .attr("class", "dimension")
+      .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+      .call(d3.behavior.drag()
+        .origin(function(d) { return {x: x(d)}; })
+        .on("dragstart", dragstartFunction)
+        .on("drag", dragFunction)
+        .on("dragend", dragendFunction));
+
+    svg.selectAll(".parallel-coordinates-parameter-axis")
+      .remove();
+
+    // Add the axes text
+    g.append("g")
+      .attr("class", "axis parallel-coordinates-parameter-axis")
+      .each(function(d) { d3.select(this).call(axis.scale(y[d])); })
+      .append("text")
+      .attr("class", "parallel-coordinates-parameter-text")
+      .style("text-anchor", "middle")
+      .attr("y", -9)
+      .text(function(d) { return d; });
+
+    // Add the sample lines
     svg
       .attr("class", "foreground")
       .selectAll(".all-samples-line")
@@ -93,7 +175,8 @@ function ParallelCoordinatesChart(initializationObject) {
       .attr("d", path)
       .on("click", selectLineFunction(query, trajectoriesID));
     that.foreground = svg
-      .selectAll(".parameter-line");
+      .selectAll(".parameter-line")
+      .attr("d", path);
     that.viewSelectedLine(trajectoriesID);
   };
 
@@ -114,6 +197,7 @@ function ParallelCoordinatesChart(initializationObject) {
   // note: when there is one data point on an axis, the whole range will be used from the initialization object.
   // When a second parameter value is introduced, the range of the parameters will be used
   var dimensions = [];
+  var hiddenDimensions = [];
 
   for( var i = 0; i < initializationObject.parameter_collections.length; i++ ) {
     var parameterCollection = initializationObject.parameter_collections[i];
@@ -126,63 +210,21 @@ function ParallelCoordinatesChart(initializationObject) {
       y[parameterName] = d3.scale.linear()
         .domain([parameterMin, parameterMax])
         .range([height, 0]);
-      dimensions.push(parameterName);
+      hiddenDimensions.push(parameterName);
     }
   }
 
   // Add the request counter
+  y["varied dimensions will be added here"] = d3.scale.linear()
+    .domain([0, 10])
+    .range([height, 0]);
+  dimensions.push("varied dimensions will be added here");
   y["set number"] = d3.scale.linear()
     .domain([0, 10])
     .range([height, 0]);
   dimensions.push("set number");
 
   var storedParameters = [];
-
-  // Extract the list of dimensions and create a scale for each.
-  x.domain(dimensions);
-
-  // Add blue foreground lines for focus.
-  that.foreground = svg.append("g")
-    .attr("class", "foreground")
-    .selectAll("path")
-    .data(storedParameters)
-    .enter().append("path")
-    .attr("class", "parameter-line hover_line")
-    .attr("d", path);
-
-  // Add a group element for each dimension.
-  var g = svg.selectAll(".dimension")
-    .data(dimensions)
-    .enter().append("g")
-    .attr("class", "dimension")
-    .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
-    .call(d3.behavior.drag()
-      .origin(function(d) { return {x: x(d)}; })
-      .on("dragstart", function(d) {
-        dragging[d] = x(d);
-      })
-      .on("drag", function(d) {
-        dragging[d] = Math.min(width, Math.max(0, d3.event.x));
-        that.foreground.attr("d", path);
-        dimensions.sort(function(a, b) { return position(a) - position(b); });
-        x.domain(dimensions);
-        g.attr("transform", function(d) { return "translate(" + position(d) + ")"; })
-      })
-      .on("dragend", function(d) {
-        delete dragging[d];
-        transition(d3.select(this)).attr("transform", "translate(" + x(d) + ")");
-        transition(that.foreground).attr("d", path);
-      }));
-
-  // Add an axis and title.
-  g.append("g")
-    .attr("class", "axis")
-    .each(function(d) { d3.select(this).call(axis.scale(y[d])); })
-    .append("text")
-    .style("text-anchor", "middle")
-    .attr("y", -9)
-    .text(function(d) { return d; });
-
 
   function position(d) {
     var v = dragging[d];
@@ -193,14 +235,12 @@ function ParallelCoordinatesChart(initializationObject) {
     return g.transition().duration(500);
   }
 
-// Returns the path for a given data point.
+  // Returns the path for a given data point.
   function path(d) {
     return line(dimensions.map(function(p) {
       return [position(p), y[p](d[p])]; }));
   }
 
-
-
-  return this;
+  return that;
 
 }

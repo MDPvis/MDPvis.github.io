@@ -355,7 +355,7 @@ body {
 }
 
 .parameter-line {
-    stroke: steelblue;
+    stroke: grey;
     fill: none;
     stroke-width: 2px;
 }
@@ -366,12 +366,12 @@ body {
     stroke: red;
 }
 
-.viewed-line {
+.viewed-parameter-line {
     stroke: green;
     stroke-width: 4px;
 }
 
-.compared-line {
+.compared-parameter-line {
     stroke: red;
     stroke-width: 4px;
 }

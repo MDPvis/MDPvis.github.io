@@ -1,5 +1,11 @@
 /**
  * Plot the parameters that have been sampled and allow for selecting previously sampled parameters.
+ *
+ * The currently viewed line in the visualization area has the class "viewed-parameter-line".
+ * The currently selected line has the class "selected-parameter-line"
+ * The currently compared line in the visualization area has the class "compared-parameter-line"
+ * All lines also have the class "parameter-line"
+ *
  * @param {object} initializationObject The initialization object returned by the server.
  */
 function ParallelCoordinatesChart(initializationObject) {
@@ -21,31 +27,20 @@ function ParallelCoordinatesChart(initializationObject) {
   // The request number identifier
   var setNumber = 0;
 
-  // Add a green line to indicate it is currently the primary dataset
+  // Make the line green to indicate it is currently the primary dataset
   this.viewSelectedLine = function(trajectoryID) {
-    $(".compared-line, .viewed-line").remove(); // todo: figure out why this was not working the normal way
-    var viewedLine = svg.selectAll(".viewed-line")
-      .data([storedParameters[trajectoryID]]);
-    viewedLine
-      .enter().append("path")
-      .attr("class", "viewed-line parameter-line")
-      .attr("d", path);
-    that.foreground = svg
-      .selectAll(".parameter-line");
+    svg.selectAll(".viewed-parameter-line")
+      .attr("class", "parameter-line hover_line");
+    $("[data-parameters-trajectories-ID=" + trajectoryID + "]")
+      .attr("class", "viewed-parameter-line parameter-line hover_line");
   };
 
-  // Add a red line to indicate it is being compared against
+  // Make the line red to indicate it is being compared against
   this.compareSelectedLine = function(trajectoryID) {
-    $(".compared-line").remove(); // todo: figure out why this was not working the normal way
-    var comparedLine = svg
-      .selectAll(".compared-line")
-      .data([storedParameters[trajectoryID]]);
-    comparedLine
-      .enter().append("path")
-      .attr("class", "compared-line parameter-line")
-      .attr("d", path);
-    that.foreground = svg
-      .selectAll(".parameter-line");
+    svg.selectAll(".compared-parameter-line")
+      .attr("class", "parameter-line hover_line");
+    $("[data-parameters-trajectories-ID=" + trajectoryID + "]")
+      .attr("class", "compared-parameter-line parameter-line");
   };
 
   /**
@@ -57,18 +52,20 @@ function ParallelCoordinatesChart(initializationObject) {
   function selectLineFunction(query, trajectoryID){
     return function(d) {
       MDPVis.server.updateInputs(query);
-      $("#compare-parameters-button, #view-parameters-button").prop("disabled", false);
+      $("#view-parameters-button, #compare-parameters-button")
+        .attr("data-trajectory-number", trajectoryID)
+        .attr("data-query-string", query)
+        .prop("disabled", false)
+        .show();
       $(".selected_line")
         .removeClass("selected_line")
         .removeClass("color-cycle");
-      $(d3.event.currentTarget)
-        .addClass("selected_line")
-        .addClass("color-cycle");
-      $("#view-parameters-button, #compare-parameters-button")
-        .show()
-        .attr("data-trajectory-number", trajectoryID)
-        .attr("data-query-string", query)
-        .prop("disabled", false);
+      var currentTarget = $(d3.event.currentTarget);
+      if( ! currentTarget.hasClass("viewed-parameter-line") ) {
+        currentTarget
+          .addClass("selected_line")
+          .addClass("color-cycle");
+      }
     }
   }
 
@@ -166,17 +163,16 @@ function ParallelCoordinatesChart(initializationObject) {
       .text(function(d) { return d; });
 
     // Add the sample lines
-    svg
-      .attr("class", "foreground")
-      .selectAll(".all-samples-line")
+    svg.selectAll(".parameter-line")
       .data(storedParameters)
+      .attr("d", path)
       .enter().append("path")
       .attr("class", "all-samples-line parameter-line hover_line")
+      .attr("data-parameters-trajectories-ID", trajectoriesID)
       .attr("d", path)
       .on("click", selectLineFunction(query, trajectoriesID));
-    that.foreground = svg
-      .selectAll(".parameter-line")
-      .attr("d", path);
+    that.foreground = svg.selectAll(".parameter-line");
+
     that.viewSelectedLine(trajectoriesID);
   };
 

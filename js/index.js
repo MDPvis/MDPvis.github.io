@@ -393,7 +393,6 @@ var MDPVis = {
       $("#compare-parameters-button").prop("disabled", true);
       learningTooltip.mouseLeave(); // Since the line above breaks the mouse enter/leave events
 
-      $(".generate-trajectories-button").hide();
       $(".optimize-policy-button").prop("disabled", true);
       $(".trajectories-are-current-button").show();
       $(".policy-is-optimizing-button").hide();

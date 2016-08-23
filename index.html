@@ -32,12 +32,13 @@
         <div class="maximized-context-panel">
           <div class="row">
             <div class="col-lg-7">
-              <button type="button" class="btn btn-sm btn-warning remove-brush context-panel-button">
-                Remove Filter
-              </button>
               <button type="button" class="btn btn-sm btn-warning hide-chart context-panel-button">
                 <span class="glyphicon glyphicon-minus"></span>
                 Hide Chart
+              </button>
+              <button type="button" class="btn btn-sm context-panel-button change-chart-type">
+                <span class="glyphicon glyphicon-signal"></span>
+                Change Chart Type
               </button>
             </div>
             <div class="col-lg-3">
@@ -57,96 +58,91 @@
     </div>
 
     <div class="container-fluid post-modal-show" style="display:none;">
-      <div class="row">
-        <div class="col-sm-3">
+      <div id="parameter-panel-row" class="row">
+        <div id="parameter-panel-prototype" class="col-sm-3 parameter-panel" style="display:none;">
           <h2>
-            <span class="glyphicon glyphicon-usd"></span>
-            Reward Specification
+            <span class="panel-icon glyphicon"></span>
+            <span class="panel-name">Name</span>
           </h2>
-          <p class="comparison-warning" style="display:none;">Showing differences in values.</p>
+          <p class="comparison-warning" style="display:none;">Showing comparison view.</p>
           <p class="help-message"></p>
-          <div id="reward-buttons" class="pad-left">
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <h2>
-            <span class="glyphicon glyphicon-cog"></span>
-            Model Modifiers
-          </h2>
-          <p class="comparison-warning" style="display:none;">Showing differences in values.</p>
-          <p class="help-message"></p>
-          <div id="transition-buttons" class="pad-left">
-          </div>
-        </div>
-        <div class="col-sm-3">
-          <h2>
-            <span class="glyphicon glyphicon-random"></span>
-            Policy Definition
-          </h2>
-          <p class="comparison-warning" style="display:none;">Showing differences in values.</p>
-          <p class="help-message"></p>
-          <div id="policy-buttons" class="pad-left">
-          </div>
-          <button style="display:none;" class="btn btn-lg btn-success btn-block policy-is-optimized-button" disabled>
-              <span class="glyphicon glyphicon-ok"></span>
-              Policy was Optimized
-          </button>
-          <button style="display:none;" class="btn btn-lg btn-danger btn-block optimize-policy-button">
-              <span class="glyphicon glyphicon-refresh"></span>
-              Optimize a New Policy
-          </button>
-          <button style="display:none;" class="btn btn-lg btn-warning btn-block policy-is-optimizing-button" disabled>
-              <span class="glyphicon glyphicon-refresh spinning"></span>
-              Policy is Optimizing...
-          </button>
-        </div>
-        <div class="col-sm-3">
-          <h2>
-            <span class="glyphicon glyphicon-list"></span>
-            Exploration History
-          </h2>
-          <p class="help-message"></p>
-          <div id="history-button-controls">
-            <button style="display:none;" class="btn btn-lg btn-success btn-block rollouts-are-current-button" disabled>
-                <span class="glyphicon glyphicon-ok"></span>
-                Rollouts are Current
-            </button>
-            <button style="display:none;" class="btn btn-lg btn-danger btn-block generate-rollouts-button">
-                <span class="glyphicon glyphicon-refresh"></span>
-                Generate Rollouts
-            </button>
-            <button class="btn btn-lg btn-warning btn-block rollouts-are-generating-button" disabled>
-                <span class="glyphicon glyphicon-refresh spinning"></span>
-                Rollouts are Generating...
-            </button>
-            <br />
-            <div id="history-buttons" class="pad-left">
-            </div>
-          </div>
         </div>
       </div>
 
-      <div class="row post-getrollouts-show" style="display:none;">
-        <div id="messages"></div>
+      <div class="row post-gettrajectories-show">
+        <div class="col-xs-12">
+          <h2><span class="glyphicon glyphicon-cog"></span> Parameter Exploration
+          </h2>
+          <button class="btn generate-trajectories-button">
+            <span class="glyphicon glyphicon-refresh"></span>
+            Simulate Parameters
+          </button>
+          <button class="btn btn-warning trajectories-are-generating-button" disabled>
+            <span class="glyphicon glyphicon-refresh spinning"></span>
+            Simulating...
+          </button>
+          <button class="btn optimize-policy-button" disabled>
+            <span class="glyphicon glyphicon-refresh"></span>
+            Optimize a New Policy
+          </button>
+          <button style="display:none;" class="btn policy-is-optimizing-button" disabled>
+            <span class="glyphicon glyphicon-refresh spinning"></span>
+            Policy is Optimizing...
+          </button>
+          <button id="view-parameters-button" type="button" class="btn btn-success" disabled>
+            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+            View Selection
+          </button>
+          <button id="compare-parameters-button" type="button" class="btn btn-danger"
+                  data-tooltip-hover-message="This will clear the current filters and show the comparison view for each visualization on the unfiltered trajectories."
+                  disabled>
+            <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+            Compare Against Selection
+          </button>
+        </div>
+        <div class="col-xs-12">
+          <div id="parameter-visualization-area"></div>
+        </div>
+      </div>
+
+      <div class="row post-gettrajectories-show" style="display:none;">
         <div class="col-xs-12">
           <h2>
-            <span class="glyphicon glyphicon-equalizer"></span>
-            State Distributions for a Fixed Time Step
+            <span class="glyphicon glyphicon-indent-left"></span>
+            State Development
           </h2>
-          <p class="help-message"></p>
-
+          <div class="row">
+            <div class="col-xs-12">
+              <p class="help-message margin">
+                Percentiles Key:
+                <span class="fan_percentile100">&nbsp;100th&nbsp;</span> &middot;
+                <span class="fan_percentile90">&nbsp;90th&nbsp;</span> &middot;
+                <span class="fan_percentile80">&nbsp;80th&nbsp;</span> &middot;
+                <span class="fan_percentile70">&nbsp;70th&nbsp;</span> &middot;
+                <span class="fan_percentile60">&nbsp;60th&nbsp;</span>
+                <span class="glyphicon glyphicon-arrow-left"></span>
+                center
+                <span class="glyphicon glyphicon-arrow-right"></span>
+                <span class="fan_percentile40">&nbsp;40th&nbsp;</span> &middot;
+                <span class="fan_percentile30">&nbsp;30th&nbsp;</span> &middot;
+                <span class="fan_percentile20">&nbsp;20th&nbsp;</span> &middot;
+                <span class="fan_percentile10">&nbsp;10th&nbsp;</span> &middot;
+                <span class="fan_percentile0">&nbsp;&nbsp;0th&nbsp;</span>
+              </p>
+            </div>
+          </div>
           <!-- Affixed panel -->
           <div style="min-height:110px;">
             <div class="affix-panel" style="z-index:10;">
               <div class="panel panel-primary">
                 <p class="comparison-warning" style="display:none;">
-                  Showing differences in values.
+                  Showing comparison view.
                 </p>
                 <p class="no-data-warning" style="display:none;">
                   All data is filtered. Visualizations will stop updating until
                   you return to the sampled space.
                 </p>
-                <div class="row post-getrollouts-show" style="display:none;">
+                <div class="row post-gettrajectories-show" style="display:none;">
                   <div class="col-xs-9">
                     <div class="no-filters margin">No filters.</div>
                     <div>
@@ -162,59 +158,34 @@
                     <p class="text-right">
                       Displaying
                       <span class="counts displayed-state-count">0</span>
-                      rollouts of
+                      trajectories of
                       <span class="counts total-state-count">0</span>
-                      for time Step
-                      <span class="counts current-event-number">0</span>
                     </p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div id="affixed-panel-charts" class="col-sm-12">
                   </div>
                 </div>
               </div>
             </div>
           </div><!-- /Affixed panel -->
-
-          <div class="initial-states"></div>
         </div>
       </div>
-
-      <div class="row post-getrollouts-show" style="display:none;">
-        <div class="col-xs-12">
-          <h2>
-            <span class="glyphicon glyphicon-indent-left"></span>
-            State Development
-          </h2>
-          <p class="help-message">
-            Percentiles:
-            <span class="fan_percentile100">&nbsp;100th&nbsp;</span> &middot;
-            <span class="fan_percentile90">&nbsp;90th&nbsp;</span> &middot;
-            <span class="fan_percentile80">&nbsp;80th&nbsp;</span> &middot;
-            <span class="fan_percentile70">&nbsp;70th&nbsp;</span> &middot;
-            <span class="fan_percentile60">&nbsp;60th&nbsp;</span>
-            <span class="glyphicon glyphicon-arrow-left"></span>
-            center
-            <span class="glyphicon glyphicon-arrow-right"></span>
-            <span class="fan_percentile40">&nbsp;40th&nbsp;</span> &middot;
-            <span class="fan_percentile30">&nbsp;30th&nbsp;</span> &middot;
-            <span class="fan_percentile20">&nbsp;20th&nbsp;</span> &middot;
-            <span class="fan_percentile10">&nbsp;10th&nbsp;</span> &middot;
-            <span class="fan_percentile0">&nbsp;&nbsp;0th&nbsp;</span>
-          </p>
-        </div>
-      </div>
-      <div class="row post-getrollouts-show" style="display:none;">
+      <div class="row post-gettrajectories-show" style="display:none;">
         <div class="col-xs-12 line-charts">
         </div>
       </div>
-      <div class="row post-getrollouts-show" style="display:none;">
+      <div class="row post-gettrajectories-show" style="display:none;">
         <div class="col-xs-12">
           <h2><span class="glyphicon glyphicon-picture"></span> State Detail </h2>
           <p class="help-message"></p>
         </div>
       </div>
-      <div class="row images-row post-getrollouts-show" style="display:none;">
+      <div class="row images-row post-gettrajectories-show" style="display:none;">
         <div class="col-m-3">
           <div class="statistics-area">
-            Filter the rollouts until individual lines appear in the fan chart,
+            Filter the trajectories until individual lines appear in the fan chart,
             then click a line to show visualizations specific to the current
             domain.
           </div>
@@ -232,11 +203,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-              data-simulator-path="http://72.11.240.133:5000/">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <h4 class="modal-title" id="serverSelectionModalLabel">MDPvis: Select a Server</h4>
+            <h4 class="modal-title" id="serverSelectionModalLabel">MDPvis: Connect to a Simulator</h4>
           </div>
           <div class="modal-body">
             <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
@@ -245,50 +212,31 @@
                   <h4 class="panel-title">
                     <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                       <span class="glyphicon glyphicon-fire" aria-hidden="true" style="color:red;"></span>
-                      Wildfire Simulator
+                      Simplified (fast) Wildfire Simulator
                     </a>
                   </h4>
                 </div>
                 <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
                   <div class="panel-body">
                     <p>
-                    Connect to our simplified wildfire suppression simulator and optimizer. In this domain,
+                    Connect to our wildfire suppression simulator and optimizer. In this domain,
                     rewards are given by tree harvest volumes and costs are incurred by spending money
                     on wildfire suppression. Letting a wildfire burn may reduce the harvestable timber,
-                    but it will also reduce fuels on the landscape and fire suppression expenses. This is
-                    a very challenging large state MDP.
+                    but it will also reduce fuels on the landscape and fire suppression expenses.
                     </p>
                     <button type="button" class="btn btn-default" data-dismiss="modal"
                       data-simulator-path="http://72.11.240.133:5000/">
                       <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
-                      Open Connection to Simulator
+                      Open Connection to Wildfire Simulator
                     </button>
                     <p></p>
                     <p>
-                      You can also explore a few suggested configurations for this domain, including:
-                    </p>
-                    <ul>
-                      <li>
-                        <a href="http://mdpvis.github.io/#%7B%22initialization%22%3A%7B%22reward%22%3A%5B%7B%22current_value%22%3A%221%22%2C%22description%22%3A%22The%20per-year%20discount%22%2C%22max%22%3A1%2C%22min%22%3A0%2C%22name%22%3A%22Discount%22%2C%22units%22%3A%22~%22%7D%2C%7B%22current_value%22%3A%22500%22%2C%22description%22%3A%22cost%20per%20day%20of%20suppression%22%2C%22max%22%3A999999%2C%22min%22%3A0%2C%22name%22%3A%22Suppression%20Fixed%20Cost%22%2C%22units%22%3A%22%24%22%7D%2C%7B%22current_value%22%3A%22500%22%2C%22description%22%3A%22cost%20per%20hectare%20of%20suppression%22%2C%22max%22%3A999999%2C%22min%22%3A0%2C%22name%22%3A%22Suppression%20Variable%20Cost%22%2C%22units%22%3A%22%24%22%7D%5D%2C%22transition%22%3A%5B%7B%22current_value%22%3A%2210%22%2C%22description%22%3A%22how%20far%20to%20look%20into%20the%20future%22%2C%22max%22%3A150%2C%22min%22%3A0%2C%22name%22%3A%22Years%20to%20simulate%22%2C%22units%22%3A%22Y%22%7D%2C%7B%22current_value%22%3A%2225%22%2C%22description%22%3A%22how%20many%20stochastic%20futures%20to%20generate%22%2C%22max%22%3A1000%2C%22min%22%3A0%2C%22name%22%3A%22Futures%20to%20simulate%22%2C%22units%22%3A%22%23%22%7D%2C%7B%22current_value%22%3A%22129%22%2C%22description%22%3A%22how%20many%20cells%20wide%20and%20tall%20should%20the%20landscape%20be.%20Min%3A9%2C%20Max%3A129%22%2C%22max%22%3A129%2C%22min%22%3A9%2C%22name%22%3A%22Landscape%20Size%22%2C%22units%22%3A%22%23%22%7D%2C%7B%22current_value%22%3A%220.95%22%2C%22description%22%3A%22timber%20harvest%20rate%20as%20a%20percent%20of%20annual%20increment%22%2C%22max%22%3A1%2C%22min%22%3A0%2C%22name%22%3A%22Harvest%20Percent%22%2C%22units%22%3A%22%25%22%7D%2C%7B%22current_value%22%3A%2250%22%2C%22description%22%3A%22the%20minimum%20timber%20value%20required%20before%20harvest%20is%20allowed%22%2C%22max%22%3A9999%2C%22min%22%3A0%2C%22name%22%3A%22Minimum%20Timber%20Value%22%2C%22units%22%3A%22%24%22%7D%2C%7B%22current_value%22%3A%2210%22%2C%22description%22%3A%22the%20amount%20of%20fuel%20load%20(slash)%20left%20after%20a%20harvest%22%2C%22max%22%3A9999%2C%22min%22%3A0%2C%22name%22%3A%22Slash%20Remaning%22%2C%22units%22%3A%22%23%22%7D%2C%7B%22current_value%22%3A%222%22%2C%22description%22%3A%22the%20amount%20of%20fuel%20load%20that%20accumulates%20each%20year%22%2C%22max%22%3A9999%2C%22min%22%3A0%2C%22name%22%3A%22Fuel%20Accumulation%22%2C%22units%22%3A%22%23%22%7D%2C%7B%22current_value%22%3A%220.5%22%2C%22description%22%3A%22the%20reduction%20in%20fire%20spread%20rate%20as%20the%20result%20of%20suppression%22%2C%22max%22%3A1%2C%22min%22%3A0%2C%22name%22%3A%22Suppression%20Effect%22%2C%22units%22%3A%22%25%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22set%20to%200%20to%20use%20original%20bugs.%201%20(or%20non-zero)%20to%20use%20the%20patches.%22%2C%22max%22%3A1%2C%22min%22%3A0%2C%22name%22%3A%22Use%20Original%20Bugs%22%2C%22units%22%3A%22~%22%7D%2C%7B%22current_value%22%3A%221%22%2C%22description%22%3A%22set%20to%201%20to%20use%20original%20model%3B%20or%202%20for%20updated%20model.%22%2C%22max%22%3A2%2C%22min%22%3A1%2C%22name%22%3A%22Growth%20Model%22%2C%22units%22%3A%22~%22%7D%5D%2C%22policy%22%3A%5B%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20intercept%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Constant%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20each%20day%20of%20the%20year%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Date%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20each%20day%20left%20in%20the%20year%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Days%20Left%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20air%20temperature%20at%20the%20time%20of%20an%20ignition%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Temperature%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20wind%20speed%20at%20the%20time%20of%20an%20ignition%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Wind%20Speed%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20timber%20value%20at%20an%20ignition%20location%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Timber%20Value%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20average%20timber%20value%20in%20the%208%20neighboring%20stands%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Timber%20Value%208%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20average%20timber%20value%20in%20the%2024%20neighboring%20stands%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Timber%20Value%2024%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20fuel%20load%20at%20an%20ignition%20location%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Fuel%20Load%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20average%20fuel%20load%20in%20the%208%20neighboring%20stands%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Fuel%20Load%208%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20average%20fuel%20load%20in%20the%2024%20neighboring%20stands%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Fuel%20Load%2024%22%2C%22units%22%3A%22%22%7D%5D%7D%7D">
-                          Large Landscapes
-                        </a>
-                      </li>
-                      <li>
-                        <a href="http://mdpvis.github.io/#%7B%22initialization%22%3A%7B%22reward%22%3A%5B%7B%22current_value%22%3A%221%22%2C%22description%22%3A%22The%20per-year%20discount%22%2C%22max%22%3A1%2C%22min%22%3A0%2C%22name%22%3A%22Discount%22%2C%22units%22%3A%22~%22%7D%2C%7B%22current_value%22%3A%22500%22%2C%22description%22%3A%22cost%20per%20day%20of%20suppression%22%2C%22max%22%3A999999%2C%22min%22%3A0%2C%22name%22%3A%22Suppression%20Fixed%20Cost%22%2C%22units%22%3A%22%24%22%7D%2C%7B%22current_value%22%3A%22500%22%2C%22description%22%3A%22cost%20per%20hectare%20of%20suppression%22%2C%22max%22%3A999999%2C%22min%22%3A0%2C%22name%22%3A%22Suppression%20Variable%20Cost%22%2C%22units%22%3A%22%24%22%7D%5D%2C%22transition%22%3A%5B%7B%22current_value%22%3A%225%22%2C%22description%22%3A%22how%20far%20to%20look%20into%20the%20future%22%2C%22max%22%3A150%2C%22min%22%3A0%2C%22name%22%3A%22Years%20to%20simulate%22%2C%22units%22%3A%22Y%22%7D%2C%7B%22current_value%22%3A%22300%22%2C%22description%22%3A%22how%20many%20stochastic%20futures%20to%20generate%22%2C%22max%22%3A1000%2C%22min%22%3A0%2C%22name%22%3A%22Futures%20to%20simulate%22%2C%22units%22%3A%22%23%22%7D%2C%7B%22current_value%22%3A%2220%22%2C%22description%22%3A%22how%20many%20cells%20wide%20and%20tall%20should%20the%20landscape%20be.%20Min%3A9%2C%20Max%3A129%22%2C%22max%22%3A129%2C%22min%22%3A9%2C%22name%22%3A%22Landscape%20Size%22%2C%22units%22%3A%22%23%22%7D%2C%7B%22current_value%22%3A%220.95%22%2C%22description%22%3A%22timber%20harvest%20rate%20as%20a%20percent%20of%20annual%20increment%22%2C%22max%22%3A1%2C%22min%22%3A0%2C%22name%22%3A%22Harvest%20Percent%22%2C%22units%22%3A%22%25%22%7D%2C%7B%22current_value%22%3A%2250%22%2C%22description%22%3A%22the%20minimum%20timber%20value%20required%20before%20harvest%20is%20allowed%22%2C%22max%22%3A9999%2C%22min%22%3A0%2C%22name%22%3A%22Minimum%20Timber%20Value%22%2C%22units%22%3A%22%24%22%7D%2C%7B%22current_value%22%3A%2210%22%2C%22description%22%3A%22the%20amount%20of%20fuel%20load%20(slash)%20left%20after%20a%20harvest%22%2C%22max%22%3A9999%2C%22min%22%3A0%2C%22name%22%3A%22Slash%20Remaning%22%2C%22units%22%3A%22%23%22%7D%2C%7B%22current_value%22%3A%222%22%2C%22description%22%3A%22the%20amount%20of%20fuel%20load%20that%20accumulates%20each%20year%22%2C%22max%22%3A9999%2C%22min%22%3A0%2C%22name%22%3A%22Fuel%20Accumulation%22%2C%22units%22%3A%22%23%22%7D%2C%7B%22current_value%22%3A%220.5%22%2C%22description%22%3A%22the%20reduction%20in%20fire%20spread%20rate%20as%20the%20result%20of%20suppression%22%2C%22max%22%3A1%2C%22min%22%3A0%2C%22name%22%3A%22Suppression%20Effect%22%2C%22units%22%3A%22%25%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22set%20to%200%20to%20use%20original%20bugs.%201%20(or%20non-zero)%20to%20use%20the%20patches.%22%2C%22max%22%3A1%2C%22min%22%3A0%2C%22name%22%3A%22Use%20Original%20Bugs%22%2C%22units%22%3A%22~%22%7D%2C%7B%22current_value%22%3A%221%22%2C%22description%22%3A%22set%20to%201%20to%20use%20original%20model%3B%20or%202%20for%20updated%20model.%22%2C%22max%22%3A2%2C%22min%22%3A1%2C%22name%22%3A%22Growth%20Model%22%2C%22units%22%3A%22~%22%7D%5D%2C%22policy%22%3A%5B%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20intercept%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Constant%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20each%20day%20of%20the%20year%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Date%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20each%20day%20left%20in%20the%20year%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Days%20Left%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20air%20temperature%20at%20the%20time%20of%20an%20ignition%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Temperature%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20wind%20speed%20at%20the%20time%20of%20an%20ignition%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Wind%20Speed%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20timber%20value%20at%20an%20ignition%20location%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Timber%20Value%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20average%20timber%20value%20in%20the%208%20neighboring%20stands%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Timber%20Value%208%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20average%20timber%20value%20in%20the%2024%20neighboring%20stands%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Timber%20Value%2024%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20fuel%20load%20at%20an%20ignition%20location%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Fuel%20Load%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20average%20fuel%20load%20in%20the%208%20neighboring%20stands%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Fuel%20Load%208%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20average%20fuel%20load%20in%20the%2024%20neighboring%20stands%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Fuel%20Load%2024%22%2C%22units%22%3A%22%22%7D%5D%7D%7D">
-                          Larger Sample
-                        </a>
-                      </li>
-                      <li>
-                        <a href="http://mdpvis.github.io/#%7B%22initialization%22%3A%7B%22reward%22%3A%5B%7B%22current_value%22%3A%221%22%2C%22description%22%3A%22The%20per-year%20discount%22%2C%22max%22%3A1%2C%22min%22%3A0%2C%22name%22%3A%22Discount%22%2C%22units%22%3A%22~%22%7D%2C%7B%22current_value%22%3A%22500%22%2C%22description%22%3A%22cost%20per%20day%20of%20suppression%22%2C%22max%22%3A999999%2C%22min%22%3A0%2C%22name%22%3A%22Suppression%20Fixed%20Cost%22%2C%22units%22%3A%22%24%22%7D%2C%7B%22current_value%22%3A%22500%22%2C%22description%22%3A%22cost%20per%20hectare%20of%20suppression%22%2C%22max%22%3A999999%2C%22min%22%3A0%2C%22name%22%3A%22Suppression%20Variable%20Cost%22%2C%22units%22%3A%22%24%22%7D%5D%2C%22transition%22%3A%5B%7B%22current_value%22%3A%225%22%2C%22description%22%3A%22how%20far%20to%20look%20into%20the%20future%22%2C%22max%22%3A150%2C%22min%22%3A0%2C%22name%22%3A%22Years%20to%20simulate%22%2C%22units%22%3A%22Y%22%7D%2C%7B%22current_value%22%3A%2230%22%2C%22description%22%3A%22how%20many%20stochastic%20futures%20to%20generate%22%2C%22max%22%3A1000%2C%22min%22%3A0%2C%22name%22%3A%22Futures%20to%20simulate%22%2C%22units%22%3A%22%23%22%7D%2C%7B%22current_value%22%3A%2220%22%2C%22description%22%3A%22how%20many%20cells%20wide%20and%20tall%20should%20the%20landscape%20be.%20Min%3A9%2C%20Max%3A129%22%2C%22max%22%3A129%2C%22min%22%3A9%2C%22name%22%3A%22Landscape%20Size%22%2C%22units%22%3A%22%23%22%7D%2C%7B%22current_value%22%3A%220.95%22%2C%22description%22%3A%22timber%20harvest%20rate%20as%20a%20percent%20of%20annual%20increment%22%2C%22max%22%3A1%2C%22min%22%3A0%2C%22name%22%3A%22Harvest%20Percent%22%2C%22units%22%3A%22%25%22%7D%2C%7B%22current_value%22%3A%2250%22%2C%22description%22%3A%22the%20minimum%20timber%20value%20required%20before%20harvest%20is%20allowed%22%2C%22max%22%3A9999%2C%22min%22%3A0%2C%22name%22%3A%22Minimum%20Timber%20Value%22%2C%22units%22%3A%22%24%22%7D%2C%7B%22current_value%22%3A%2210%22%2C%22description%22%3A%22the%20amount%20of%20fuel%20load%20(slash)%20left%20after%20a%20harvest%22%2C%22max%22%3A9999%2C%22min%22%3A0%2C%22name%22%3A%22Slash%20Remaning%22%2C%22units%22%3A%22%23%22%7D%2C%7B%22current_value%22%3A%222%22%2C%22description%22%3A%22the%20amount%20of%20fuel%20load%20that%20accumulates%20each%20year%22%2C%22max%22%3A9999%2C%22min%22%3A0%2C%22name%22%3A%22Fuel%20Accumulation%22%2C%22units%22%3A%22%23%22%7D%2C%7B%22current_value%22%3A%220.5%22%2C%22description%22%3A%22the%20reduction%20in%20fire%20spread%20rate%20as%20the%20result%20of%20suppression%22%2C%22max%22%3A1%2C%22min%22%3A0%2C%22name%22%3A%22Suppression%20Effect%22%2C%22units%22%3A%22%25%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22set%20to%200%20to%20use%20original%20bugs.%201%20(or%20non-zero)%20to%20use%20the%20patches.%22%2C%22max%22%3A1%2C%22min%22%3A0%2C%22name%22%3A%22Use%20Original%20Bugs%22%2C%22units%22%3A%22~%22%7D%2C%7B%22current_value%22%3A%221%22%2C%22description%22%3A%22set%20to%201%20to%20use%20original%20model%3B%20or%202%20for%20updated%20model.%22%2C%22max%22%3A2%2C%22min%22%3A1%2C%22name%22%3A%22Growth%20Model%22%2C%22units%22%3A%22~%22%7D%5D%2C%22policy%22%3A%5B%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20intercept%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Constant%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20each%20day%20of%20the%20year%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Date%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20each%20day%20left%20in%20the%20year%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Days%20Left%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20air%20temperature%20at%20the%20time%20of%20an%20ignition%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Temperature%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20wind%20speed%20at%20the%20time%20of%20an%20ignition%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Wind%20Speed%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20timber%20value%20at%20an%20ignition%20location%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Timber%20Value%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20average%20timber%20value%20in%20the%208%20neighboring%20stands%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Timber%20Value%208%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20average%20timber%20value%20in%20the%2024%20neighboring%20stands%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Timber%20Value%2024%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20fuel%20load%20at%20an%20ignition%20location%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Fuel%20Load%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20average%20fuel%20load%20in%20the%208%20neighboring%20stands%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Fuel%20Load%208%22%2C%22units%22%3A%22%22%7D%2C%7B%22current_value%22%3A%220%22%2C%22description%22%3A%22for%20the%20average%20fuel%20load%20in%20the%2024%20neighboring%20stands%22%2C%22max%22%3A10%2C%22min%22%3A-10%2C%22name%22%3A%22Fuel%20Load%2024%22%2C%22units%22%3A%22%22%7D%5D%7D%7D">
-                          An Optimized Policy
-                        </a>
-                      </li>
-                    </ul>
-                    <p>
-                      After selecting one of these pre-set options,
-                      you should select which server you want to
-                      connect to by clicking "Open Connection to
-                      Simulator."
+                      More details on this simulator are available in the Proceedings of the
+                      IEEE Symposium on Visual Languages and Human-Centric Computing,
+                      <a href="http://seanbmcgregor.com/papers/VLHCC2015.pdf">
+                        Facilitating Testing and Debugging of Markov Decision Processes
+                        with Interactive Visualization.
+                      </a>
                     </p>
                   </div>
                 </div>
@@ -296,20 +244,86 @@
               <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="headingTwo">
                   <h4 class="panel-title">
-                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                      <span class="glyphicon glyphicon-save" aria-hidden="true"> Localhost
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"
+                       aria-expanded="false" aria-controls="collapseTwo">
+                      <span class="glyphicon glyphicon-random" aria-hidden="true" style="color:purple;"></span>
+                      Contributed Domain: MFMCi Wildfire Simulator
                     </a>
                   </h4>
                 </div>
                 <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
                   <div class="panel-body">
                     <p>
+                      This simulator is based on data produced by the researchers of
+                      a computationally expensive Markov Decision Process for
+                      <a href="http://www.fs.fed.us/rm/pubs_other/rmrs_2013_houtman_r001.pdf">
+                        wildfire suppression policy.
+                      </a>
+                    </p>
+                    <p>
+                      Since the wildfire simulator is computationally too expensive to evaluate for all the possible
+                      policies, researchers implemented a Model Free Monte Carlo with independencies (MFMCi)
+                      algorithm, which builds trajectories from a database of state transitions.
+                    </p>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"
+                            data-simulator-path="http://localhost:8938"> <!-- todo, start server -->
+                      <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
+                      Open Connection to MFMCi Wildfire Simulator
+                    </button>
+                    <p></p>
+                    <p>
+                      Note: Additional information on the domain, algorithm, and authors will be available after
+                      publication.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingThree">
+                  <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                       href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                      <span class="glyphicon glyphicon-flash" aria-hidden="true" style="color:orange;"></span>
+                      Contributed Domain: MFMCi Electric Car
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                  <div class="panel-body">
+                    <p>
+                      The MFMCi researchers created a toy domain to illustrate the properties of
+                      <a href="http://www.jmlr.org/proceedings/papers/v9/fonteneau10a/fonteneau10a.pdf">
+                        MFMC
+                      </a> and MFMCi, then hooked the domain into MDPvis.
+                    </p>
+                    <button type="button" class="btn btn-default" data-dismiss="modal"
+                            data-local-domain-name="ElectricCar">
+                      <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
+                      Connect to Electric Car
+                    </button>
+                    <p></p>
+                    <p>
+                      Note: Additional information on the domain, algorithm, and authors will be available after
+                      publication.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingFour">
+                  <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                       href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                      <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Run Your Own Simulator
+                    </a>
+                  </h4>
+                </div>
+                <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                  <div class="panel-body">
+                    <p>
                       If you start a server running on your computer that supports
                       <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS">CORS</a>,
                       you can connect this visualization to your domain without hosting the visualization code.
-                      The server examples we include in
-                      <a href="https://github.com/MDPvis/MDPvis.github.io">MDPvis's code base</a> include CORS
-                      by default.
                     </p>
                     <p>
                       <button type="button" class="btn btn-default" data-dismiss="modal"
@@ -339,18 +353,26 @@
                         Open Connection to localhost:3000
                       </button>
                     </p>
+                    <div class="form-group">
+                      <label for="customServer">Custom Server</label>
+                      <input type="text" class="form-control" id="customServer" placeholder="http://example.com:80">
+                    </div>
+                    <button id="customServerSubmit" type="submit" class="btn btn-default" data-dismiss="modal">
+                      Open Connection
+                    </button>
                   </div>
                 </div>
               </div>
               <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="headingThree">
+                <div class="panel-heading" role="tab" id="headingFive">
                   <h4 class="panel-title">
-                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                      <span class="glyphicon glyphicon-plus" aria-hidden="true"> Your MDP Simulator Here
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                       href="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add Your Simulator to this List
                     </a>
                   </h4>
                 </div>
-                <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                <div id="collapseFive" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFive">
                   <div class="panel-body">
                     <p>
                       If you make a server publicly accessible, please let us know so we can list it here.
@@ -372,33 +394,26 @@
                         <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
                         Open an Issue to be Included
                       </button>
-                      <div class="form-group">
-                          <label for="customServer">Custom Server</label>
-                          <input type="text" class="form-control" id="customServer" placeholder="http://example.com:80">
-                      </div>
-                      <button id="customServerSubmit" type="submit" class="btn btn-default" data-dismiss="modal">
-                        Open Connection
-                      </button>
                     </p>
                   </div>
                 </div>
               </div>
               <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="headingFour">
+                <div class="panel-heading" role="tab" id="headingSix">
                   <h4 class="panel-title">
-                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                      <span class="glyphicon glyphicon-info-sign" aria-hidden="true"> About
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                      <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> About
                     </a>
                   </h4>
                 </div>
-                <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                <div id="collapseSix" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingSix">
                   <div class="panel-body">
                     <p>
                       This visualization allows you to explore a
                       <a href="https://en.wikipedia.org/wiki/Markov_decision_process">
                         Markov Decision Process
                       </a>
-                      (MDP). The controls provide means of exploring a
+                      (MDP). The controls provide means of exploring
                       changing reward, transition, and policy functions towards
                       discovering bugs and understanding the system.
                     </p>
@@ -420,17 +435,21 @@
     </div>
 
     <script src="js/vendor/seedrandom.js"></script>
-    <script src="js/vendor/jquery.min.js"></script>
+    <script src="js/vendor/jquery-3.0.0.min.js"></script>
     <script src="js/vendor/jquery-deparam.js"></script>
     <script src="js/vendor/jquery.autosize.input.js"></script>
     <script src="js/vendor/d3.v3.min.js"></script>
     <script src="js/data.js"></script>
     <script src="js/tooltip.js"></script>
-    <script src="js/charts/chart.js"></script>
     <script src="js/percentiles.js"></script>
     <script src="js/index.js"></script>
-    <script src="js/charts/barchart.js"></script>
-    <script src="js/charts/fanchart.js"></script>
+    <script src="js/charts/chart.js"></script>
+    <script src="js/charts/slice.chart.js"></script>
+    <script src="js/charts/temporal.chart.js"></script>
+    <script src="js/charts/barchart.slice.chart.js"></script>
+    <script src="js/charts/fanchart.temporal.chart.js"></script>
+    <script src="js/charts/parameters.chart.js"></script>
+    <script src="js/charts/parallelcoordinates.parameters.chart.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>
     <script src="js/context_panel.js"></script>
   </body>

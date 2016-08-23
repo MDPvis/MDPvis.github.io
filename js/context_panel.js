@@ -25,14 +25,13 @@ var contextPanel = {
   isMinimized: false,
 
   /**
-   * Show the panel.
-   * @param {object} chart the chart object.
+   * Update the position of the panel because the chart's location may have changed
    */
-  showPanel: function(chart) {
-    var target = $(chart.getDOMNode());
+  positionPanel: function() {
+    var target = $(contextPanel.currentChart.getDOMNode());
     var position = target.offset();
     var outerWidth = target.outerWidth();
-    contextPanel.currentChart = chart;
+
     contextPanel.expandedWidth = outerWidth;
 
     // Set the panel's content dimensions
@@ -46,7 +45,7 @@ var contextPanel = {
     cpp.css({width: width});
 
     // Set the position of the surrounding element.
-    // These two are separated to accomodate a
+    // These two are separated to accommodate a
     // "landing area" that is larger than the actual
     // element. Otherwise it will be difficult to click.
     var height = cpp.height();
@@ -56,6 +55,16 @@ var contextPanel = {
     };
     var cp = $(".context-panel");
     cp.css(newCSS);
+  },
+
+  /**
+   * Show the panel.
+   * @param {object} chart the chart object.
+   */
+  showPanel: function(chart) {
+    contextPanel.currentChart = chart;
+    contextPanel.positionPanel();
+    var cp = $(".context-panel");
     cp.show();
   },
 
@@ -90,7 +99,7 @@ var contextPanel = {
     $(".context-panel").hide();
     var chart = contextPanel.currentChart;
     var node = chart.getDOMNode();
-    $(node).fadeOut(400, function(){
+    $(node).fadeOut(100, function(){
       var button = $("<button/>", {
         "class": "btn btn-default show-chart-button",
         "style": "display:none;"
@@ -102,7 +111,7 @@ var contextPanel = {
       $(".show-chart-buttons").append(button);
       button.fadeIn();
       button.click(function(){
-        button.fadeOut(400, function(){
+        button.fadeOut(100, function(){
           button.remove();
         });
         $(node).fadeIn();
@@ -116,20 +125,6 @@ var contextPanel = {
    */
   removeBrush: function() {
     contextPanel.currentChart.removeBrush();
-  },
-
-  /**
-   * Dissable the button for removing the brush.
-   */
-  dissableBrushButton: function() {
-    $( ".remove-brush" ).prop( "disabled", true );
-  },
-
-  /**
-   * Enable the button for removing the brush.
-   */
-  enableBrushButton: function() {
-    $( ".remove-brush" ).prop( "disabled", false );
   },
 
   /**
@@ -156,14 +151,22 @@ var contextPanel = {
   onScreenResize: function() {
     var windowWidth = $(document).width();
     $(".context-panel").width(windowWidth);
+  },
+
+  /**
+   * Change the representation of the data within the chart.
+   */
+  contextPanelChangeChartType: function() {
+    contextPanel.currentChart.changeChartType();
   }
-}
+};
 
 // Register the button handlers.
 $(".minimize-context-panel").click(contextPanel.minimizePanel);
 $(".maximize-context-panel").click(contextPanel.maximizePanel);
 $(".remove-brush").click(contextPanel.removeBrush);
 $(".hide-chart").click(contextPanel.hideChart);
+$(".change-chart-type").click(contextPanel.contextPanelChangeChartType);
 
 // Handle window resizes
 $( window ).resize(contextPanel.onScreenResize);

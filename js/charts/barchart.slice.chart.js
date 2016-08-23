@@ -1,22 +1,32 @@
 /**
  * The chart is constructed but not placed into the dom since the caller has that responsibility
  */
-function BarChart (name, units, rollouts, accessor) {
-
-  this.name = name;
-  DistributionChart.call(this);
-
-  // The number of bins in the histogram
-  var numBins = 10;
+function BarChart (name, trajectories, eventNumber) {
 
   // Reference for closures
   var that = this;
+  that.name = name;
+  that.timePeriod = eventNumber;
+
+  SliceChart.call(this);
+
+  // Function to grab the proper data
+  var accessor = function(d) {
+    if ( eventNumber >= d.length ) {
+      return false;
+    } else {
+      return d[eventNumber][that.name];
+    }
+  };
+
+  // The number of bins in the histogram
+  var numBins = 15;
 
   // Set the margins if they have not been assigned
   var margin = {top: 10, right: 30, bottom: 50, left: 60};
 
   // Set the height and width from the style of the div element
-  var divWidth = 400;
+  var divWidth = 700;
   var divHeight = 250;
 
   // A formatter for counts.
@@ -25,7 +35,7 @@ function BarChart (name, units, rollouts, accessor) {
   var width = divWidth - margin.left - margin.right,
       height = divHeight - margin.top - margin.bottom;
 
-  var domain = d3.extent(rollouts, accessor);
+  var domain = d3.extent(trajectories, accessor);
 
   // Render the zero
   if(domain[0] === domain[1]) {
@@ -40,7 +50,7 @@ function BarChart (name, units, rollouts, accessor) {
       .range([0, width]);
 
   // Bin the data for the histogram
-  function binData(accessor, domain, binStep, rollouts, skipFilter) {
+  function binData(accessor, domain, binStep, trajectories, skipFilter) {
     var bins = [];
     for( var i = 0 ; i < numBins ; i++ ) {
       bins.push(0);
@@ -48,21 +58,22 @@ function BarChart (name, units, rollouts, accessor) {
     var binIndex = function(d) {
       var bindex = Math.floor((accessor(d) - domain[0])/binStep);
       return bindex;
-    }
-    rollouts.forEach(function(rollout) {
-      if( data.filters.filteredTimePeriod < rollout.length ) {
-        if ( skipFilter || data.filters.isActiveRollout(rollout) ) {
-          bins[binIndex(rollout)] += 1;
-        }
+    };
+    trajectories.forEach(function(trajectory) {
+      if( accessor(trajectory) === false ) {
+        return;
+      }
+      if ( skipFilter || data.filters.isActiveTrajectory(trajectory) ) {
+        bins[binIndex(trajectory)] += 1;
       }
     });
     return bins;
   }
-  var bins = binData(accessor, domain, binStep, rollouts, true);
+  var bins = binData(accessor, domain, binStep, trajectories, true);
 
   // Create the axes
   var y = d3.scale.linear()
-      .domain([0, rollouts.length])
+      .domain([0, trajectories.length])
       .range([height, 0]);
 
   var tickFormat = this.chartTickFormat(x.domain());
@@ -113,38 +124,39 @@ function BarChart (name, units, rollouts, accessor) {
 
   // Put the X-axis in place
   var xAxisG = svg.append("g")
-      .attr("class", "x axis")
+      .attr("class", "x axis show")
       .attr("transform", "translate(0," + height + ")")
       .call(xAxis);
   xAxisG.append("text")
       .style("text-anchor", "middle")
       .style("font-weight","bold")
       .attr("transform", "translate(" + (divWidth/2 - margin.left) + "," + 35 + ")")
-      .text(name);
+      .text(name + " at time step " + that.timePeriod);
 
   // Brush applied to top histograms
   var brushEnd = function() {
+    if ( that.intersected ) {
+      d3.selectAll(".brush").remove();
+      return;
+    }
     var extent = that.brush.extent();
     if( extent[0] === extent[1] ) {
       that.removeBrush();
     } else {
       data.filters.addFilter(that, extent);
       MDPVis.charts.updateAll();
-      that.updateContextPanel();
     }
-  }
+  };
   this.removeBrush = function() {
     that.brush.clear();
-    data.filters.removeFilter(that.name);
+    data.filters.removeFilter(that.name, that.timePeriod);
     MDPVis.charts.updateAll();
-    that.updateContextPanel();
-  }
+  };
 
   // Brush controls
   that.brush = d3.svg.brush()
       .x(x)
-      .on("brushend", brushEnd)
-      .on("brush", that.updateContextPanel);
+      .on("brushend", brushEnd);
   var gBrush = svg.append("g")
       .attr("class", "brush")
       .call(that.brush);
@@ -166,14 +178,14 @@ function BarChart (name, units, rollouts, accessor) {
       .scale(y)
       .orient("left");
   that.intersected = false;
-  var comparatorRollouts, comparedBinStep, domainUnion, yAxisG;
+  var comparedBinStep, domainUnion, yAxisG;
 
   /**
    * Updates the displayed counts on the chart
    */
   this.brushCounts = function() {
 
-    bins = binData(accessor, domain, binStep, data.filteredPrimaryRollouts, false); // Update the counts
+    bins = binData(accessor, domain, binStep, data.filteredPrimaryTrajectories, false); // Update the counts
 
     // Move existing bars.
     bar.data(bins).transition().duration(1000).attr("transform", function(d, idx) {
@@ -186,15 +198,14 @@ function BarChart (name, units, rollouts, accessor) {
 
   /**
    * Intersects data with a second dataset.
-   * @param {object} cRollouts The rollouts we are intersecting with.
+   * @param {object} cTrajectories The trajectories we are intersecting with.
    */
-  this.intersectWithSecondRolloutSet = function(cRollouts) {
+  this.intersectWithSecondTrajectorySet = function(cTrajectories) {
     that.intersected = true;
-    comparatorRollouts = cRollouts;
-    var comparatorDomain = d3.extent(comparatorRollouts, accessor);
+    var comparatorDomain = d3.extent(cTrajectories, accessor);
     domainUnion = [
       Math.min(comparatorDomain[0], domain[0]),
-      Math.min(comparatorDomain[1], domain[1])
+      Math.max(comparatorDomain[1], domain[1])
     ];
 
     // Render the zero
@@ -213,7 +224,7 @@ function BarChart (name, units, rollouts, accessor) {
       .tickFormat(tickFormat)
       .ticks(tickCount);
 
-    y.domain([-1 * rollouts.length, 1 * rollouts.length]).range([height, 0]);
+    y.domain([-1 * trajectories.length, 1 * trajectories.length]).range([height, 0]);
 
     if( yAxisG ) {
       yAxisG.call(yAxis);
@@ -223,8 +234,8 @@ function BarChart (name, units, rollouts, accessor) {
          .call(yAxis);
     }
 
-    var originalInNewBins = binData(accessor, domainUnion, comparedBinStep, rollouts, true);
-    var comparatorBins = binData(accessor, domainUnion, comparedBinStep, comparatorRollouts, true); // Update the counts
+    var originalInNewBins = binData(accessor, domainUnion, comparedBinStep, trajectories, true);
+    var comparatorBins = binData(accessor, domainUnion, comparedBinStep, cTrajectories, true);
 
     var binDifferences = [];
     for( var i = 0; i < originalInNewBins.length; i++ ) {
@@ -237,11 +248,6 @@ function BarChart (name, units, rollouts, accessor) {
 
     rectExtent.data(binDifferences).transition().duration(1000).attr("height", function(d,idx) {
             return Math.abs(y(d) - height/2); });
-
-
-    // todo: this is inneficient since it is binning twice
-    originalInNewBins = binData(accessor, domainUnion, comparedBinStep, rollouts, false);
-    comparatorBins = binData(accessor, domainUnion, comparedBinStep, comparatorRollouts, false); // Update the counts
 
     // Move existing bars.
     bar.data(binDifferences).transition().duration(1000).attr("transform", function(d, idx) {
@@ -263,7 +269,7 @@ function BarChart (name, units, rollouts, accessor) {
     // todo: this will iterate over the data twice to get the bin count for the unfiltered
     // then for the filtered data. Both could be computed simultanously and returned as a
     // compound object.
-    //this.brushCounts(rollouts);
+    //this.brushCounts(trajectories);
   };
 
   /**
@@ -272,10 +278,18 @@ function BarChart (name, units, rollouts, accessor) {
    * bar will be static and is just an outline that is visible when the solid bar gets
    * filtered.
    */
-  this.updateData = function(newRollouts, newAccessor) {
-    accessor = newAccessor;
-    rollouts = newRollouts;
-    domain = d3.extent(rollouts, accessor);
+  this.updateData = function(newTrajectories, eventNumber) {
+
+    accessor = function(d) {
+      if ( eventNumber >= d.length ) {
+        return false;
+      } else {
+        return d[eventNumber][that.name];
+      }
+    };
+
+    trajectories = newTrajectories;
+    domain = d3.extent(trajectories, accessor);
 
     // Turn off comparisons (if it was on to begin with)
     that.intersected = false;
@@ -303,9 +317,9 @@ function BarChart (name, units, rollouts, accessor) {
       .tickFormat(tickFormat)
       .ticks(tickCount);
 
-    y.domain([0, rollouts.length]);
+    y.domain([0, trajectories.length]);
 
-    bins = binData(accessor, domain, binStep, rollouts, true); // Update the counts
+    bins = binData(accessor, domain, binStep, trajectories, true); // Update the counts
 
     // Move existing bars.
     bar.data(bins).transition().duration(1000).attr("transform", function(d, idx) {
@@ -327,12 +341,11 @@ function BarChart (name, units, rollouts, accessor) {
     // todo: this will iterate over the data twice to get the bin count for the unfiltered
     // then for the filtered data. Both could be computed simultanously and returned as a
     // compound object.
-    this.brushCounts(rollouts);
+    this.brushCounts(trajectories);
   };
 
   /**
-   * Update the extent of a brush. This is called when the initial state is brushed
-   * in the corresponding fan chart.
+   * Update the displayed extent of a brush.
    * @param {array} newExtent The extent the brush should be changed to.
    */
   this.updateBrush = function(newExtent) {
